@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
-  DEV_MAINTENANCE_COOKIE_MAX_AGE_SECONDS,
-  DEV_MAINTENANCE_COOKIE_NAME,
-  DEV_MAINTENANCE_COOKIE_VALUE,
-  DEV_MAINTENANCE_PASSWORD,
-  isDevMaintenanceEnabled,
+  MAINTENANCE_COOKIE_MAX_AGE_SECONDS,
+  MAINTENANCE_COOKIE_NAME,
+  MAINTENANCE_COOKIE_VALUE,
+  isMaintenanceEnabled,
   normalizeMaintenanceRedirectPath,
+  verifyMaintenancePassword,
 } from "@/lib/dev-maintenance";
 
 export const runtime = "nodejs";
@@ -17,7 +17,7 @@ function buildRedirect(request: NextRequest, targetPath: string) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isDevMaintenanceEnabled()) {
+  if (!(await isMaintenanceEnabled())) {
     return NextResponse.redirect(buildRedirect(request, "/"));
   }
 
@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
   const password = String(formData.get("password") || "").trim();
   const nextPath = normalizeMaintenanceRedirectPath(String(formData.get("next") || "/"));
 
-  if (password !== DEV_MAINTENANCE_PASSWORD) {
+  const validPassword = await verifyMaintenancePassword(password);
+  if (!validPassword) {
     const redirectUrl = buildRedirect(
       request,
       `/mantenimiento?error=1&next=${encodeURIComponent(nextPath)}`
@@ -35,13 +36,13 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.redirect(buildRedirect(request, nextPath));
   response.cookies.set({
-    name: DEV_MAINTENANCE_COOKIE_NAME,
-    value: DEV_MAINTENANCE_COOKIE_VALUE,
+    name: MAINTENANCE_COOKIE_NAME,
+    value: MAINTENANCE_COOKIE_VALUE,
     httpOnly: true,
     sameSite: "lax",
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: DEV_MAINTENANCE_COOKIE_MAX_AGE_SECONDS,
+    maxAge: MAINTENANCE_COOKIE_MAX_AGE_SECONDS,
   });
   return response;
 }

@@ -4,7 +4,7 @@ import { requireCustomerAdmin } from "../../../../_shared/customer-auth"
 
 import {
   getOrCreateStorefrontSettings,
-  mapPublicStorefrontSettings,
+  mapAdminStorefrontSettings,
   updateStorefrontSettings,
 } from "../../../../_shared/storefront-settings"
 
@@ -45,6 +45,10 @@ function resolvePatch(body: Record<string, unknown>) {
     bannerFocusY: readPatchField(body, "bannerFocusY"),
     banner_zoom: readPatchField(body, "banner_zoom", "bannerZoom"),
     bannerZoom: readPatchField(body, "bannerZoom"),
+    maintenance_mode: readPatchField(body, "maintenance_mode", "maintenanceMode"),
+    maintenanceMode: readPatchField(body, "maintenanceMode"),
+    maintenance_password: readPatchField(body, "maintenance_password", "maintenancePassword"),
+    maintenancePassword: readPatchField(body, "maintenancePassword"),
   }
 }
 
@@ -53,7 +57,7 @@ export async function GET(req: HttpRequest, res: HttpResponse) {
 
   const settings = await getOrCreateStorefrontSettings(req)
   return res.json({
-    storefront: mapPublicStorefrontSettings(settings),
+    storefront: mapAdminStorefrontSettings(settings),
   })
 }
 
@@ -63,6 +67,6 @@ export async function PATCH(req: HttpRequest, res: HttpResponse) {
   const body = (req.body ?? {}) as Record<string, unknown>
   const updated = await updateStorefrontSettings(req, resolvePatch(body))
   return res.json({
-    storefront: mapPublicStorefrontSettings(updated),
+    storefront: mapAdminStorefrontSettings(updated),
   })
 }

@@ -20,6 +20,8 @@ export type StorefrontFormState = {
   radiusScale: string;
   currencyCode: string;
   fontUrl: string;
+  maintenanceMode: boolean;
+  maintenancePassword: string;
 };
 
 export const ALLOWED_IMAGE_UPLOAD_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);

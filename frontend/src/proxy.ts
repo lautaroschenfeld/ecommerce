@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
-  DEV_MAINTENANCE_COOKIE_NAME,
-  hasDevMaintenanceAccess,
-  isDevMaintenanceEnabled,
+  MAINTENANCE_COOKIE_NAME,
+  hasMaintenanceAccess,
+  isMaintenanceEnabled,
 } from "@/lib/dev-maintenance";
 
 function isBypassPath(pathname: string) {
@@ -28,8 +28,9 @@ function isBypassPath(pathname: string) {
   return /\.[a-z0-9]+$/i.test(pathname);
 }
 
-export function proxy(request: NextRequest) {
-  if (!isDevMaintenanceEnabled()) {
+export async function proxy(request: NextRequest) {
+  const maintenanceEnabled = await isMaintenanceEnabled();
+  if (!maintenanceEnabled) {
     return NextResponse.next();
   }
 
@@ -38,8 +39,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const cookieValue = request.cookies.get(DEV_MAINTENANCE_COOKIE_NAME)?.value;
-  if (hasDevMaintenanceAccess(cookieValue)) {
+  const cookieValue = request.cookies.get(MAINTENANCE_COOKIE_NAME)?.value;
+  if (hasMaintenanceAccess(cookieValue)) {
     return NextResponse.next();
   }
 

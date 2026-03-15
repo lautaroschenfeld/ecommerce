@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
-  isDevMaintenanceEnabled,
+  isMaintenanceEnabled,
   normalizeMaintenanceRedirectPath,
 } from "@/lib/dev-maintenance";
 
@@ -32,7 +32,7 @@ function pickQueryValue(value: string | string[] | undefined) {
 export default async function MaintenancePage({
   searchParams,
 }: MaintenancePageProps) {
-  if (!isDevMaintenanceEnabled()) {
+  if (!(await isMaintenanceEnabled())) {
     redirect("/");
   }
 

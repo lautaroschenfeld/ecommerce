@@ -15,6 +15,10 @@ export function HomeBestSellers() {
   const query = useMemo(() => ({ limit: 12, sort: "relevancia" as const }), []);
   const { products, loading, error } = useStoreProducts(query);
 
+  if (!loading && products.length === 0) {
+    return null;
+  }
+
   return (
     <section className={styles.section} aria-label="Más vendidos">
       <div className={styles.header}>
@@ -45,4 +49,3 @@ export function HomeBestSellers() {
     </section>
   );
 }
-

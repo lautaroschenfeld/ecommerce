@@ -1,3 +1,5 @@
+import crypto from "crypto"
+
 import { HttpError, type HttpRequest } from "../../../../lib/http"
 import { STORE_CURRENCY_CODE, STORE_REGION_COUNTRY_CODE } from "../../../../lib/catalog"
 import { pgQuery } from "../../../../lib/pg"
@@ -17,6 +19,9 @@ export const DEFAULT_STOREFRONT_SETTINGS = {
 const DEFAULT_BANNER_FOCUS_X = 50
 const DEFAULT_BANNER_FOCUS_Y = 50
 const DEFAULT_BANNER_ZOOM = 1
+const MAINTENANCE_MODE_METADATA_KEY = "maintenance_mode"
+const MAINTENANCE_PASSWORD_HASH_METADATA_KEY = "maintenance_password_hash"
+const MAINTENANCE_PASSWORD_MIN_LENGTH = 6
 
 const DEFAULT_CURRENCY_CODE = String(STORE_CURRENCY_CODE || "usd").toUpperCase()
 
@@ -200,8 +205,63 @@ type StorefrontFontConfig = {
   specimen_url: string | null
 }
 
+export type StorefrontMaintenanceState = {
+  enabled: boolean
+  passwordHash: string
+}
+
 function normalizeMetadataObject(input: unknown) {
   return input && typeof input === "object" ? (input as Record<string, unknown>) : null
+}
+
+function normalizeBooleanInput(input: unknown, fallback = false) {
+  if (typeof input === "boolean") return input
+  if (typeof input === "number") return input !== 0
+  if (typeof input === "string") {
+    const value = input.trim().toLowerCase()
+    if (!value) return fallback
+    if (value === "true" || value === "1" || value === "yes" || value === "on") return true
+    if (value === "false" || value === "0" || value === "no" || value === "off") return false
+  }
+  return fallback
+}
+
+function normalizeSha256Hash(input: unknown) {
+  if (typeof input !== "string") return ""
+  const value = input.trim().toLowerCase()
+  return /^[a-f0-9]{64}$/.test(value) ? value : ""
+}
+
+function readMaintenanceStateFromMetadata(
+  metadata: Record<string, unknown>
+): StorefrontMaintenanceState {
+  const enabled = normalizeBooleanInput(
+    metadata[MAINTENANCE_MODE_METADATA_KEY] ?? metadata.maintenanceMode,
+    false
+  )
+  const passwordHash = normalizeSha256Hash(
+    metadata[MAINTENANCE_PASSWORD_HASH_METADATA_KEY] ?? metadata.maintenancePasswordHash
+  )
+  return {
+    enabled,
+    passwordHash,
+  }
+}
+
+function hashMaintenancePassword(input: string) {
+  return crypto.createHash("sha256").update(input).digest("hex")
+}
+
+function timingSafeEqualHash(leftHash: string, rightHash: string) {
+  if (!leftHash || !rightHash) return false
+  try {
+    const left = Buffer.from(leftHash, "hex")
+    const right = Buffer.from(rightHash, "hex")
+    if (left.length !== right.length) return false
+    return crypto.timingSafeEqual(left, right)
+  } catch {
+    return false
+  }
 }
 
 function pickPatchAlias<T>(snakeCaseValue: T | undefined, camelCaseValue: T | undefined) {
@@ -300,6 +360,7 @@ function parseGoogleFontInput(input: string): StorefrontFontConfig | null {
 export function mapPublicStorefrontSettings(settings: Record<string, any>) {
   const logoUrl = normalizeLogoUrl(settings?.logo_url)
   const metadata = normalizeMetadataObject(settings?.metadata) ?? {}
+  const maintenance = readMaintenanceStateFromMetadata(metadata)
   const faviconUrl = normalizeLogoUrl(
     settings?.favicon_url ?? metadata.favicon_url ?? metadata.faviconUrl
   )
@@ -347,7 +408,36 @@ export function mapPublicStorefrontSettings(settings: Record<string, any>) {
     banner_focus_x: bannerFocusX,
     banner_focus_y: bannerFocusY,
     banner_zoom: bannerZoom,
+    maintenance_mode: maintenance.enabled,
   }
+}
+
+export function mapAdminStorefrontSettings(settings: Record<string, any>) {
+  const publicSettings = mapPublicStorefrontSettings(settings)
+  const metadata = normalizeMetadataObject(settings?.metadata) ?? {}
+  const maintenance = readMaintenanceStateFromMetadata(metadata)
+  return {
+    ...publicSettings,
+    maintenance_password_configured: Boolean(maintenance.passwordHash),
+  }
+}
+
+export function readStorefrontMaintenanceState(settings: Record<string, any>): StorefrontMaintenanceState {
+  const metadata = normalizeMetadataObject(settings?.metadata) ?? {}
+  return readMaintenanceStateFromMetadata(metadata)
+}
+
+export async function getStorefrontMaintenanceState(req: HttpRequest) {
+  const settings = await getOrCreateStorefrontSettings(req)
+  return readStorefrontMaintenanceState(settings as Record<string, any>)
+}
+
+export function verifyStorefrontMaintenancePassword(password: string, expectedHash: string) {
+  const normalizedExpectedHash = normalizeSha256Hash(expectedHash)
+  const rawPassword = typeof password === "string" ? password : ""
+  if (!rawPassword || !normalizedExpectedHash) return false
+  const providedHash = hashMaintenancePassword(rawPassword)
+  return timingSafeEqualHash(providedHash, normalizedExpectedHash)
 }
 
 export async function getOrCreateStorefrontSettings(req: HttpRequest) {
@@ -398,6 +488,10 @@ type StorefrontSettingsPatch = {
   bannerFocusY?: unknown
   banner_zoom?: unknown
   bannerZoom?: unknown
+  maintenance_mode?: unknown
+  maintenanceMode?: unknown
+  maintenance_password?: unknown
+  maintenancePassword?: unknown
 }
 
 function resolveStoreName(input: unknown) {
@@ -575,6 +669,43 @@ function resolveBannerZoom(input: unknown) {
   return Math.max(1, Math.min(3, parsed))
 }
 
+function resolveMaintenanceMode(input: unknown) {
+  if (input === undefined) return undefined
+  if (input === null) return null
+  if (typeof input === "boolean") return input
+  if (typeof input === "string") {
+    const value = input.trim().toLowerCase()
+    if (!value) return null
+    if (value === "true" || value === "1" || value === "yes" || value === "on") return true
+    if (value === "false" || value === "0" || value === "no" || value === "off") return false
+  }
+  throw new HttpError(
+    HttpError.Types.INVALID_DATA,
+    "maintenance_mode must be true, false or null."
+  )
+}
+
+function resolveMaintenancePassword(input: unknown) {
+  if (input === undefined) return undefined
+  if (input === null) return null
+  if (typeof input !== "string") {
+    throw new HttpError(
+      HttpError.Types.INVALID_DATA,
+      "maintenance_password must be a string or null."
+    )
+  }
+
+  const trimmed = input.trim()
+  if (!trimmed) return null
+  if (trimmed.length < MAINTENANCE_PASSWORD_MIN_LENGTH) {
+    throw new HttpError(
+      HttpError.Types.INVALID_DATA,
+      `maintenance_password must have at least ${MAINTENANCE_PASSWORD_MIN_LENGTH} characters.`
+    )
+  }
+  return trimmed
+}
+
 export async function updateStorefrontSettings(
   req: HttpRequest,
   patch: StorefrontSettingsPatch
@@ -693,6 +824,52 @@ export async function updateStorefrontSettings(
     } else {
       metadataNext.font = font
       metadataChanged = true
+    }
+  }
+
+  const maintenanceMode = resolveMaintenanceMode(
+    pickPatchAlias((patch as any).maintenance_mode, (patch as any).maintenanceMode)
+  )
+  if (maintenanceMode !== undefined) {
+    if (maintenanceMode === null) {
+      if (Object.prototype.hasOwnProperty.call(metadataNext, MAINTENANCE_MODE_METADATA_KEY)) {
+        delete metadataNext[MAINTENANCE_MODE_METADATA_KEY]
+        metadataChanged = true
+      }
+    } else if (metadataNext[MAINTENANCE_MODE_METADATA_KEY] !== maintenanceMode) {
+      metadataNext[MAINTENANCE_MODE_METADATA_KEY] = maintenanceMode
+      metadataChanged = true
+    }
+  }
+
+  const maintenancePassword = resolveMaintenancePassword(
+    pickPatchAlias((patch as any).maintenance_password, (patch as any).maintenancePassword)
+  )
+  if (maintenancePassword !== undefined) {
+    if (maintenancePassword === null) {
+      if (
+        Object.prototype.hasOwnProperty.call(metadataNext, MAINTENANCE_PASSWORD_HASH_METADATA_KEY)
+      ) {
+        delete metadataNext[MAINTENANCE_PASSWORD_HASH_METADATA_KEY]
+        metadataChanged = true
+      }
+    } else {
+      const hashedPassword = hashMaintenancePassword(maintenancePassword)
+      if (metadataNext[MAINTENANCE_PASSWORD_HASH_METADATA_KEY] !== hashedPassword) {
+        metadataNext[MAINTENANCE_PASSWORD_HASH_METADATA_KEY] = hashedPassword
+        metadataChanged = true
+      }
+    }
+  }
+
+  const maintenancePatched = maintenanceMode !== undefined || maintenancePassword !== undefined
+  if (maintenancePatched) {
+    const nextMaintenance = readMaintenanceStateFromMetadata(metadataNext)
+    if (nextMaintenance.enabled && !nextMaintenance.passwordHash) {
+      throw new HttpError(
+        HttpError.Types.INVALID_DATA,
+        "maintenance_password is required when maintenance_mode is enabled."
+      )
     }
   }
 

@@ -27,6 +27,11 @@ export type StorefrontSettings = {
   storeLocale: string;
   font: StorefrontFontConfig | null;
   heroBanner: StorefrontBannerConfig;
+  maintenanceMode: boolean;
+};
+
+export type AdminStorefrontSettings = StorefrontSettings & {
+  maintenancePasswordConfigured: boolean;
 };
 
 export const STOREFRONT_RUNTIME_UPDATED_EVENT = "storefront:runtime:updated";
@@ -47,6 +52,7 @@ export const DEFAULT_STOREFRONT_SETTINGS: StorefrontSettings = {
     focusY: 50,
     zoom: 1,
   },
+  maintenanceMode: false,
 };
 
 function getPublishableKey() {
@@ -143,6 +149,18 @@ function normalizeRadiusScale(input: unknown, fallback: number) {
   return fallback;
 }
 
+function normalizeBoolean(input: unknown, fallback: boolean) {
+  if (typeof input === "boolean") return input;
+  if (typeof input === "number") return input !== 0;
+  if (typeof input === "string") {
+    const raw = input.trim().toLowerCase();
+    if (!raw) return fallback;
+    if (raw === "true" || raw === "1" || raw === "yes" || raw === "on") return true;
+    if (raw === "false" || raw === "0" || raw === "no" || raw === "off") return false;
+  }
+  return fallback;
+}
+
 function mapFontConfig(raw: unknown): StorefrontFontConfig | null {
   const rec =
     raw && typeof raw === "object" ? (raw as Record<string, unknown>) : null;
@@ -234,6 +252,23 @@ function mapStorefrontSettings(raw: unknown): StorefrontSettings {
       focusY: bannerFocusY,
       zoom: bannerZoom,
     },
+    maintenanceMode: normalizeBoolean(
+      rec?.maintenance_mode ?? rec?.maintenanceMode,
+      DEFAULT_STOREFRONT_SETTINGS.maintenanceMode
+    ),
+  };
+}
+
+function mapAdminStorefrontSettings(raw: unknown): AdminStorefrontSettings {
+  const base = mapStorefrontSettings(raw);
+  const rec =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : null;
+  return {
+    ...base,
+    maintenancePasswordConfigured: normalizeBoolean(
+      rec?.maintenance_password_configured ?? rec?.maintenancePasswordConfigured,
+      false
+    ),
   };
 }
 
@@ -267,7 +302,7 @@ export async function getAdminStorefrontSettings() {
       credentials: "include",
     }
   );
-  return mapStorefrontSettings(data.storefront);
+  return mapAdminStorefrontSettings(data.storefront);
 }
 
 export type StorefrontSettingsPatchInput = Partial<StorefrontSettings> & {
@@ -276,6 +311,8 @@ export type StorefrontSettingsPatchInput = Partial<StorefrontSettings> & {
   bannerFocusX?: number | null;
   bannerFocusY?: number | null;
   bannerZoom?: number | null;
+  maintenanceMode?: boolean;
+  maintenancePassword?: string | null;
 };
 
 export async function updateAdminStorefrontSettings(
@@ -339,10 +376,20 @@ export async function updateAdminStorefrontSettings(
             : typeof input.bannerZoom === "number"
               ? input.bannerZoom
               : undefined,
+        maintenance_mode:
+          typeof input.maintenanceMode === "boolean"
+            ? input.maintenanceMode
+            : undefined,
+        maintenance_password:
+          input.maintenancePassword === null
+            ? null
+            : typeof input.maintenancePassword === "string"
+              ? input.maintenancePassword.trim()
+              : undefined,
       }),
     }
   );
-  return mapStorefrontSettings(data.storefront);
+  return mapAdminStorefrontSettings(data.storefront);
 }
 
 export function storefrontCssVars(settings: StorefrontSettings) {

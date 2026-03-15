@@ -14,10 +14,12 @@ import {
 
 import { AdminPanelCard } from "@/components/admin/admin-panel-card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CssVarElement } from "@/components/ui/css-var-element";
 import { FilePicker } from "@/components/ui/file-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Select } from "@/components/ui/select";
 import { HeroBannerEditorDialog } from "./hero-banner-editor-dialog";
 import {
@@ -57,6 +59,8 @@ export function AppearanceAdmin() {
   const [faviconUploading, setFaviconUploading] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerEditorOpen, setBannerEditorOpen] = useState(false);
+  const [maintenancePasswordConfigured, setMaintenancePasswordConfigured] =
+    useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState<StorefrontFormState>({
@@ -71,6 +75,8 @@ export function AppearanceAdmin() {
     radiusScale: formatRadiusScale(DEFAULT_STOREFRONT_SETTINGS.radiusScale),
     currencyCode: DEFAULT_STOREFRONT_SETTINGS.currencyCode,
     fontUrl: "",
+    maintenanceMode: false,
+    maintenancePassword: "",
   });
 
   useEffect(() => {
@@ -93,7 +99,10 @@ export function AppearanceAdmin() {
           radiusScale: formatRadiusScale(settings.radiusScale),
           currencyCode: settings.currencyCode,
           fontUrl: settings.font?.specimenUrl || settings.font?.cssUrl || "",
+          maintenanceMode: settings.maintenanceMode,
+          maintenancePassword: "",
         });
+        setMaintenancePasswordConfigured(settings.maintenancePasswordConfigured);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -268,9 +277,14 @@ export function AppearanceAdmin() {
     const bannerFocusX = clampPercent(form.bannerFocusX);
     const bannerFocusY = clampPercent(form.bannerFocusY);
     const bannerZoom = clampZoom(form.bannerZoom);
+    const maintenancePassword = form.maintenancePassword.trim();
 
     if (!storeName && !hasVisibleLogo) {
       setError("Necesitas un nombre o un logo para guardar la tienda.");
+      return;
+    }
+    if (form.maintenanceMode && !maintenancePasswordConfigured && !maintenancePassword) {
+      setError("Para activar mantenimiento debes definir una clave de acceso.");
       return;
     }
 
@@ -288,6 +302,8 @@ export function AppearanceAdmin() {
         bannerFocusX: bannerUrl ? bannerFocusX : null,
         bannerFocusY: bannerUrl ? bannerFocusY : null,
         bannerZoom: bannerUrl ? bannerZoom : null,
+        maintenanceMode: form.maintenanceMode,
+        maintenancePassword: maintenancePassword || undefined,
       });
       setForm({
         storeName: updated.storeName,
@@ -301,7 +317,10 @@ export function AppearanceAdmin() {
         radiusScale: formatRadiusScale(updated.radiusScale),
         currencyCode: updated.currencyCode,
         fontUrl: updated.font?.specimenUrl || updated.font?.cssUrl || "",
+        maintenanceMode: updated.maintenanceMode,
+        maintenancePassword: "",
       });
+      setMaintenancePasswordConfigured(updated.maintenancePasswordConfigured);
       syncRuntimeStorefront(updated);
       setMessage("Configuracion guardada.");
     } catch (err) {
@@ -461,6 +480,48 @@ export function AppearanceAdmin() {
                 placeholder="1"
               />
             </div>
+          </div>
+
+          <div className={`${styles.fieldStack} ${styles.span2}`}>
+            <Label htmlFor="admin_maintenance_enabled">Modo mantenimiento</Label>
+            <div className={styles.maintenanceToggleRow}>
+              <Checkbox
+                id="admin_maintenance_enabled"
+                checked={form.maintenanceMode}
+                onCheckedChange={(checked) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    maintenanceMode: checked,
+                  }))
+                }
+                disabled={loading || saving}
+              />
+              <span className={styles.maintenanceToggleText}>
+                Mostrar pantalla de mantenimiento y pedir clave para ingresar.
+              </span>
+            </div>
+            <PasswordInput
+              id="admin_maintenance_password"
+              value={form.maintenancePassword}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  maintenancePassword: event.target.value,
+                }))
+              }
+              disabled={loading || saving}
+              placeholder={
+                maintenancePasswordConfigured
+                  ? "Dejar vacio para mantener la clave actual"
+                  : "Define una clave de acceso"
+              }
+              withRevealToggle
+            />
+            <p className={styles.fieldHint}>
+              {maintenancePasswordConfigured
+                ? "Hay una clave configurada. Completa este campo solo si quieres cambiarla."
+                : "Define una clave para permitir acceso mientras el sitio este en mantenimiento."}
+            </p>
           </div>
 
           <div className={`${styles.fieldStack} ${styles.span2}`}>

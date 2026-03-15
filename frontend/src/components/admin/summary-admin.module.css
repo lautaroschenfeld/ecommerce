@@ -106,7 +106,7 @@
 .statusRow {
   border: 1px solid var(--ui-border);
   border-radius: var(--admin-radius-xs);
-  background: var(--ui-surface-strong);
+  background: var(--admin-panel-surface-background);
   padding: 0.72rem 0.78rem;
   display: flex;
   flex-direction: column;
@@ -181,7 +181,7 @@
 .deliveryRow {
   border: 1px solid var(--ui-border);
   border-radius: var(--admin-radius-xs);
-  background: var(--ui-surface-strong);
+  background: var(--admin-panel-surface-background);
   padding: 0.54rem 0.62rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -213,7 +213,7 @@
 
 .metricCard {
   border-color: var(--ui-border-strong);
-  background: var(--ui-surface-strong);
+  background: var(--admin-panel-surface-background);
   box-shadow: 0 10px 26px var(--ui-color-rgba-15-23-42-0p06);
   overflow: hidden;
 }
@@ -355,7 +355,7 @@
 .chartCard {
   border-color: var(--ui-border-strong);
   background: var(--ui-surface-panel);
-  box-shadow: 0 12px 30px var(--ui-border-soft);
+  box-shadow: var(--admin-panel-surface-shadow);
 }
 
 .chartHeader {
@@ -582,7 +582,7 @@
 .salesItem {
   border: 1px solid var(--ui-border);
   border-radius: var(--admin-radius-xs);
-  background: var(--ui-surface-strong);
+  background: var(--admin-panel-surface-background);
   padding: 0.6rem 0.7rem;
   display: grid;
   gap: 0.42rem;
@@ -703,7 +703,7 @@
 .productItem {
   border: 1px solid var(--ui-border);
   border-radius: var(--admin-radius-xs);
-  background: var(--ui-surface-strong);
+  background: var(--admin-panel-surface-background);
   padding: 0.6rem 0.7rem;
   display: grid;
   gap: 0.42rem;
