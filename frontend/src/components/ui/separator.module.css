@@ -1,0 +1,15 @@
+.separator {
+  background: var(--ui-border);
+  border-radius: var(--radius-pill);
+}
+
+.horizontal {
+  width: 100%;
+  height: 1px;
+}
+
+.vertical {
+  width: 1px;
+  height: 100%;
+}
+

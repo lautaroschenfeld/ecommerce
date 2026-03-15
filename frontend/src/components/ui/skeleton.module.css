@@ -1,0 +1,12 @@
+.skeleton {
+  border-radius: calc(1rem * var(--radius-scale));
+  background: linear-gradient(
+    90deg,
+    var(--ui-color-rgba-15-23-42-0p06),
+    var(--ui-border),
+    var(--ui-color-rgba-15-23-42-0p06)
+  );
+  background-size: 200% 100%;
+  animation: uiShimmer 1.35s linear infinite;
+}
+

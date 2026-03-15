@@ -1,0 +1,273 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.7rem, 2.4vw, 2.25rem);
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+.topActions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.summaryCol {
+  min-width: 0;
+}
+
+.summarySticky {
+  position: sticky;
+  top: 4.75rem;
+}
+
+.summaryBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.muted {
+  color: var(--muted-foreground);
+}
+
+.code {
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.discount {
+  color: var(--ui-color-rgba-5-150-105-0p9);
+}
+
+.total {
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+
+.cta {
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+.promoBox {
+  border-radius: calc((var(--radius-base) + 0.25rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-subtle);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.promoTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.promoRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.promoHint {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+.promoOk,
+.promoBad {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.promoOk {
+  color: var(--ui-color-rgba-5-150-105-0p95);
+}
+
+.promoBad {
+  color: var(--ui-color-rgba-220-38-38-0p95);
+}
+
+.trustRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: calc((var(--radius-base) + 0.25rem) * var(--radius-scale));
+  background: var(--ui-color-rgba-2-132-199-0p08);
+  border: 1px solid var(--ui-color-rgba-2-132-199-0p18);
+  font-size: 0.85rem;
+  color: var(--ui-color-rgba-15-23-42-0p9);
+}
+
+.shippingBox {
+  border-radius: calc((var(--radius-base) + 0.25rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: linear-gradient(
+    135deg,
+    var(--ui-surface-soft),
+    var(--ui-color-rgba-15-23-42-0p04)
+  );
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.shippingTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.shippingTitle {
+  margin: 0;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.progressTrack {
+  height: 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--ui-border-soft);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  width: calc(var(--progress, 0) * 100%);
+  background: linear-gradient(90deg, var(--ui-color-rgba-5-150-105-0p86), var(--ui-color-rgba-59-130-246-0p78));
+  border-radius: var(--radius-pill);
+  transition: width 320ms var(--ease-out);
+}
+
+.shippingHint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ui-color-rgba-15-23-42-0p75);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.inlineIcon {
+  flex: 0 0 auto;
+}
+
+.emptyCard {
+  overflow: hidden;
+}
+
+.emptyContent {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+.recoWrap {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.recoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.recoTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+
+.recoGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr 0.9fr;
+    align-items: start;
+  }
+
+  .recoGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 640px) {
+  .recoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .promoRow {
+    grid-template-columns: 1fr;
+  }
+
+  .topActions {
+    width: 100%;
+  }
+
+  .topActions > * {
+    flex: 1;
+  }
+}

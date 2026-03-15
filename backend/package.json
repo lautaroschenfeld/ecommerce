@@ -1,0 +1,78 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "Custom backend server for the Ecommerce project.",
+  "license": "MIT",
+  "keywords": [
+    "sqlite",
+    "postgres",
+    "typescript",
+    "ecommerce",
+    "headless",
+    "custom-backend"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "bootstrap:schema": "ts-node ./src/scripts/bootstrap-schema.ts",
+    "seed": "ts-node ./src/scripts/seed.ts",
+    "seed:summary:3m": "ts-node ./src/scripts/regenerate-admin-summary-history.ts",
+    "import:products:csv": "ts-node ./src/scripts/import-products-from-csv.ts",
+    "migrate:product-ids": "ts-node ./src/scripts/migrate-product-ids.ts",
+    "backfill:characteristics": "ts-node ./src/scripts/backfill-product-characteristics.ts",
+    "bootstrap:administrator": "ts-node ./src/scripts/bootstrap-administrator.ts",
+    "set-account-role": "ts-node ./src/scripts/set-account-role.ts",
+    "reset-customer-password": "ts-node ./src/scripts/reset-customer-password.ts",
+    "postgres:start": "powershell -ExecutionPolicy Bypass -Command 'Push-Location ..; docker compose -f docker-compose.yml up -d postgres; Pop-Location'",
+    "port:free:9000": "powershell -NoProfile -ExecutionPolicy Bypass -File ../dev/free-ports.ps1 -Ports 9000",
+    "dev:local": "powershell -ExecutionPolicy Bypass -File scripts/dev/start.ps1",
+    "dev:local:no-seed": "powershell -ExecutionPolicy Bypass -File scripts/dev/start.ps1 -SkipSeed",
+    "dev:local:force-seed": "powershell -ExecutionPolicy Bypass -File scripts/dev/start.ps1 -ForceSeed",
+    "setup:local": "powershell -ExecutionPolicy Bypass -File scripts/dev/start.ps1 -NoDev",
+    "start": "node ./dist/server.js",
+    "dev": "ts-node ./src/server.ts",
+    "worker:bulk": "ts-node ./src/workers/admin-products-bulk-worker.ts",
+    "dev:all": "npm run dev",
+    "dev:all:clean": "npm run port:free:9000 && npm run dev:all",
+    "lint": "tsc -p tsconfig.json --noEmit --pretty false",
+    "test:integration:http": "node -e \"require('fs').rmSync('.integration-http-runtime.json', { force: true })\" && cross-env TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand",
+    "test:unit": "cross-env TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand",
+    "audit:prod": "npm audit --omit=dev --audit-level=moderate",
+    "cleanup:transfer-proofs": "ts-node ./src/scripts/cleanup-transfer-proofs.ts",
+    "cleanup:transfer-proofs:dry": "ts-node ./src/scripts/cleanup-transfer-proofs.ts --dry-run",
+    "cleanup:checkout-idempotency": "ts-node ./src/scripts/cleanup-checkout-idempotency.ts",
+    "cleanup:checkout-idempotency:dry": "ts-node ./src/scripts/cleanup-checkout-idempotency.ts --dry-run",
+    "ci": "npm run lint && npm run test:unit && npm run test:integration:http"
+  },
+  "dependencies": {
+    "@imgly/background-removal-node": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^2.1.0",
+    "nanoid": "^3.3.11",
+    "pg": "^8.16.3",
+    "redis": "^4.7.0",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.7.28",
+    "@swc/jest": "^0.2.36",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.12.11",
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  },
+  "overrides": {
+    "qs": "^6.15.0",
+    "tar": "^7.5.9",
+    "zod": "^3.25.76"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@10.8.2"
+}

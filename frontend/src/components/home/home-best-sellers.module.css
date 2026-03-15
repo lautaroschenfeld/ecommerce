@@ -1,0 +1,95 @@
+.section {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 860;
+  letter-spacing: -0.03em;
+}
+
+.error {
+  margin: 0;
+  color: rgb(var(--ui-status-danger-strong-rgb) / 0.96);
+  font-size: 0.95rem;
+}
+
+.scroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 82%;
+  align-items: start;
+  gap: 0.95rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-top: 0.2rem;
+  padding-bottom: 0.9rem;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+.scroller::-webkit-scrollbar {
+  height: 10px;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: var(--ui-surface-subtle-strong);
+  border-radius: var(--radius-pill);
+}
+
+.scroller::-webkit-scrollbar-track {
+  background: var(--ui-surface-subtle);
+  border-radius: var(--radius-pill);
+}
+
+.item {
+  scroll-snap-align: start;
+}
+
+.skeletonCard {
+  border-radius: calc((var(--radius-base) + 0.85rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-glass);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.skeletonMedia {
+  aspect-ratio: 4 / 3;
+}
+
+.skeletonBody {
+  padding: 1rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.skeletonLine {
+  height: 0.95rem;
+}
+
+.skeletonLineShort {
+  height: 0.9rem;
+  width: 55%;
+}
+
+@media (min-width: 640px) {
+  .scroller {
+    grid-auto-columns: 45%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .scroller {
+    grid-auto-columns: calc((100% - (0.95rem * 4)) / 4.18);
+  }
+}

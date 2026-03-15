@@ -1,0 +1,60 @@
+.page {
+  width: min(100%, 54rem);
+  margin-inline: auto;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: clamp(1.55rem, 3.2vw, 2.2rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.body {
+  border-radius: calc((var(--radius-base) + 0.65rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--shadow-sm);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.46rem;
+}
+
+.section {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.section + .section {
+  margin-top: 0.2rem;
+}
+
+.section h2 {
+  margin: 0.12rem 0 0;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.body p,
+.body li {
+  margin: 0;
+  color: var(--muted-foreground);
+  line-height: 1.68;
+  max-width: 72ch;
+}
+
+.body ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.26rem;
+}
+
+@media (min-width: 768px) {
+  .body {
+    padding: 1.15rem 1.2rem;
+  }
+}

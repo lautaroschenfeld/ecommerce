@@ -1,0 +1,181 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.card {
+  gap: 0;
+}
+
+.cardBody {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.listPanelBody {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.span2 {
+  grid-column: 1 / -1;
+}
+
+.textarea {
+  min-height: 5rem;
+}
+
+.formActions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+}
+
+.errorBox {
+  grid-column: 1 / -1;
+  border: 1px solid var(--ui-color-rgba-220-38-38-0p24);
+  background: var(--ui-color-rgba-220-38-38-0p08);
+  color: var(--ui-color-hex-b91c1c);
+  border-radius: var(--admin-radius-xs);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.listHeader {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.listTitle {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.empty {
+  min-height: 6rem;
+  display: grid;
+  place-items: center;
+  color: var(--muted-foreground);
+}
+
+.list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.paginationFooter {
+  display: flex;
+  justify-content: center;
+}
+
+.listItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem 0.85rem 0.85rem;
+}
+
+.itemMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.itemIcon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--admin-radius-sm);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    135deg,
+    var(--ui-color-rgba-15-23-42-0p1),
+    var(--ui-color-rgba-15-23-42-0p04)
+  );
+}
+
+.itemText {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.itemTitle {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.itemDescription {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+
+.itemDescriptionMuted {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+.itemMeta {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+.code {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.itemActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+@media (width >= 768px) {
+  .formGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .itemMain {
+    min-width: 16rem;
+  }
+
+  .itemActions {
+    width: auto;
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,490 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.topRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.card {
+  gap: 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.sidebar {
+  display: grid;
+  gap: 0.9rem;
+  align-self: start;
+  position: static;
+}
+
+.contentStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.statCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.82rem;
+  padding: 1.15rem 1rem 1rem;
+}
+
+.statIcon {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.5rem;
+  border-radius: var(--admin-radius-xs);
+  background: var(--ui-border-soft);
+  color: var(--foreground);
+  flex-shrink: 0;
+}
+
+.statIcon[data-variant="warning"] {
+  background: rgb(var(--ui-status-warning-rgb) / 0.16);
+  color: rgb(var(--ui-status-warning-strong-rgb) / 0.96);
+}
+
+.statIcon[data-variant="error"] {
+  background: rgb(var(--ui-status-danger-rgb) / 0.14);
+  color: rgb(var(--ui-status-danger-strong-rgb) / 0.96);
+}
+
+.statLabel {
+  margin: 0 0 0.14rem;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.statValue {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.filtersCardBody,
+.adjustBody,
+.tableCardBody,
+.kardexBody,
+.integrationBody {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.cardHeader {
+  padding: 1rem 1rem 0.82rem;
+}
+
+.listFilterSection,
+.reasonField,
+.bulkDeltaField {
+  min-width: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.searchWrap {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  padding-left: 2rem;
+}
+
+.listFilterSeparator {
+  margin: 0.12rem 0;
+  background: var(--ui-border);
+}
+
+.filterStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-start;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bulkHeaderMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.kardexHeaderMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.bulkAdjustRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.bulkDeltaField {
+  width: 100%;
+}
+
+.error {
+  margin: 0;
+  color: var(--ui-color-rgba-220-38-38-0p95);
+  background: var(--ui-color-rgba-220-38-38-0p08);
+  border: 1px solid var(--ui-color-rgba-220-38-38-0p2);
+  border-radius: var(--admin-radius-sm);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+}
+
+.listHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.empty {
+  text-align: center;
+  padding: 2.4rem 0.8rem;
+}
+
+.emptyIcon {
+  width: 2.8rem;
+  height: 2.8rem;
+  color: var(--muted-foreground);
+  opacity: 0.55;
+  margin: 0 auto 0.65rem;
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+}
+
+.table {
+  display: grid;
+  gap: 0.45rem;
+  overflow-x: auto;
+}
+
+.paginationFooter {
+  display: flex;
+  justify-content: center;
+}
+
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns:
+    42px
+    minmax(170px, 1.9fr)
+    minmax(104px, 1fr)
+    repeat(4, minmax(68px, 0.55fr))
+    minmax(96px, 0.75fr)
+    minmax(116px, 0.9fr)
+    minmax(250px, 1.8fr);
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 64rem;
+}
+
+.tableHeader {
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+
+.tableRow {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--ui-surface-strong);
+  padding: 0.58rem;
+}
+
+.colCheck,
+.colQty,
+.colStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.colProduct,
+.colSku,
+.colAdjust {
+  min-width: 0;
+}
+
+.productMain {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.productName {
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.productMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.sku {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.reorderValue {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.reorderValueHot {
+  color: rgb(var(--ui-status-danger-strong-rgb) / 0.95);
+}
+
+.adjustInline {
+  display: inline-grid;
+  grid-template-columns: auto auto minmax(74px, 96px) auto;
+  gap: 0.36rem;
+  align-items: center;
+}
+
+.deltaInput {
+  text-align: center;
+  font-weight: 700;
+}
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.95rem;
+}
+
+.kardexList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 27rem;
+  overflow: auto;
+  padding-right: 0.16rem;
+}
+
+.kardexSection {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.kardexSectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kardexSectionTitle {
+  margin: 0 0 0.12rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.kardexSectionText {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.kardexRow {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--ui-surface-strong);
+  padding: 0.62rem 0.74rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.kardexMain {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.kardexTitleBlock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.kardexTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.kardexMeta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.kardexStats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.kardexDelta {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.08rem 0.4rem;
+  border-radius: var(--admin-radius-pill);
+  border: 1px solid transparent;
+}
+
+.kardexDeltaUp {
+  color: rgb(var(--ui-status-success-strong-rgb) / 0.95);
+  border-color: rgb(var(--ui-status-success-rgb) / 0.24);
+  background: rgb(var(--ui-status-success-rgb) / 0.06);
+}
+
+.kardexDeltaDown {
+  color: rgb(var(--ui-status-danger-strong-rgb) / 0.95);
+  border-color: rgb(var(--ui-status-danger-rgb) / 0.28);
+  background: rgb(var(--ui-status-danger-rgb) / 0.14);
+}
+
+.kardexBalance,
+.kardexDate,
+.kardexReason {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.integrationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--ui-surface-strong);
+  padding: 0.62rem 0.72rem;
+  font-size: 0.85rem;
+}
+
+.restockBox {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--ui-surface-strong);
+  padding: 0.7rem 0.76rem;
+  display: grid;
+  gap: 0.16rem;
+}
+
+.restockTitle {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  font-weight: 700;
+}
+
+.restockText {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (width >= 1025px) {
+  .bottomGrid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  }
+}
+
+@media (width >= 1201px) {
+  .workspace {
+    grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
