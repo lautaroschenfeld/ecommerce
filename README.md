@@ -1,104 +1,133 @@
-# Ecommerce - Dev Commands
+# Ecommerce Monorepo
 
-Guia tecnica para levantar y trabajar el proyecto local.
+Repositorio monorepo para una tienda ecommerce con:
+- `backend` en Node.js + TypeScript + PostgreSQL + Redis
+- `frontend` en Next.js 16
+- infraestructura con Docker Compose y despliegue detras de Nginx
 
-## TL;DR
+## Contenido
+- [Arquitectura](#arquitectura)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Requisitos](#requisitos)
+- [Inicio rapido (desarrollo local)](#inicio-rapido-desarrollo-local)
+- [Configuracion de entorno](#configuracion-de-entorno)
+- [Docker Compose (stack completa)](#docker-compose-stack-completa)
+- [Comandos utiles](#comandos-utiles)
+- [Observabilidad y salud](#observabilidad-y-salud)
+- [Bootstrap de administrador](#bootstrap-de-administrador)
+- [Despliegue en VPS](#despliegue-en-vps)
+- [Troubleshooting](#troubleshooting)
 
+## Arquitectura
+- `frontend` (Next.js): UI de tienda y panel administrativo.
+- `backend` (Express/TS): API de catalogo, auth, checkout, admin y webhooks.
+- `postgres`: persistencia principal.
+- `redis`: cache/soporte para flujos de alto trafico.
+- `nginx` (fuera de este repo): reverse proxy publico HTTPS.
+
+## Estructura del repositorio
+
+```text
+.
+|-- backend/
+|-- frontend/
+|-- dev/
+|-- docker-compose.yml
+|-- .env.example
+`-- README.md
+```
+
+## Requisitos
+- Node.js 20+
+- npm 10+
+- Docker Desktop / Docker Engine
+- Puertos libres: `3000`, `5433`, `9000`
+
+## Inicio rapido (desarrollo local)
+
+### Opcion recomendada
 Terminal 1:
 
 ```powershell
 cd backend
+npm install
 npm run dev:local
-```
-
-Si ya tenes PostgreSQL levantado por tu cuenta (sin Docker), podes usar:
-
-```powershell
-cd backend
-npm run dev
-```
-
-Si te aparece `EADDRINUSE` en `:9000`, usa:
-
-```powershell
-cd backend
-npm run dev:all:clean
 ```
 
 Terminal 2:
 
 ```powershell
 cd frontend
+npm install
 npm run dev
 ```
 
-En macOS tambien tenes lanzadores con doble click desde Finder (raiz del repo):
-- `run-all.command`
-- `fix-quarantine.command`
+`dev:local` prepara infraestructura local y puede ejecutar seed inicial.
 
-`run-all.command`/`dev/run-all-mac.sh` ahora:
-- inicia Docker Desktop si no esta corriendo y espera al daemon.
-- libera puertos `9000`, `3000` y `3001` antes de levantar servicios.
+### Si Postgres ya esta levantado manualmente
 
-## Requisitos
+```powershell
+cd backend
+npm run dev
+```
 
-- Node.js 20+
-- npm 10+
-- Docker Desktop corriendo
-- Puertos libres: `3000`, `5433`, `9000`
+### Si el puerto `9000` esta ocupado
 
-## Variables de entorno
+```powershell
+cd backend
+npm run dev:all:clean
+```
 
-`backend/.env` (minimo):
+## Configuracion de entorno
+
+### 1) Backend
+Copiar template y completar secretos:
+
+```powershell
+Copy-Item backend/.env.template backend/.env
+```
+
+Variables minimas recomendadas en `backend/.env`:
 
 ```env
 DATABASE_URL=postgres://postgres:postgres@localhost:5433/store_db
-JWT_SECRET=...
-COOKIE_SECRET=...
+JWT_SECRET=... # 32+ caracteres
+COOKIE_SECRET=... # 32+ caracteres
 STORE_CURRENCY_CODE=usd
 STORE_REGION_NAME=Region principal
 STORE_REGION_COUNTRY_CODE=us
-PG_CONNECT_TIMEOUT_MS=5000
-PG_IDLE_TIMEOUT_MS=30000
-CHECKOUT_IDEMPOTENCY_RETENTION_DAYS=14
-CHECKOUT_IDEMPOTENCY_CLEANUP_INTERVAL_MS=900000
-MAINTENANCE_JOBS_ENABLED=true
-MAINTENANCE_TRANSFER_PROOF_INTERVAL_MS=21600000
-MAINTENANCE_CHECKOUT_IDEMPOTENCY_INTERVAL_MS=900000
-OAUTH_HTTP_TIMEOUT_MS=8000
-OAUTH_TOKEN_HTTP_TIMEOUT_MS=8000
-OAUTH_JWKS_HTTP_TIMEOUT_MS=8000
 MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
 MERCADOPAGO_WEBHOOK_SECRET=...
-MERCADOPAGO_ALLOW_UNSIGNED_WEBHOOKS=false
-MERCADOPAGO_STATEMENT_DESCRIPTOR=MI_TIENDA
-MERCADOPAGO_HTTP_TIMEOUT_MS=10000
-MERCADOPAGO_ALLOW_INSECURE_URLS=false
+STOREFRONT_URL=http://localhost:3000
+BACKEND_PUBLIC_URL=http://localhost:9000
 ```
 
-`frontend/.env.local`:
+Notas:
+- En `production`, no usar secretos debiles.
+- Si faltan secretos criticos en produccion, el backend puede fallar en startup por validaciones de seguridad.
+
+### 2) Frontend
+Crear `frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:9000
 NEXT_PUBLIC_PUBLISHABLE_API_KEY=pk_...
-NEXT_PUBLIC_STORE_LOCALE=es
+NEXT_PUBLIC_STORE_LOCALE=es-AR
 NEXT_PUBLIC_STORE_CURRENCY_CODE=USD
 ```
 
-`pk_...` se imprime al correr `npm run seed` en backend.
+La `pk_...` se obtiene al ejecutar `npm run seed` en `backend`.
 
-Moneda/region configurable:
-- backend usa `STORE_CURRENCY_CODE` para precios y checkout.
-- seed usa `STORE_REGION_NAME` y `STORE_REGION_COUNTRY_CODE`.
-- frontend formatea importes con `NEXT_PUBLIC_STORE_LOCALE` + `NEXT_PUBLIC_STORE_CURRENCY_CODE`.
+### 3) Docker Compose (raiz)
+Para entornos de VPS/produccion, crear `.env` en la raiz basado en `.env.example`.
 
-Checkout Pro (Mercado Pago):
-- `MERCADOPAGO_ACCESS_TOKEN` habilita la creacion de preferencias y consultas de pagos.
-- `MERCADOPAGO_WEBHOOK_SECRET` habilita validacion de firma (`x-signature`).
-- En `production`, si falta `MERCADOPAGO_WEBHOOK_SECRET`, el webhook responde `503` salvo que definas `MERCADOPAGO_ALLOW_UNSIGNED_WEBHOOKS=true` (solo para casos excepcionales).
-- `STOREFRONT_URL` y `BACKEND_PUBLIC_URL` deben ser publicas y `https` (salvo `MERCADOPAGO_ALLOW_INSECURE_URLS=true` en local).
+```powershell
+Copy-Item .env.example .env
+```
 
-## Infra (desde la raiz)
+## Docker Compose (stack completa)
+
+Desde la raiz del repo:
 
 ```powershell
 docker compose up -d postgres
@@ -110,185 +139,122 @@ docker compose down -v
 ```
 
 Notas:
-- `docker compose up -d postgres` sigue siendo la forma rapida para trabajar con `backend`/`frontend` en modo dev local.
-- `docker compose up -d --build backend frontend redis` levanta la stack completa lista para validar despliegue local.
-- En la stack completa, `backend` ejecuta `seed` al iniciar para asegurar datos base y una publishable key estable.
-- Si queres personalizarla, exporta `NEXT_PUBLIC_PUBLISHABLE_API_KEY` antes de levantar compose.
+- `backend` ejecuta `seed` al iniciar en la stack completa.
+- `NEXT_PUBLIC_*` del frontend se inyecta en build via `docker-compose.yml`.
 
-## Backend (desde `backend/`)
+## Comandos utiles
 
-Instalacion:
+### Backend (`backend/`)
 
 ```powershell
 npm install
+npm run dev:local
+npm run setup:local
+npm run seed
+npm run lint
+npm run build
+npm run test:unit
+npm run test:integration:http
+npm run ci
 ```
 
-Comando recomendado (arranque completo):
+Scripts relevantes:
+- `dev:local`: prepara entorno local y levanta backend.
+- `dev:local:no-seed`: igual, sin seed.
+- `dev:local:force-seed`: fuerza seed.
+- `cleanup:transfer-proofs` y `cleanup:checkout-idempotency`: tareas de mantenimiento.
+
+### Frontend (`frontend/`)
 
 ```powershell
-npm run dev:local
+npm install
+npm run dev
+npm run lint
+npm run build
+npm run test
+npm run test:ui:only
+npm run ci
 ```
 
-Scripts utiles:
+## Observabilidad y salud
+Endpoints del backend:
+- `GET /health`: liveness
+- `GET /health/ready`: readiness con chequeo de DB
+- `GET /metrics`: metricas Prometheus
 
-- `npm run dev:local`: docker + check puertos + seed (1ra vez) + backend
-- `npm run dev:local:no-seed`: igual, sin seed
-- `npm run dev:local:force-seed`: igual, forzando seed
-- `npm run setup:local`: prepara DB (seed) y termina sin levantar servidor
-- `npm run dev`: solo backend (uso diario, rapido)
-- `npm run dev:all`: alias de `npm run dev`
-- `npm run dev:all:clean`: libera puerto `9000` y luego ejecuta `dev:all`.
-- `npm run seed`: datos iniciales + publishable key
-- `npm run build`: build de backend
-- `npm run test:unit`
-- `npm run test:integration:http`
-- `npm run audit:prod`: auditoria de dependencias productivas
-- `npm run cleanup:transfer-proofs`: elimina comprobantes vencidos (default 45 dias)
-- `npm run cleanup:transfer-proofs:dry`: simulacion sin borrar archivos
-- `npm run cleanup:checkout-idempotency`: elimina claves de checkout idempotentes vencidas
-- `npm run cleanup:checkout-idempotency:dry`: simulacion de limpieza de idempotency
-- `GET /health`: liveness del proceso
-- `GET /health/ready`: readiness con chequeo real de base de datos
-- `GET /metrics`: metricas Prometheus para observabilidad
-- Respuestas HTTP incluyen `x-request-id` para trazabilidad end-to-end
-- El backend puede ejecutar cleanups periodicos automaticamente (configurable con `MAINTENANCE_*`)
+Adicional:
+- Las respuestas incluyen `x-request-id` para trazabilidad.
 
-Crear primer Administrador de tienda (rol `administrator`) por canal privado:
+## Bootstrap de administrador
+Para crear el primer usuario administrador:
 
-1) Configurar token de bootstrap en `backend/.env`:
+1. Configurar hash de token en `backend/.env`:
 
 ```env
 CUSTOMER_BOOTSTRAP_ADMIN_TOKEN_HASH=<sha256_del_token>
 ```
 
-Podés generar el hash así:
+2. Generar hash:
 
 ```powershell
 node -e "console.log(require('crypto').createHash('sha256').update('TU_TOKEN_SECRETO').digest('hex'))"
 ```
 
-2) Ejecutar:
+3. Ejecutar bootstrap:
 
 ```powershell
 cd backend
 npm run bootstrap:administrator -- --email admin@store.com --password StrongPass123 --token <tu_token>
 ```
 
-Notas:
-- El token es de un solo uso (bootstrap).
-- Si ya existe un `administrator`, el comando falla.
-- Registro público y OAuth crean siempre usuarios `user`.
-- En produccion, `ALLOW_DEV_RESET_TOKEN` debe estar desactivado.
-- En produccion, no usar `CUSTOMER_BOOTSTRAP_ADMIN_TOKEN` plano; usar solo `CUSTOMER_BOOTSTRAP_ADMIN_TOKEN_HASH`.
-- En produccion, si habilitas OAuth, configurar pares `GOOGLE_OAUTH_CLIENT_ID/GOOGLE_OAUTH_CLIENT_SECRET` o `APPLE_OAUTH_CLIENT_ID/APPLE_OAUTH_CLIENT_SECRET`.
-- En produccion, si OAuth esta habilitado, `OAUTH_STATE_SECRET` debe tener al menos 32 caracteres.
+## Despliegue en VPS
+Ruta recomendada:
+- `/opt/ecommerce`
 
-## Frontend (desde `frontend/`)
+Flujo base:
 
-Instalacion:
-
-```powershell
-npm install
+```bash
+cd /opt
+git clone git@github.com:lautaroschenfeld/ecommerce.git
+cd ecommerce
+cp .env.example .env
+# editar .env con valores reales
+docker compose up -d --build
 ```
 
-Desarrollo:
+Con Nginx:
+- `https://tu-dominio.com` -> `http://127.0.0.1:3000`
+- `https://tu-dominio.com/api/` -> `http://127.0.0.1:9000/`
 
-```powershell
-npm run dev
-```
-
-Validacion:
-
-```powershell
-npm run lint
-npm run build
-```
-
-## Guia rapida: donde editar el diseno
-
-Regla general:
-- Cada seccion visual vive en un componente `tsx` y su estilo en un `*.module.css` con el mismo nombre.
-- Las rutas de `src/app/**/page.tsx` suelen ser "entrypoints"; casi toda la UI real esta en `src/components/**`.
-
-Base global (tema, espaciado, tipografia):
-- `frontend/src/styles/tokens.css`: colores, bordes, sombras, radio y variables de tema.
-- `frontend/src/styles/base.css`: reset, tipografia base y escala responsive.
-- `frontend/src/styles/ui.css`: clase `.container` (ancho maximo y padding lateral global).
-- `frontend/src/styles/animations.css`: animaciones globales.
-- `frontend/src/app/layout.tsx` y `frontend/src/app/layout.module.css`: estructura global, fondo, header/footer.
-
-Header y navegacion:
-- `frontend/src/components/site-header.tsx`
-- `frontend/src/components/site-header.module.css`
-- `frontend/src/components/cart-drawer.tsx`
-- `frontend/src/components/cart-drawer.module.css`
-
-Home:
-- Hero: `frontend/src/components/home-hero.tsx` + `frontend/src/components/home-hero.module.css`
-- Categorias principales: `frontend/src/components/primary-categories.tsx` + `frontend/src/components/primary-categories.module.css`
-- Entrada de pagina: `frontend/src/app/page.tsx`
-
-Catalogo y producto:
-- Listado/filtros/orden/paginacion: `frontend/src/components/products-explorer.tsx` + `frontend/src/components/products-explorer.module.css`
-- Card de producto y CTA agregar/cantidad: `frontend/src/components/product-card.tsx` + `frontend/src/components/product-card.module.css`
-- Control de cantidad reutilizable: `frontend/src/components/quantity-control.tsx` + `frontend/src/components/quantity-control.module.css`
-- Detalle de producto: `frontend/src/components/product-detail-page.tsx` + `frontend/src/components/product-detail-page.module.css`
-- Rutas: `frontend/src/app/productos/page.tsx` y `frontend/src/app/productos/[id]/page.tsx`
-
-Carrito y checkout:
-- Carrito pagina: `frontend/src/components/cart-page.tsx` + `frontend/src/components/cart-page.module.css`
-- Checkout: `frontend/src/components/checkout-page.tsx` + `frontend/src/components/checkout-page.module.css`
-- Rutas: `frontend/src/app/carrito/page.tsx` y `frontend/src/app/checkout/page.tsx`
-
-Ingreso/cuenta:
-- Login/registro/recupero: `frontend/src/components/customer-login-page.tsx` + `frontend/src/components/customer-login-page.module.css`
-- Layout de cuenta (tabs, header interno): `frontend/src/components/customer-account-layout.tsx` + `frontend/src/components/customer-account-layout.module.css`
-- Inicio cuenta: `frontend/src/components/customer-account-home-page.tsx` + `frontend/src/components/customer-account-home-page.module.css`
-- Pedidos: `frontend/src/components/customer-account-orders-page.tsx` + `frontend/src/components/customer-account-orders-page.module.css`
-- Perfil/datos personales: `frontend/src/components/customer-account-profile-page.tsx` + `frontend/src/components/customer-account-profile-page.module.css`
-- Ruta ingreso: `frontend/src/app/ingresar/page.tsx`
-- Rutas cuenta: `frontend/src/app/cuenta/**`
-
-Panel de administracion (dentro de cuenta):
-- Panel y secciones (Productos/Cupones/Apariencia/Envio/Equipo): `frontend/src/components/customer-account-admin-page.tsx` + `frontend/src/components/customer-account-admin-page.module.css`
-- CRUD productos: `frontend/src/components/products-admin.tsx` + `frontend/src/components/products-admin.module.css`
-- CRUD cupones: `frontend/src/components/coupons-admin.tsx` + `frontend/src/components/coupons-admin.module.css`
-- Ruta: `frontend/src/app/cuenta/admin/page.tsx`
-
-Paginas institucionales:
-- Nosotros: `frontend/src/app/nosotros/page.tsx` + `frontend/src/app/nosotros/page.module.css`
-- Contacto: `frontend/src/app/contacto/page.tsx` + `frontend/src/app/contacto/page.module.css`
-
-SEO/metadatos:
-- Helpers SEO: `frontend/src/lib/seo.ts`
-- SEO de productos: `frontend/src/lib/store-seo.ts`
-- Robots/Sitemap: `frontend/src/app/robots.ts`, `frontend/src/app/sitemap.ts`
-
-Si editas solo estilos, prioriza `*.module.css` del componente. Si cambias estructura, labels o comportamiento, toca el `tsx` del mismo componente.
-
-## Primer setup recomendado (paso a paso)
-
-1. `docker compose up -d postgres`
-2. `cd backend && npm install`
-3. `npm run setup:local`
-4. Copiar `pk_...` del output de seed a `frontend/.env.local`
-5. `npm run dev` (backend)
-6. `cd ../frontend && npm install && npm run dev`
-
-## Troubleshooting rapido
+## Troubleshooting
 
 - `Failed to fetch` en frontend:
-  - backend apagado o `NEXT_PUBLIC_BACKEND_URL` incorrecto.
-- errores de tablas faltantes:
-  - `cd backend && npm run setup:local`
-- key publishable faltante/invalida:
-  - `cd backend && npm run seed` y copiar el nuevo `pk_...`
-- entorno local roto (DB/cache):
-  - `docker compose down -v`
-  - `docker compose up -d postgres`
-  - limpiar dependencias/caches npm:
-    - macOS: `./clean-deps.sh`
-    - Windows: `clean-deps.bat`
-  - `cd backend && npm run setup:local`
+  - revisar que backend este levantado
+  - verificar `NEXT_PUBLIC_BACKEND_URL`
 
+- Error de tablas faltantes:
 
+```powershell
+cd backend
+npm run setup:local
+```
+
+- Publishable key faltante/invalida:
+
+```powershell
+cd backend
+npm run seed
+```
+
+- Entorno local roto (DB/cache):
+
+```powershell
+docker compose down -v
+docker compose up -d postgres
+```
+
+## Seguridad
+- No commitear archivos `.env`.
+- Mantener `JWT_SECRET` y `COOKIE_SECRET` con 32+ caracteres.
+- En produccion, usar HTTPS para `STOREFRONT_URL` y `BACKEND_PUBLIC_URL`.
+- Mantener `ALLOW_DEV_RESET_TOKEN=false` en produccion.
