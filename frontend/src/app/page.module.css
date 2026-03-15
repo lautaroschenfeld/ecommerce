@@ -3,6 +3,10 @@
   flex-direction: column;
   gap: 1.85rem;
   padding-top: 0.45rem;
+  min-height: calc(
+    100dvh - var(--dynamic-grid-top, 0px) - var(--dynamic-footer-row-height, 0px) - 4.5rem
+  );
+  justify-content: center;
 }
 
 .heroBleed {
