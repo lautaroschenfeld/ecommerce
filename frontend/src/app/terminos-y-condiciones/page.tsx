@@ -45,7 +45,7 @@ const sections = [
   {
     heading: "3. Pagos y facturación",
     paragraphs: [
-      "Los pagos se procesan por medios habilitados en checkout.",
+      "Los pagos se procesan por medios habilitados en la finalizacion de compra.",
       "FR Motos emitirá la documentación fiscal que corresponda conforme normativa vigente.",
     ],
   },

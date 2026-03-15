@@ -2,7 +2,7 @@ const FALLBACK_SITE_URL = "http://localhost:3000";
 
 export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "Ecommerce";
 export const SITE_DESCRIPTION =
-  "Catálogo ecommerce moderno con búsqueda, filtros, carrito y checkout rápido.";
+  "Catálogo ecommerce moderno con búsqueda, filtros, carrito y finalización de compra rápida.";
 
 function normalizeSiteUrl(input: string) {
   const trimmed = input.trim();

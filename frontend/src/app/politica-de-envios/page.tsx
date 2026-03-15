@@ -89,7 +89,7 @@ const sections = [
   {
     heading: "10. Envío por cadetería en Paraná",
     paragraphs: [
-      "Para Paraná puede ofrecerse entrega por cadete. Costo, cobertura, franjas y condiciones se informan en checkout y rigen al momento de la compra.",
+      "Para Paraná puede ofrecerse entrega por cadete. Costo, cobertura, franjas y condiciones se informan al finalizar la compra y rigen al momento de la compra.",
     ],
   },
   {

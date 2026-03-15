@@ -888,7 +888,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           })
         );
       } catch {
-        // best effort; if it fails, fallback will show checkout vacío
+        // best effort; if it fails, fallback will show flujo de compra vacio
       }
     }
     router.push("/checkout?intent=buy-now");

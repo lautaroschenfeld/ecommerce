@@ -20,12 +20,12 @@
       transparent 60%
     ),
     radial-gradient(
-      900px circle at 50% 100%,
+      900px circle at 88% 100%,
       rgb(var(--ui-ink-rgb) / 0.06),
       transparent 55%
     ),
     radial-gradient(
-      900px circle at 55% 120%,
+      900px circle at 88% 120%,
       rgb(var(--ui-ink-rgb) / 0.07),
       transparent 55%
     );

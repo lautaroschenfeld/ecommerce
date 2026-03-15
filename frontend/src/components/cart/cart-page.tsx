@@ -235,7 +235,7 @@ export function CartPage() {
           <CardContent className={styles.emptyContent}>
             <p className={styles.emptyText}>
               Agrega productos desde <strong>/productos</strong> y volvé para ver
-              el checkout completo.
+              el flujo de compra completo.
             </p>
             <Button asChild>
               <Link href="/productos">
@@ -361,12 +361,12 @@ export function CartPage() {
 
                   <div className={styles.trustRow}>
                     <ShieldCheck size={16} />
-                    <span>Checkout UI listo (pago real se integra después).</span>
+                    <span>Flujo de compra listo (pago real se integra despues).</span>
                   </div>
 
                   <Button asChild size="lg" className={styles.cta}>
                     <Link href="/checkout">
-                      Ir a checkout <ArrowRight size={16} />
+                      Ir a finalizar compra <ArrowRight size={16} />
                     </Link>
                   </Button>
                 </CardContent>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -179,7 +179,7 @@ export function CheckoutPage() {
         ? "Tu pedido ya quedo registrado y estamos validando la acreditacion final por webhook."
         : tone === "pending"
           ? "El pago todavia esta en proceso. En cuanto se acredite, el estado de la orden se actualizara automaticamente."
-          : "No se pudo acreditar el pago. Puedes reintentar desde checkout.";
+          : "No se pudo acreditar el pago. Puedes reintentar desde la finalizacion de compra.";
 
     return {
       tone,
@@ -671,7 +671,7 @@ export function CheckoutPage() {
   const stepTitle =
     step === STEPS.length - 1 && paymentStage === "method"
       ? "Metodo de pago"
-      : STEPS[step]?.label ?? "Checkout";
+      : STEPS[step]?.label ?? "Finalizar compra";
 
   const loginHref = "/ingresar?redirect=%2Fcheckout";
   const publishableKey = process.env.NEXT_PUBLIC_PUBLISHABLE_API_KEY?.trim() || "";
@@ -912,7 +912,7 @@ export function CheckoutPage() {
           : "";
 
       if (draft.paymentMethod === "mercadopago" && !checkoutRedirectUrl) {
-        throw new Error("No se pudo iniciar el checkout de Mercado Pago.");
+        throw new Error("No se pudo iniciar el proceso de pago de Mercado Pago.");
       }
 
       setPlacedOrder({
@@ -1159,7 +1159,7 @@ export function CheckoutPage() {
           } else {
             message =
               error.code === "STOCK_RESERVATION_EXPIRED"
-                ? "Se venciÃ³ la reserva de stock. Reintenta checkout."
+                ? "Se venciÃ³ la reserva de stock. Reintenta la finalizacion de compra."
                 : "Algunos productos ya no tienen stock suficiente.";
           }
         } else {
@@ -1475,10 +1475,10 @@ export function CheckoutPage() {
       <div className={styles.page}>
         <div className={styles.topRow}>
           <div className={styles.heading}>
-            <h1 className={styles.title}>Checkout</h1>
+            <h1 className={styles.title}>Finalizar compra</h1>
                       <p className={styles.subtitle}>
             Completa tus datos, elige envio y metodo de pago. Si seleccionas
-            Mercado Pago, te redirigimos al checkout seguro y vuelves con el
+            Mercado Pago, te redirigimos al pago seguro y vuelves con el
             estado del pago. Tambien puedes comprar como invitado y crear cuenta
             al finalizar.
           </p>
@@ -1507,10 +1507,10 @@ export function CheckoutPage() {
       <div className={styles.page}>
         <div className={styles.topRow}>
           <div className={styles.heading}>
-            <h1 className={styles.title}>Checkout</h1>
+            <h1 className={styles.title}>Finalizar compra</h1>
                       <p className={styles.subtitle}>
             Completa tus datos, elige envio y metodo de pago. Si seleccionas
-            Mercado Pago, te redirigimos al checkout seguro y vuelves con el
+            Mercado Pago, te redirigimos al pago seguro y vuelves con el
             estado del pago. Tambien puedes comprar como invitado y crear cuenta
             al finalizar.
           </p>
@@ -1526,7 +1526,7 @@ export function CheckoutPage() {
           <CardHeader>
             <CardTitle>EmpezÃ¡ por el catÃ¡logo</CardTitle>
             <CardDescription>
-              Tu carrito esta vacio. Agrega productos para continuar con el checkout.
+              Tu carrito esta vacio. Agrega productos para continuar con la finalizacion de compra.
             </CardDescription>
           </CardHeader>
           <CardContent className={styles.emptyContent}>
@@ -1674,10 +1674,10 @@ export function CheckoutPage() {
     <div className={styles.page}>
       <div className={styles.topRow}>
         <div className={styles.heading}>
-          <h1 className={styles.title}>Checkout</h1>
+          <h1 className={styles.title}>Finalizar compra</h1>
                     <p className={styles.subtitle}>
             Completa tus datos, elige envio y metodo de pago. Si seleccionas
-            Mercado Pago, te redirigimos al checkout seguro y vuelves con el
+            Mercado Pago, te redirigimos al pago seguro y vuelves con el
             estado del pago. Tambien puedes comprar como invitado y crear cuenta
             al finalizar.
           </p>
@@ -2443,7 +2443,7 @@ export function CheckoutPage() {
                             >
                               <div className={styles.promoBox}>
                                 <p className={styles.promoHint}>
-                                  Mercado Pago se integra redirigiendo al checkout seguro y
+                                  Mercado Pago se integra redirigiendo al pago seguro y
                                   confirmando el pago por webhook.
                                 </p>
                               </div>

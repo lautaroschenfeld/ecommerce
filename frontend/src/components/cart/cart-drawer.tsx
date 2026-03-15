@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -81,7 +81,7 @@ export function CartDrawer() {
             <div className={styles.empty}>
               <p className={styles.emptyTitle}>Todavía no agregaste productos.</p>
               <p className={styles.emptyText}>
-                Suma repuestos al carrito para ver el checkout completo.
+                Suma repuestos al carrito para ver el flujo de compra completo.
               </p>
               <div className={styles.emptyActions}>
                 <Button asChild>
@@ -115,7 +115,7 @@ export function CartDrawer() {
                 </div>
                 <div className={styles.summaryRow}>
                   <span className={styles.muted}>Envío</span>
-                  <Badge variant="secondary">Se calcula en checkout</Badge>
+                  <Badge variant="secondary">Se calcula al finalizar la compra</Badge>
                 </div>
                 <Separator />
                 <div className={styles.summaryRow}>
@@ -149,7 +149,7 @@ export function CartDrawer() {
 
               <Button asChild className={styles.footerGrow}>
                 <Link href="/checkout" onClick={closeDrawer}>
-                  Checkout
+                  Finalizar compra
                 </Link>
               </Button>
             </>

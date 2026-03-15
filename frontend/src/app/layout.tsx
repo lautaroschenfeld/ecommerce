@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  keywords: ["ecommerce", "tienda online", "catalogo", "carrito", "checkout"],
+  keywords: ["ecommerce", "tienda online", "catalogo", "carrito", "finalizacion de compra"],
   openGraph: {
     type: "website",
     locale: "es_AR",

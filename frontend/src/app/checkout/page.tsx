@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { CheckoutPage } from "@/components/cart/checkout-page";
 
 export const metadata: Metadata = {
-  title: "Checkout",
+  title: "Finalizar compra",
   robots: {
     index: false,
     follow: false,
@@ -18,4 +18,3 @@ export default function CheckoutRoutePage() {
     </Suspense>
   );
 }
-
