@@ -28,14 +28,29 @@ function computeGridStep(availableSize: number) {
 export function DynamicGridSync() {
   useEffect(() => {
     const root = document.documentElement;
-    const headerEl = document.querySelector<HTMLElement>("[data-site-header]");
+    let observedHeader: HTMLElement | null = null;
+    let resizeObserver: ResizeObserver | null = null;
 
-    if (!headerEl) return;
+    const syncObservedHeader = () => {
+      const nextHeader = document.querySelector<HTMLElement>("[data-site-header]");
+      if (nextHeader === observedHeader) return;
+
+      if (resizeObserver && observedHeader) {
+        resizeObserver.unobserve(observedHeader);
+      }
+
+      observedHeader = nextHeader;
+
+      if (resizeObserver && observedHeader) {
+        resizeObserver.observe(observedHeader);
+      }
+    };
 
     const updateGrid = () => {
+      syncObservedHeader();
       const headerHeight = Math.max(
         0,
-        Math.round(headerEl.getBoundingClientRect().height)
+        Math.round(observedHeader?.getBoundingClientRect().height ?? 0)
       );
       const viewportWidth = Math.max(1, root.clientWidth);
       const viewportHeight = Math.max(1, window.innerHeight);
@@ -52,15 +67,25 @@ export function DynamicGridSync() {
 
     updateGrid();
 
-    const observer = new ResizeObserver(updateGrid);
-    observer.observe(headerEl);
-    observer.observe(root);
+    resizeObserver = new ResizeObserver(updateGrid);
+    resizeObserver.observe(root);
+    syncObservedHeader();
+
+    const mutationObserver = new MutationObserver(updateGrid);
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
 
     window.addEventListener("resize", updateGrid);
     window.addEventListener("orientationchange", updateGrid);
 
     return () => {
-      observer.disconnect();
+      mutationObserver.disconnect();
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
       window.removeEventListener("resize", updateGrid);
       window.removeEventListener("orientationchange", updateGrid);
       root.style.removeProperty("--dynamic-grid-top");
