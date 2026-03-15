@@ -12,13 +12,25 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function buildRedirect(request: NextRequest, targetPath: string) {
-  return new URL(targetPath, request.url);
+function createRelativeRedirectResponse(targetPath: string) {
+  return new NextResponse(null, {
+    status: 303,
+    headers: {
+      Location: targetPath,
+    },
+  });
+}
+
+function isHttpsRequest(request: NextRequest) {
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "";
+  const firstForwardedProto = forwardedProto.split(",")[0]?.trim().toLowerCase();
+  if (firstForwardedProto === "https") return true;
+  return request.nextUrl.protocol === "https:";
 }
 
 export async function POST(request: NextRequest) {
   if (!(await isMaintenanceEnabled())) {
-    return NextResponse.redirect(buildRedirect(request, "/"));
+    return createRelativeRedirectResponse("/");
   }
 
   const formData = await request.formData();
@@ -27,20 +39,18 @@ export async function POST(request: NextRequest) {
 
   const validPassword = await verifyMaintenancePassword(password);
   if (!validPassword) {
-    const redirectUrl = buildRedirect(
-      request,
+    return createRelativeRedirectResponse(
       `/mantenimiento?error=1&next=${encodeURIComponent(nextPath)}`
     );
-    return NextResponse.redirect(redirectUrl);
   }
 
-  const response = NextResponse.redirect(buildRedirect(request, nextPath));
+  const response = createRelativeRedirectResponse(nextPath);
   response.cookies.set({
     name: MAINTENANCE_COOKIE_NAME,
     value: MAINTENANCE_COOKIE_VALUE,
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: isHttpsRequest(request),
     path: "/",
     maxAge: MAINTENANCE_COOKIE_MAX_AGE_SECONDS,
   });
