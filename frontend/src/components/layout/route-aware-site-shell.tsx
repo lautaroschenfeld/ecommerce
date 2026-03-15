@@ -35,7 +35,7 @@ export function RouteAwareSiteShell({
   const maintenanceRoute = isMaintenancePath(pathname);
 
   if (maintenanceRoute) {
-    return <main className={styles.mainAdmin}>{children}</main>;
+    return <main className={`container ${styles.mainAdmin}`}>{children}</main>;
   }
 
   return (

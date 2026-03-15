@@ -2,8 +2,9 @@
   position: sticky;
   top: 0;
   z-index: var(--z-header);
+  isolation: isolate;
   border-bottom: 1px solid var(--ui-border-strong);
-  background: var(--ui-surface-glass);
+  background: var(--ui-surface-popover);
   backdrop-filter: blur(18px);
 }
 

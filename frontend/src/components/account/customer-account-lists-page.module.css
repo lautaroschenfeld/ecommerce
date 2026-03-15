@@ -234,7 +234,7 @@
 }
 
 .createDialog {
-  width: min(26rem, 95vw);
+  width: min(26rem, 100%);
 }
 
 .createDialogBody {

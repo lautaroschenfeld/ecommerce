@@ -241,5 +241,4 @@
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
-  z-index: var(--z-raised);
 }

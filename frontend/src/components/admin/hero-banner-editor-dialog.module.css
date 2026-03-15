@@ -1,6 +1,6 @@
 .dialog {
-  width: 96vw;
-  max-width: 96vw;
+  width: 100%;
+  max-width: 100%;
   max-height: calc(100dvh - 1.25rem);
   height: min(44rem, calc(100dvh - 1.25rem));
   padding: 0.95rem 0.88rem 0.95rem;
@@ -216,8 +216,8 @@
 
 @media (width >= 768px) {
   .dialog {
-    width: min(86vw, 60rem);
-    max-width: min(86vw, 60rem);
+    width: min(60rem, 100%);
+    max-width: min(60rem, 100%);
     max-height: calc(100dvh - 2rem);
     height: min(52rem, calc(100dvh - 2rem));
     padding: 1rem 1rem 1.05rem;

@@ -8,7 +8,6 @@ import {
   STOREFRONT_RUNTIME_UPDATED_EVENT,
   type StorefrontSettings,
 } from "@/lib/storefront-settings";
-import { SITE_NAME } from "@/lib/seo";
 
 import styles from "@/app/layout.module.css";
 
@@ -22,7 +21,10 @@ export function SiteFooter({ storefront }: { storefront: StorefrontSettings }) {
   const [runtimeStorefront, setRuntimeStorefront] = useState(storefront);
   const hidden = isAdminPath(pathname);
   const storeName = runtimeStorefront.storeName?.trim() || "";
-  const brandName = storeName || SITE_NAME;
+  const brandName =
+    !storeName || storeName.toLocaleLowerCase("es") === "ecommerce"
+      ? "FR Motos"
+      : storeName;
 
   useEffect(() => {
     setRuntimeStorefront(storefront);

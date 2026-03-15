@@ -1,7 +1,6 @@
 .page {
-  width: min(100%, 64rem);
+  width: 100%;
   min-height: calc(100dvh - 4.5rem);
-  margin-inline: auto;
   display: grid;
   place-items: center;
 }

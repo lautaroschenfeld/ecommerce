@@ -683,7 +683,7 @@
 }
 
 .addToListDialog {
-  width: min(32rem, 95vw);
+  width: min(32rem, 100%);
 }
 
 .addToListHeader {
@@ -889,7 +889,7 @@
 }
 
 .questionsDialog {
-  max-width: min(94vw, 52rem);
+  max-width: min(52rem, 100%);
   padding: 1.15rem;
 }
 
@@ -1178,7 +1178,7 @@
   }
 
   .addToListDialog {
-    width: min(96vw, 32rem);
+    width: min(32rem, 100%);
   }
 
   .addToListCreateForm {

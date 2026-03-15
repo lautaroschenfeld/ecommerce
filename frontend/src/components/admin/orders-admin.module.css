@@ -222,7 +222,7 @@
 }
 
 .sheet {
-  width: min(36rem, 96vw);
+  width: min(36rem, 100%);
 }
 
 .sheetBody {
