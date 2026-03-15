@@ -44,6 +44,27 @@ const DEFAULT_SHIPPING_PROFILE_NAME = "Default Shipping Profile"
 const DEFAULT_PUBLISHABLE_KEY_TITLE = "Storefront Public API"
 const DEFAULT_PAYMENT_PROVIDER_ID = "pp_system_default"
 
+function isTruthyFlag(raw: unknown) {
+  const value = String(raw || "").trim().toLowerCase()
+  if (!value) return false
+  return value === "1" || value === "true" || value === "yes" || value === "on"
+}
+
+function isFalsyFlag(raw: unknown) {
+  const value = String(raw || "").trim().toLowerCase()
+  if (!value) return false
+  return value === "0" || value === "false" || value === "no" || value === "off"
+}
+
+function shouldSeedDemoData(envVarName: string) {
+  const explicit = process.env[envVarName]
+  if (isTruthyFlag(explicit)) return true
+  if (isFalsyFlag(explicit)) return false
+
+  const isProduction = String(process.env.NODE_ENV || "").trim().toLowerCase() === "production"
+  return !isProduction
+}
+
 function makePublishableToken() {
   return `pk_${crypto.randomBytes(32).toString("hex")}`
 }
@@ -444,6 +465,9 @@ async function ensureProductCategories() {
 }
 
 export async function runSeed() {
+  const seedDemoProducts = shouldSeedDemoData("SEED_DEMO_PRODUCTS")
+  const seedDemoCoupons = shouldSeedDemoData("SEED_DEMO_COUPONS")
+
   logger.info("Applying database migrations...")
   await runAppMigrations()
 
@@ -472,19 +496,20 @@ export async function runSeed() {
   logger.info("Creating product categories...")
   const categoryIdByName = await ensureProductCategories()
 
-  logger.info("Creating brands...")
-  const brandsToCreate = ["Brembo", "DID", "K&N", "Motul", "Yuasa", "Athena", "SKF", "Philips"]
+  if (seedDemoProducts) {
+    logger.info("Creating demo brands...")
+    const brandsToCreate = ["Brembo", "DID", "K&N", "Motul", "Yuasa", "Athena", "SKF", "Philips"]
 
-  const brandService = getBrandPgService()
-  const existingBrands = await brandService.listBrands({}, { take: 500 })
-  const existingBrandBySlug = new Map(existingBrands.map((b: any) => [b.slug, b]))
+    const brandService = getBrandPgService()
+    const existingBrands = await brandService.listBrands({}, { take: 500 })
+    const existingBrandBySlug = new Map(existingBrands.map((b: any) => [b.slug, b]))
 
-  for (const name of brandsToCreate) {
-    const slug = slugify(name)
-    if (existingBrandBySlug.has(slug)) continue
-    const created = await brandService.createBrands({ name, slug })
-    existingBrandBySlug.set(created.slug, created)
-  }
+    for (const name of brandsToCreate) {
+      const slug = slugify(name)
+      if (existingBrandBySlug.has(slug)) continue
+      const created = await brandService.createBrands({ name, slug })
+      existingBrandBySlug.set(created.slug, created)
+    }
 
   // Kept for parity with the previous seed.
   await getOrCreateDefaultShippingProfileId()
@@ -548,90 +573,97 @@ export async function runSeed() {
     },
   ]
 
-  logger.info("Creating products...")
-  for (const p of products) {
-    const handle = slugify(p.title)
+    logger.info("Creating demo products...")
+    for (const p of products) {
+      const handle = slugify(p.title)
 
-    const existing = await pgQuery<{ id: string }>(
-      `select "id"
-       from "product"
-       where "deleted_at" is null and "handle" = $1
-       limit 1;`,
-      [handle]
-    )
+      const existing = await pgQuery<{ id: string }>(
+        `select "id"
+         from "product"
+         where "deleted_at" is null and "handle" = $1
+         limit 1;`,
+        [handle]
+      )
 
-    if (existing[0]?.id) {
+      if (existing[0]?.id) {
+        await setProductStockLevel({
+          productId: existing[0].id,
+          availableQty: 20,
+        })
+        continue
+      }
+
+      const categoryId = categoryIdByName.get(p.category)
+      if (!categoryId) {
+        throw new Error(`Missing category id for ${p.category}`)
+      }
+
+      const brandSlug = slugify(p.brand)
+      const brand = existingBrandBySlug.get(brandSlug)
+      if (!brand) {
+        throw new Error(`Missing brand for ${p.brand}`)
+      }
+
+      const created = await createSimpleProduct({
+        title: p.title,
+        handle,
+        description: null,
+        status: "published",
+        thumbnail: null,
+        images: [],
+        metadata: {},
+        categoryId,
+        brandId: brand.id,
+        variantSku: p.sku ?? null,
+        currencyCode: STORE_CURRENCY_CODE,
+        priceAmount: p.priceArs,
+      })
+
       await setProductStockLevel({
-        productId: existing[0].id,
+        productId: created.productId,
         availableQty: 20,
       })
-      continue
     }
-
-    const categoryId = categoryIdByName.get(p.category)
-    if (!categoryId) {
-      throw new Error(`Missing category id for ${p.category}`)
-    }
-
-    const brandSlug = slugify(p.brand)
-    const brand = existingBrandBySlug.get(brandSlug)
-    if (!brand) {
-      throw new Error(`Missing brand for ${p.brand}`)
-    }
-
-    const created = await createSimpleProduct({
-      title: p.title,
-      handle,
-      description: null,
-      status: "published",
-      thumbnail: null,
-      images: [],
-      metadata: {},
-      categoryId,
-      brandId: brand.id,
-      variantSku: p.sku ?? null,
-      currencyCode: STORE_CURRENCY_CODE,
-      priceAmount: p.priceArs,
-    })
-
-    await setProductStockLevel({
-      productId: created.productId,
-      availableQty: 20,
-    })
+  } else {
+    logger.info("Skipping demo products and brands (SEED_DEMO_PRODUCTS=false).")
   }
 
-  logger.info("Ensuring demo coupons...")
-  const customerAuthService = getCustomerAuthPgService() as any
+  if (seedDemoCoupons) {
+    logger.info("Ensuring demo coupons...")
+    const customerAuthService = getCustomerAuthPgService() as any
 
-  const demoCoupons = [
-    {
-      code: "BIENVENIDA10",
-      title: "Bienvenida",
-      description: "10% OFF para la primera compra.",
-      percentage_tenths: 100,
-      is_active: true,
-    },
-    {
-      code: "MOTO15",
-      title: "Motos 15",
-      description: "15% OFF en repuestos seleccionados.",
-      percentage_tenths: 150,
-      is_active: true,
-    },
-  ]
+    const demoCoupons = [
+      {
+        code: "BIENVENIDA10",
+        title: "Bienvenida",
+        description: "10% OFF para la primera compra.",
+        percentage_tenths: 100,
+        is_active: true,
+      },
+      {
+        code: "MOTO15",
+        title: "Motos 15",
+        description: "15% OFF en repuestos seleccionados.",
+        percentage_tenths: 150,
+        is_active: true,
+      },
+    ]
 
-  for (const coupon of demoCoupons) {
-    const existing = await customerAuthService.listCoupons(
-      { code: coupon.code },
-      { take: 1 }
-    )
-    if (existing[0]) continue
+    for (const coupon of demoCoupons) {
+      const existing = await customerAuthService.listCoupons(
+        { code: coupon.code },
+        { take: 1 }
+      )
+      if (existing[0]) continue
 
-    await customerAuthService.createCoupons({
-      ...coupon,
-      used_count: 0,
-      metadata: {},
-    })
+      await customerAuthService.createCoupons({
+        ...coupon,
+        used_count: 0,
+        metadata: {},
+      })
+    }
+  } else {
+    logger.info("Skipping demo coupons (SEED_DEMO_COUPONS=false).")
   }
 
   logger.info("Seed completed.")

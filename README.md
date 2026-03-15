@@ -125,6 +125,10 @@ Para entornos de VPS/produccion, crear `.env` en la raiz basado en `.env.example
 Copy-Item .env.example .env
 ```
 
+Importante:
+- En produccion, el seed no crea productos/cupones demo por defecto.
+- Si queres forzarlos, definir `SEED_DEMO_PRODUCTS=true` y/o `SEED_DEMO_COUPONS=true`.
+
 ## Docker Compose (stack completa)
 
 Desde la raiz del repo:
@@ -187,20 +191,6 @@ Adicional:
 
 ## Bootstrap de administrador
 Para crear el primer usuario administrador:
-
-1. Configurar hash de token en `backend/.env`:
-
-```env
-CUSTOMER_BOOTSTRAP_ADMIN_TOKEN_HASH=<sha256_del_token>
-```
-
-2. Generar hash:
-
-```powershell
-node -e "console.log(require('crypto').createHash('sha256').update('TU_TOKEN_SECRETO').digest('hex'))"
-```
-
-3. Ejecutar bootstrap:
 
 ```powershell
 cd backend
