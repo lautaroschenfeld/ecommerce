@@ -291,10 +291,7 @@
   display: grid;
   place-items: center;
   text-align: center;
-  border: 1px dashed var(--ui-border);
-  border-radius: var(--admin-radius-sm);
-  background: var(--ui-surface-glass);
-  padding: 1.25rem;
+  padding: 1rem 0.25rem;
 }
 
 .countRow {

@@ -1,25 +1,31 @@
 import type { Metadata } from "next";
 
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
-  title: "Nosotros",
-  description: cleanMetaText(
-    `Conoce al equipo y la forma de trabajo de ${SITE_NAME}.`
-  ),
-  alternates: {
-    canonical: "/nosotros",
-  },
-  openGraph: {
-    type: "website",
-    url: "/nosotros",
-    title: `Nosotros | ${SITE_NAME}`,
-    description: cleanMetaText(
-      "Quienes somos, como trabajamos y que buscamos en cada compra."
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Nosotros";
+  const description = cleanMetaText(`Conoce al equipo y la forma de trabajo de ${siteName}.`);
+
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText("Quienes somos, como trabajamos y que buscamos en cada compra."),
+      canonical: "/nosotros",
+      storefront,
+      imageAlt: `${siteName} nosotros`,
+    }),
+  };
+}
 
 const intro = [
   "Somos una tienda enfocada en brindar una experiencia de compra clara, rapida y confiable.",

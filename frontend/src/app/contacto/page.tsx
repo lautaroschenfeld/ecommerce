@@ -1,25 +1,31 @@
 import type { Metadata } from "next";
 
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
-  title: "Contacto",
-  description: cleanMetaText(
-    `Canales de contacto y atencion para clientes de ${SITE_NAME}.`
-  ),
-  alternates: {
-    canonical: "/contacto",
-  },
-  openGraph: {
-    type: "website",
-    url: "/contacto",
-    title: `Contacto | ${SITE_NAME}`,
-    description: cleanMetaText(
-      "Escribinos para consultas de compra, pedidos y postventa."
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Contacto";
+  const description = cleanMetaText(`Canales de contacto y atencion para clientes de ${siteName}.`);
+
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText("Escribinos para consultas de compra, pedidos y postventa."),
+      canonical: "/contacto",
+      storefront,
+      imageAlt: `${siteName} contacto`,
+    }),
+  };
+}
 
 const intro = [
   "Si tenes una consulta comercial o de postventa, podes escribirnos por los canales oficiales.",

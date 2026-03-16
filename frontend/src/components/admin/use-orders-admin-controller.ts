@@ -175,6 +175,7 @@ export function useOrdersAdminController() {
 
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [ordersCount, setOrdersCount] = useState(0);
+  const [hasAnyOrders, setHasAnyOrders] = useState<boolean | null>(null);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +196,8 @@ export function useOrdersAdminController() {
   const [detailError, setDetailError] = useState<string | null>(null);
   const ordersAbortRef = useRef<AbortController | null>(null);
   const ordersRequestIdRef = useRef(0);
+  const ordersPresenceAbortRef = useRef<AbortController | null>(null);
+  const ordersPresenceRequestIdRef = useRef(0);
   const detailAbortRef = useRef<AbortController | null>(null);
   const detailRequestIdRef = useRef(0);
   const detailRequestOrderIdRef = useRef<string | null>(null);
@@ -381,6 +384,36 @@ export function useOrdersAdminController() {
     [ordersQuery]
   );
 
+  const refreshOrdersPresence = useCallback(async () => {
+    ordersPresenceAbortRef.current?.abort();
+    const controller = new AbortController();
+    const requestId = ordersPresenceRequestIdRef.current + 1;
+    ordersPresenceRequestIdRef.current = requestId;
+    ordersPresenceAbortRef.current = controller;
+
+    try {
+      const data = await getAdminOrdersPage(
+        {
+          limit: 1,
+          offset: 0,
+        },
+        { signal: controller.signal }
+      );
+      if (controller.signal.aborted || requestId !== ordersPresenceRequestIdRef.current) return;
+      setHasAnyOrders(data.count > 0);
+    } catch {
+      if (controller.signal.aborted || requestId !== ordersPresenceRequestIdRef.current) return;
+      setHasAnyOrders((current) => current);
+    } finally {
+      if (
+        requestId === ordersPresenceRequestIdRef.current &&
+        ordersPresenceAbortRef.current === controller
+      ) {
+        ordersPresenceAbortRef.current = null;
+      }
+    }
+  }, []);
+
   const refreshOrderDetail = useCallback(
     async (
       orderId: string,
@@ -436,12 +469,15 @@ export function useOrdersAdminController() {
 
   useEffect(() => {
     void refreshOrders();
-  }, [refreshOrders]);
+    void refreshOrdersPresence();
+  }, [refreshOrders, refreshOrdersPresence]);
 
   useEffect(() => {
     return () => {
       ordersAbortRef.current?.abort();
       ordersAbortRef.current = null;
+      ordersPresenceAbortRef.current?.abort();
+      ordersPresenceAbortRef.current = null;
       detailAbortRef.current?.abort();
       detailAbortRef.current = null;
       detailRequestOrderIdRef.current = null;
@@ -455,6 +491,7 @@ export function useOrdersAdminController() {
   useEffect(() => {
     const unsubscribe = subscribeAdminOrdersInvalidation(() => {
       void refreshOrders({ background: true, silentError: true });
+      void refreshOrdersPresence();
       if (activeOrderId) {
         void refreshOrderDetail(activeOrderId, {
           background: true,
@@ -466,7 +503,7 @@ export function useOrdersAdminController() {
     return () => {
       unsubscribe();
     };
-  }, [activeOrderId, refreshOrderDetail, refreshOrders]);
+  }, [activeOrderId, refreshOrderDetail, refreshOrders, refreshOrdersPresence]);
 
   useEffect(() => {
     if (offset <= 0) return;
@@ -701,6 +738,7 @@ export function useOrdersAdminController() {
     ordersCount,
     loading,
     error,
+    hasAnyOrders,
     hasActiveFilters,
     statusFilterOptionAppearance,
     clearFilters,

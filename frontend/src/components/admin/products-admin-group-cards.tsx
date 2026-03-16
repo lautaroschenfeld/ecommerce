@@ -13,6 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { CssVarElement } from "@/components/ui/css-var-element";
 import { EntityActionsMenu } from "./products-admin-entity-actions-menu";
 import { EditProductDialog } from "./products-admin-edit-dialog";
+import {
+  ADMIN_PRODUCTS_EMPTY_STATE_MESSAGES,
+  resolveAdminEmptyStateMessage,
+} from "./admin-empty-state-utils";
 import { type ProductGroupEntry } from "./products-admin-support-utils";
 import styles from "./products-admin.module.css";
 
@@ -380,9 +384,11 @@ export function ProductGroupCards({
 
 export function ProductsEmptyStateCard({
   loading,
+  hasAnyProducts,
   hasActiveFilters,
 }: {
   loading: boolean;
+  hasAnyProducts: boolean | null;
   hasActiveFilters: boolean;
 }) {
   return (
@@ -390,9 +396,11 @@ export function ProductsEmptyStateCard({
       <p className={styles.muted}>
         {loading
           ? "Cargando productos..."
-          : hasActiveFilters
-            ? "No se encontraron productos con los filtros aplicados."
-            : "No hay productos. Crea el primero desde 'Crear nuevo producto'."}
+          : resolveAdminEmptyStateMessage({
+              hasActiveFilters,
+              hasAnyRecords: hasAnyProducts,
+              ...ADMIN_PRODUCTS_EMPTY_STATE_MESSAGES,
+            })}
       </p>
     </div>
   );

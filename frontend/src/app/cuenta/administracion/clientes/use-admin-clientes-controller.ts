@@ -207,6 +207,7 @@ export function useAdminClientesController() {
   const { confirm, confirmModal } = useConfirmModal();
   const [rows, setRows] = useState<ClientRow[]>([]);
   const [rowsCount, setRowsCount] = useState(0);
+  const [hasAnyClients, setHasAnyClients] = useState<boolean | null>(null);
   const [offset, setOffset] = useState(0);
 
   const [loading, setLoading] = useState(false);
@@ -257,6 +258,12 @@ export function useAdminClientesController() {
     }),
     [createdFrom, createdTo, query, roleFilter, sortBy, statusFilter]
   );
+  const hasActiveFilters =
+    query.trim().length > 0 ||
+    roleFilter !== "all" ||
+    statusFilter !== "all" ||
+    createdFrom.trim().length > 0 ||
+    createdTo.trim().length > 0;
 
   const loadPage = useCallback(
     async (options?: { background?: boolean; silentError?: boolean }) => {
@@ -303,6 +310,39 @@ export function useAdminClientesController() {
     );
     setOffset(lastPageOffset);
   }, [offset, rowsCount]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (rowsCount > 0) {
+      setHasAnyClients(true);
+      return;
+    }
+    if (!hasActiveFilters) {
+      setHasAnyClients(false);
+      return;
+    }
+
+    let cancelled = false;
+    setHasAnyClients(null);
+
+    void getAdminClientsPage({
+      limit: 1,
+      offset: 0,
+      sort: "latest_purchase",
+    })
+      .then((page) => {
+        if (cancelled) return;
+        setHasAnyClients(page.count > 0);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setHasAnyClients(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasActiveFilters, loading, rowsCount]);
 
   useEffect(() => {
     setSelectedRowsById((prev) => {
@@ -868,6 +908,8 @@ export function useAdminClientesController() {
     error,
     query,
     setQuery,
+    hasActiveFilters,
+    hasAnyClients,
     roleFilter,
     setRoleFilter,
     statusFilter,

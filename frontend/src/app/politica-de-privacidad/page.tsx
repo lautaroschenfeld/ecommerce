@@ -1,26 +1,35 @@
 import type { Metadata } from "next";
 
 import { LegalTextPage } from "@/components/legal/legal-text-page";
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
-export const metadata: Metadata = {
-  title: "Política de privacidad",
-  description: cleanMetaText(
-    `Tratamiento de datos personales, cesiones y derechos de titulares en ${SITE_NAME}.`
-  ),
-  alternates: {
-    canonical: "/politica-de-privacidad",
-  },
-  openGraph: {
-    type: "website",
-    url: "/politica-de-privacidad",
-    title: `Política de privacidad | ${SITE_NAME}`,
-    description: cleanMetaText(
-      `Conocé cómo tratamos tus datos personales y cómo ejercer tus derechos.`
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Politica de privacidad";
+  const description = cleanMetaText(
+    `Tratamiento de datos personales, cesiones y derechos de titulares en ${siteName}.`
+  );
 
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText(
+        "Conoce como tratamos tus datos personales y como ejercer tus derechos."
+      ),
+      canonical: "/politica-de-privacidad",
+      storefront,
+      imageAlt: `${siteName} politica de privacidad`,
+    }),
+  };
+}
 const intro = [
   "Esta política se interpreta y aplica conforme la Ley 25.326, su decreto reglamentario y demás normativa vigente en la República Argentina.",
   "Si alguna cláusula fuera interpretada como limitativa de derechos legales, prevalecerá la interpretación más favorable para la persona titular de los datos.",
@@ -162,3 +171,4 @@ export default function PoliticaDePrivacidadPage() {
     />
   );
 }
+

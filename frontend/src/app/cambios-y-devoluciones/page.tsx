@@ -1,26 +1,35 @@
 import type { Metadata } from "next";
 
 import { LegalTextPage } from "@/components/legal/legal-text-page";
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
-export const metadata: Metadata = {
-  title: "Cambios y devoluciones",
-  description: cleanMetaText(
-    `Política de cambios, devoluciones, garantía y arrepentimiento de ${SITE_NAME}.`
-  ),
-  alternates: {
-    canonical: "/cambios-y-devoluciones",
-  },
-  openGraph: {
-    type: "website",
-    url: "/cambios-y-devoluciones",
-    title: `Cambios y devoluciones | ${SITE_NAME}`,
-    description: cleanMetaText(
-      `Procedimientos de postventa con enfoque legal para compras online.`
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Cambios y devoluciones";
+  const description = cleanMetaText(
+    `Politica de cambios, devoluciones, garantia y arrepentimiento de ${siteName}.`
+  );
 
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText(
+        "Procedimientos de postventa con enfoque legal para compras online."
+      ),
+      canonical: "/cambios-y-devoluciones",
+      storefront,
+      imageAlt: `${siteName} cambios y devoluciones`,
+    }),
+  };
+}
 const intro = [
   "Contacto postventa: soporte@frmotos.com.",
   "Esta política se interpreta siempre de manera compatible con la normativa de defensa del consumidor y contratos de consumo vigente en Argentina.",
@@ -165,3 +174,4 @@ export default function CambiosYDevolucionesPage() {
     />
   );
 }
+

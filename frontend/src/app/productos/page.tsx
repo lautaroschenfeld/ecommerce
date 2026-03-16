@@ -1,8 +1,13 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { ProductsExplorer } from "@/components/products/products-explorer";
 import { ALL_CATEGORIES, type Category } from "@/lib/catalog";
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
 
@@ -56,6 +61,8 @@ export async function generateMetadata({
   searchParams,
 }: ProductosPageProps): Promise<Metadata> {
   const resolved = (await Promise.resolve(searchParams)) ?? {};
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
   const category = resolveCategory(resolved);
   const query = resolveQuery(resolved);
   const brands = resolveBrands(resolved);
@@ -69,10 +76,10 @@ export async function generateMetadata({
       : "Productos";
   const description = cleanMetaText(
     query
-      ? `Resultados para "${query}" en el catálogo de ${SITE_NAME}. Filtra por categoría, marca y precio.`
+      ? `Resultados para "${query}" en el catalogo de ${siteName}. Filtra por categoria, marca y precio.`
       : category
-        ? `Explora ${category.toLowerCase()} con filtros por marca y precio. Compra rápido en ${SITE_NAME}.`
-        : `Explora todo el catálogo con filtros por marca y precio. Compra rápido en ${SITE_NAME}.`
+        ? `Explora ${category.toLowerCase()} con filtros por marca y precio. Compra rapido en ${siteName}.`
+        : `Explora todo el catalogo con filtros por marca y precio. Compra rapido en ${siteName}.`
   );
 
   const canonicalParams = new URLSearchParams();
@@ -85,20 +92,13 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description,
       canonical,
-    },
-    openGraph: {
-      type: "website",
-      url: canonical,
-      title,
-      description,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+      storefront,
+      imageAlt: `${siteName} productos`,
+    }),
   };
 }
 

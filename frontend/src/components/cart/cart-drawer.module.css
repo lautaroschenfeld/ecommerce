@@ -5,7 +5,7 @@
   padding: 0;
   display: grid;
   place-items: center;
-  border-radius: var(--radius-pill);
+  border-radius: var(--field-radius);
   border: 1px solid var(--ui-border-stronger);
   background: var(--ui-surface-soft);
   box-shadow: var(--shadow-sm);

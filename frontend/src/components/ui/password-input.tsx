@@ -24,6 +24,13 @@ export function PasswordInput({
 }: PasswordInputProps) {
   const [capsLockOn, setCapsLockOn] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const isSafari = React.useMemo(() => {
+    if (typeof navigator === "undefined") return false;
+    const ua = navigator.userAgent;
+    return /Safari/i.test(ua) && !/Chrome|CriOS|Edg|OPR|Firefox|FxiOS|SamsungBrowser/i.test(ua);
+  }, []);
+
+  const showCapsIndicator = capsLockOn && !isSafari;
 
   const syncCapsLock = React.useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -34,8 +41,14 @@ export function PasswordInput({
 
   return (
     <div className={cn(styles.wrapper, wrapperClassName)}>
-      {capsLockOn ? (
-        <span className={styles.capsIndicator} aria-hidden>
+      {showCapsIndicator ? (
+        <span
+          className={cn(
+            styles.capsIndicator,
+            withRevealToggle && styles.capsIndicatorWithReveal
+          )}
+          aria-hidden
+        >
           <ArrowUp size={12} strokeWidth={2.5} />
         </span>
       ) : null}
@@ -46,8 +59,9 @@ export function PasswordInput({
         disabled={disabled}
         className={cn(
           className,
-          capsLockOn && styles.hasCapsIndicator,
-          withRevealToggle && styles.hasRevealToggle
+          showCapsIndicator && styles.hasCapsIndicator,
+          withRevealToggle && styles.hasRevealToggle,
+          showCapsIndicator && withRevealToggle && styles.hasCapsWithReveal
         )}
         onKeyDown={(event) => {
           syncCapsLock(event);

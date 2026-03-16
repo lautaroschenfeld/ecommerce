@@ -236,6 +236,15 @@ export function useProductsAdminController(mode: ProductsAdminProps["mode"] = "l
       isListMode,
     ]
   );
+  const allProductsQuery = useMemo(
+    () => ({
+      status: "all" as const,
+      limit: 1,
+      offset: 0,
+      skip: !isListMode,
+    }),
+    [isListMode]
+  );
   const {
     products,
     count,
@@ -245,6 +254,11 @@ export function useProductsAdminController(mode: ProductsAdminProps["mode"] = "l
     loading,
     error: loadError,
   } = useAdminProducts(adminProductsQuery);
+  const {
+    productCount: allProductsCount,
+    loading: allProductsLoading,
+    error: allProductsError,
+  } = useAdminProducts(allProductsQuery);
 
   useProductsAdminListSnapshot({
     isListMode,
@@ -389,6 +403,8 @@ export function useProductsAdminController(mode: ProductsAdminProps["mode"] = "l
     filterStatus !== "live" ||
     minPrice.trim().length > 0 ||
     maxPrice.trim().length > 0;
+  const hasAnyProducts =
+    !isListMode || allProductsLoading || allProductsError ? null : allProductsCount > 0;
   const effectiveLimit = Math.max(1, limit || pageSize);
   const totalPages = Math.max(1, Math.ceil(count / effectiveLimit));
   const visibleGroupCount = groupedFiltered.length;
@@ -785,6 +801,7 @@ export function useProductsAdminController(mode: ProductsAdminProps["mode"] = "l
     loadError,
     groupedFiltered,
     selectedVisibleCount,
+    hasAnyProducts,
     hasActiveFilters,
     totalPages,
     pageFrom,

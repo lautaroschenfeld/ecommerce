@@ -11,6 +11,10 @@ import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { AdminPanelCard } from "@/components/admin/admin-panel-card";
+import {
+  ADMIN_CLIENTS_EMPTY_STATE_MESSAGES,
+  resolveAdminEmptyStateMessage,
+} from "@/components/admin/admin-empty-state-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -40,6 +44,8 @@ export default function AdminClientesPage() {
     error,
     query,
     setQuery,
+    hasActiveFilters,
+    hasAnyClients,
     roleFilter,
     setRoleFilter,
     statusFilter,
@@ -97,6 +103,11 @@ export default function AdminClientesPage() {
     handleSaveNote,
     selectedTimeline,
   } = useAdminClientesController();
+  const emptyClientsMessage = resolveAdminEmptyStateMessage({
+    hasActiveFilters,
+    hasAnyRecords: hasAnyClients,
+    ...ADMIN_CLIENTS_EMPTY_STATE_MESSAGES,
+  });
   return (
     <div className={styles.page}>
       <div className={styles.mainGrid}>
@@ -209,9 +220,11 @@ export default function AdminClientesPage() {
         <AdminPanelCard
           title="Clientes"
           subtitle={
-            rowsCount > 0
+            loading
+              ? "Cargando clientes..."
+              : rowsCount > 0
               ? `Mostrando ${pageFrom}-${pageTo} de ${rowsCount} cliente${rowsCount === 1 ? "" : "s"}.`
-              : "Sin clientes."
+              : emptyClientsMessage
           }
           className={styles.listCard}
           bodyClassName={styles.listBody}
@@ -295,9 +308,7 @@ export default function AdminClientesPage() {
             {error ? <p className={styles.error}>{error}</p> : null}
             {loading ? <p className={styles.muted}>Cargando clientes...</p> : null}
             {!loading && !rows.length ? (
-              <p className={styles.muted}>
-                No se encontraron clientes con esos filtros.
-              </p>
+              <p className={styles.muted}>{emptyClientsMessage}</p>
             ) : null}
 
             {!loading && rows.length > 0 ? (

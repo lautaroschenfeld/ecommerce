@@ -34,6 +34,8 @@ function mapPanelError(error: unknown, fallback: string) {
   return mapFriendlyError(error, fallback);
 }
 
+const EMPTY_COUPONS_MESSAGE = "Todavia no hay cupones creados.";
+
 function parsePercentageInput(value: string) {
   const raw = value.trim().replace(",", ".");
   if (!raw) return undefined;
@@ -386,7 +388,7 @@ export function CouponsAdmin({ mode = "list" }: CouponsAdminProps) {
           subtitle={
             count > 0
               ? `Mostrando ${pageFrom}-${pageTo} de ${count} cupon${count === 1 ? "" : "es"}.`
-              : "No hay cupones todavia."
+              : EMPTY_COUPONS_MESSAGE
           }
           className={styles.card}
           bodyClassName={styles.listPanelBody}
@@ -401,7 +403,7 @@ export function CouponsAdmin({ mode = "list" }: CouponsAdminProps) {
           ) : loadError ? (
             <div className={styles.empty}>{loadError}</div>
           ) : coupons.length === 0 ? (
-            <div className={styles.empty}>No hay cupones todavia.</div>
+            <div className={styles.empty}>{EMPTY_COUPONS_MESSAGE}</div>
           ) : (
             <>
               <div className={styles.list}>

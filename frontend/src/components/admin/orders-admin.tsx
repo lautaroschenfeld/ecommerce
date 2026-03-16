@@ -28,6 +28,10 @@ import {
   readCustomerName,
   type SortBy,
 } from "./orders-admin-utils";
+import {
+  ADMIN_ORDERS_EMPTY_STATE_MESSAGES,
+  resolveAdminEmptyStateMessage,
+} from "./admin-empty-state-utils";
 
 import styles from "./orders-admin.module.css";
 import toneStyles from "@/styles/status-tone-chip.module.css";
@@ -63,7 +67,8 @@ export function OrdersAdmin() {
     ordersCount,
     loading,
     error,
-    hasActiveFilters,
+    hasAnyOrders,
+    hasActiveFilters: filtersApplied,
     statusFilterOptionAppearance,
     clearFilters,
     pageFrom,
@@ -95,6 +100,12 @@ export function OrdersAdmin() {
     confirmModal,
   } = useOrdersAdminController();
 
+  const emptyOrdersMessage = resolveAdminEmptyStateMessage({
+    hasActiveFilters: filtersApplied,
+    hasAnyRecords: hasAnyOrders,
+    ...ADMIN_ORDERS_EMPTY_STATE_MESSAGES,
+  });
+
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
@@ -104,7 +115,7 @@ export function OrdersAdmin() {
           bodyClassName={styles.panelBody}
           headerRight={
             <AnimatePresence initial={false}>
-              {hasActiveFilters ? (
+              {filtersApplied ? (
                 <motion.div
                   initial={reduceMotion ? undefined : { opacity: 0, y: -4 }}
                   animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -223,9 +234,11 @@ export function OrdersAdmin() {
 
           <div className={styles.paginationBar}>
             <p className={styles.paginationMeta}>
-              {ordersCount > 0
+              {loading
+                ? "Cargando ordenes..."
+                : ordersCount > 0
                 ? `Mostrando del ${pageFrom} al ${pageTo} de ${ordersCount} órdenes.`
-                : "Sin resultados para mostrar."}
+                : emptyOrdersMessage}
             </p>
           </div>
 
@@ -249,11 +262,7 @@ export function OrdersAdmin() {
           ) : orders.length === 0 ? (
             <Card className={`adminPanelSurface ${styles.emptyCard}`}>
               <CardContent className={`adminPanelContentSurface ${styles.emptyInner}`}>
-                <p className={styles.muted}>
-                  {hasActiveFilters
-                    ? "No hay órdenes con los filtros actuales."
-                    : "Todavía no hay órdenes."}
-                </p>
+                <p className={styles.muted}>{emptyOrdersMessage}</p>
               </CardContent>
             </Card>
           ) : (

@@ -1,26 +1,35 @@
 import type { Metadata } from "next";
 
 import { LegalTextPage } from "@/components/legal/legal-text-page";
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
-export const metadata: Metadata = {
-  title: "Botón de arrepentimiento",
-  description: cleanMetaText(
-    `Procedimiento de revocación para compras a distancia en ${SITE_NAME}.`
-  ),
-  alternates: {
-    canonical: "/boton-de-arrepentimiento",
-  },
-  openGraph: {
-    type: "website",
-    url: "/boton-de-arrepentimiento",
-    title: `Botón de arrepentimiento | ${SITE_NAME}`,
-    description: cleanMetaText(
-      `Canales, plazos y costos para ejercer el derecho de arrepentimiento.`
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Boton de arrepentimiento";
+  const description = cleanMetaText(
+    `Procedimiento de revocacion para compras a distancia en ${siteName}.`
+  );
 
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText(
+        "Canales, plazos y costos para ejercer el derecho de arrepentimiento."
+      ),
+      canonical: "/boton-de-arrepentimiento",
+      storefront,
+      imageAlt: `${siteName} boton de arrepentimiento`,
+    }),
+  };
+}
 const intro = [
   "La persona consumidora tiene derecho a revocar una compra a distancia dentro de 10 (diez) días corridos desde la entrega del producto o desde la celebración del contrato, lo último que ocurra.",
   "Si no se informó debidamente este derecho, el plazo legal no se extingue.",
@@ -90,3 +99,4 @@ export default function BotonDeArrepentimientoPage() {
     />
   );
 }
+

@@ -24,6 +24,10 @@ import { mapFriendlyError } from "@/lib/user-facing-errors";
 import { cn } from "@/lib/utils";
 
 import { AdminPanelCard } from "@/components/admin/admin-panel-card";
+import {
+  ADMIN_INVENTORY_EMPTY_STATE_MESSAGES,
+  resolveAdminEmptyStateMessage,
+} from "@/components/admin/admin-empty-state-utils";
 import { PaginationNav } from "@/components/shared/pagination-nav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -140,6 +144,7 @@ async function waitBulkJob(jobId: string) {
 export default function AdminInventarioPage() {
   const [inventory, setInventory] = useState<AdminInventoryItem[]>([]);
   const [inventoryCount, setInventoryCount] = useState(0);
+  const [hasAnyInventoryProducts, setHasAnyInventoryProducts] = useState<boolean | null>(null);
   const [inventorySummary, setInventorySummary] = useState<AdminInventorySummary>(EMPTY_SUMMARY);
 
   const [loading, setLoading] = useState(true);
@@ -162,6 +167,11 @@ export default function AdminInventarioPage() {
   const pageTo = inventoryCount > 0 ? Math.min(inventoryCount, inventoryOffset + inventory.length) : 0;
   const totalPages = Math.max(1, Math.ceil(inventoryCount / INVENTORY_PAGE_LIMIT));
   const hasActiveInventoryFilters = query.trim().length > 0 || statusFilter !== "all";
+  const emptyInventoryMessage = resolveAdminEmptyStateMessage({
+    hasActiveFilters: hasActiveInventoryFilters,
+    hasAnyRecords: hasAnyInventoryProducts,
+    ...ADMIN_INVENTORY_EMPTY_STATE_MESSAGES,
+  });
 
   const selectedSet = useMemo(() => new Set(Object.keys(selectedRowsById)), [selectedRowsById]);
   const selectedIds = useMemo(() => Object.keys(selectedRowsById), [selectedRowsById]);
@@ -215,6 +225,40 @@ export default function AdminInventarioPage() {
     if (page <= totalPages) return;
     setPage(totalPages);
   }, [page, totalPages]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (inventoryCount > 0) {
+      setHasAnyInventoryProducts(true);
+      return;
+    }
+    if (!hasActiveInventoryFilters) {
+      setHasAnyInventoryProducts(false);
+      return;
+    }
+
+    let cancelled = false;
+    setHasAnyInventoryProducts(null);
+
+    void getAdminInventoryPage({
+      limit: 1,
+      offset: 0,
+      status: "all",
+      sort: "name_asc",
+    })
+      .then((result) => {
+        if (cancelled) return;
+        setHasAnyInventoryProducts(result.count > 0);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setHasAnyInventoryProducts(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasActiveInventoryFilters, inventoryCount, loading]);
 
   useEffect(() => {
     setSelectedRowsById((prev) => {
@@ -586,9 +630,11 @@ export default function AdminInventarioPage() {
           <AdminPanelCard
             title="Inventario por producto"
             subtitle={
-              inventoryCount > 0
+              loading
+                ? "Cargando inventario..."
+                : inventoryCount > 0
                 ? `Mostrando ${pageFrom}-${pageTo} de ${inventoryCount} producto${inventoryCount === 1 ? "" : "s"}.`
-                : "Sin productos."
+                : emptyInventoryMessage
             }
             className={styles.card}
             bodyClassName={styles.tableCardBody}
@@ -609,7 +655,7 @@ export default function AdminInventarioPage() {
             {!loading && inventory.length === 0 ? (
               <div className={styles.empty}>
                 <Warehouse className={styles.emptyIcon} />
-                <p className={styles.emptyText}>No hay productos para los filtros seleccionados.</p>
+                <p className={styles.emptyText}>{emptyInventoryMessage}</p>
               </div>
             ) : null}
 

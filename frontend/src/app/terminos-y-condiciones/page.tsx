@@ -1,26 +1,35 @@
 import type { Metadata } from "next";
 
 import { LegalTextPage } from "@/components/legal/legal-text-page";
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
-export const metadata: Metadata = {
-  title: "Términos y condiciones",
-  description: cleanMetaText(
-    `Condiciones generales de compra y uso del sitio de ${SITE_NAME}.`
-  ),
-  alternates: {
-    canonical: "/terminos-y-condiciones",
-  },
-  openGraph: {
-    type: "website",
-    url: "/terminos-y-condiciones",
-    title: `Términos y condiciones | ${SITE_NAME}`,
-    description: cleanMetaText(
-      `Leé las condiciones de compra y uso antes de operar en nuestra tienda.`
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Terminos y condiciones";
+  const description = cleanMetaText(
+    `Condiciones generales de compra y uso del sitio de ${siteName}.`
+  );
 
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText(
+        "Lee las condiciones de compra y uso antes de operar en nuestra tienda."
+      ),
+      canonical: "/terminos-y-condiciones",
+      storefront,
+      imageAlt: `${siteName} terminos y condiciones`,
+    }),
+  };
+}
 const intro = [
   "Al realizar una compra en este sitio aceptas estas condiciones generales de contratación.",
   "Estas condiciones se interpretan conforme la normativa argentina de defensa del consumidor y contratos de consumo.",
@@ -80,3 +89,4 @@ export default function TerminosYCondicionesPage() {
     />
   );
 }
+

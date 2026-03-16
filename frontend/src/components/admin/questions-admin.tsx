@@ -34,6 +34,10 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { PaginationNav } from "@/components/shared/pagination-nav";
 import toneStyles from "@/styles/status-tone-chip.module.css";
+import {
+  ADMIN_QUESTIONS_EMPTY_STATE_MESSAGES,
+  resolveAdminEmptyStateMessage,
+} from "./admin-empty-state-utils";
 import styles from "./questions-admin.module.css";
 
 const PAGE_LIMIT = 50;
@@ -388,8 +392,6 @@ export function QuestionsAdmin() {
     }),
     [offset, productIdQuery, searchQuery, sortBy, status]
   );
-
-  const { questions: visibleQuestions, count, loading, error } = useAdminProductQuestions(query);
   const hasAppliedFilters =
     searchQuery.trim().length > 0 || productIdQuery.trim().length > 0 || status !== "all";
   const hasAnyFilters =
@@ -398,6 +400,29 @@ export function QuestionsAdmin() {
     productId.trim().length > 0 ||
     productIdQuery.trim().length > 0 ||
     status !== "all";
+  const presenceQuery = useMemo(
+    () => ({
+      limit: 1,
+      offset: 0,
+      sort: "created_desc" as const,
+      skip: !hasAppliedFilters,
+    }),
+    [hasAppliedFilters]
+  );
+
+  const { questions: visibleQuestions, count, loading, error } = useAdminProductQuestions(query);
+  const {
+    count: allQuestionsCount,
+    loading: allQuestionsLoading,
+    error: allQuestionsError,
+  } = useAdminProductQuestions(presenceQuery);
+  const hasAnyQuestions =
+    !hasAppliedFilters || allQuestionsLoading || allQuestionsError ? null : allQuestionsCount > 0;
+  const emptyQuestionsMessage = resolveAdminEmptyStateMessage({
+    hasActiveFilters: hasAppliedFilters,
+    hasAnyRecords: hasAnyQuestions,
+    ...ADMIN_QUESTIONS_EMPTY_STATE_MESSAGES,
+  });
 
   const lastPageOffset =
     count > 0 ? Math.max(0, Math.floor((count - 1) / PAGE_LIMIT) * PAGE_LIMIT) : 0;
@@ -520,7 +545,7 @@ export function QuestionsAdmin() {
                 ? "Cargando preguntas..."
                 : count > 0
                   ? `Mostrando ${from}-${to} de ${count} pregunta${count === 1 ? "" : "s"}.`
-                  : undefined
+                  : emptyQuestionsMessage
             }
             className={styles.resultsCard}
             headerClassName={styles.panelHeader}
@@ -533,11 +558,7 @@ export function QuestionsAdmin() {
             ) : null}
 
             {!error && !effectiveLoading && visibleQuestions.length === 0 ? (
-              <div className={styles.emptyState}>
-                {hasAppliedFilters
-                  ? "No hay preguntas con estos filtros."
-                  : "Todavia no hay preguntas."}
-              </div>
+              <div className={styles.emptyState}>{emptyQuestionsMessage}</div>
             ) : null}
 
             {!error && !effectiveLoading && visibleQuestions.length > 0 ? (

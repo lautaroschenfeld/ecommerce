@@ -1,26 +1,35 @@
 import type { Metadata } from "next";
 
 import { LegalTextPage } from "@/components/legal/legal-text-page";
-import { cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
+import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
-export const metadata: Metadata = {
-  title: "Política de envíos",
-  description: cleanMetaText(
-    `Alcance, plazos y condiciones de despacho de ${SITE_NAME} para Argentina.`
-  ),
-  alternates: {
-    canonical: "/politica-de-envios",
-  },
-  openGraph: {
-    type: "website",
-    url: "/politica-de-envios",
-    title: `Política de envíos | ${SITE_NAME}`,
-    description: cleanMetaText(
-      `Reglas operativas de entrega, seguimiento y reclamos logístico-comerciales.`
-    ),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const title = "Politica de envios";
+  const description = cleanMetaText(
+    `Alcance, plazos y condiciones de despacho de ${siteName} para Argentina.`
+  );
 
+  return {
+    title,
+    description,
+    ...buildSocialMetadata({
+      title: `${title} | ${siteName}`,
+      description: cleanMetaText(
+        "Reglas operativas de entrega, seguimiento y reclamos logistico-comerciales."
+      ),
+      canonical: "/politica-de-envios",
+      storefront,
+      imageAlt: `${siteName} politica de envios`,
+    }),
+  };
+}
 const sections = [
   {
     heading: "1. Alcance territorial",
@@ -109,3 +118,4 @@ export default function PoliticaDeEnviosPage() {
     />
   );
 }
+

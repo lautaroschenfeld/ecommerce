@@ -8,7 +8,12 @@ import {
   readProductCharacteristicsFromMetadata,
   toSeoAdditionalProperties,
 } from "@/lib/product-characteristics";
-import { absoluteUrl, cleanMetaText, SITE_NAME } from "@/lib/seo";
+import {
+  absoluteUrl,
+  buildSocialMetadata,
+  cleanMetaText,
+  resolveSiteName,
+} from "@/lib/seo";
 import { findSeoProductById } from "@/lib/store-seo";
 import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
@@ -49,6 +54,7 @@ export async function generateMetadata({
   const { id } = await params;
   const product = await findSeoProductById(id);
   const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
 
   const canonical = buildProductDetailPath(product?.id ?? id, product?.name);
 
@@ -59,18 +65,13 @@ export async function generateMetadata({
     return {
       title,
       description,
-      alternates: { canonical },
-      openGraph: {
-        type: "website",
-        url: canonical,
-        title,
+      ...buildSocialMetadata({
+        title: `${title} | ${siteName}`,
         description,
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-      },
+        canonical,
+        storefront,
+        imageAlt: `${siteName} producto`,
+      }),
     };
   }
 
@@ -79,27 +80,19 @@ export async function generateMetadata({
     `${product.name} de ${product.brand}. ${formatMoney(product.priceArs, {
       currencyCode: storefront.currencyCode,
       locale: storefront.storeLocale,
-    })} en ${SITE_NAME}.`
+    })} en ${siteName}.`
   );
-  const imageUrl = absoluteUrl(product.imageUrl || "/product_placeholder.png");
 
   return {
     title,
     description,
-    alternates: { canonical },
-    openGraph: {
-      type: "website",
-      url: canonical,
+    ...buildSocialMetadata({
       title,
       description,
-      images: [{ url: imageUrl, width: 1200, height: 900, alt: product.name }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [imageUrl],
-    },
+      canonical,
+      storefront,
+      imageAlt: `${product.name} en ${siteName}`,
+    }),
   };
 }
 

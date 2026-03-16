@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { Saira_Semi_Condensed } from "next/font/google";
 
@@ -6,8 +6,16 @@ import { DynamicGridSync } from "@/components/layout/dynamic-grid-sync";
 import { GlobalAlertModal } from "@/components/layout/global-alert-modal";
 import { RouteAwareSiteShell } from "@/components/layout/route-aware-site-shell";
 import { StoreBackendModal } from "@/components/layout/store-backend-modal";
+import {
+  absoluteUrl,
+  buildSocialMetadata,
+  cleanMetaText,
+  getSiteUrl,
+  resolveSiteName,
+  SITE_DESCRIPTION,
+  toAbsolutePublicUrl,
+} from "@/lib/seo";
 import { toStoreMediaProxyUrl } from "@/lib/store-media-url";
-import { absoluteUrl, getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo";
 import {
   getStorefrontSettingsSafe,
   storefrontCssVars,
@@ -32,36 +40,46 @@ function detectFaviconType(href: string) {
   return undefined;
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
-  applicationName: SITE_NAME,
-  title: {
-    default: SITE_NAME,
-    template: `%s | ${SITE_NAME}`,
-  },
-  description: SITE_DESCRIPTION,
-  alternates: {
-    canonical: "/",
-  },
-  keywords: ["ecommerce", "tienda online", "catalogo", "carrito", "finalizacion de compra"],
-  openGraph: {
-    type: "website",
-    locale: "es_AR",
-    url: "/",
-    siteName: SITE_NAME,
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
+  const description = cleanMetaText(SITE_DESCRIPTION, 160);
+
+  return {
+    metadataBase: new URL(getSiteUrl()),
+    applicationName: siteName,
+    title: {
+      default: siteName,
+      template: `%s | ${siteName}`,
+    },
+    description,
+    keywords: [
+      "ecommerce",
+      "tienda online",
+      "catalogo",
+      "carrito",
+      "finalizacion de compra",
+    ],
+    ...buildSocialMetadata({
+      title: siteName,
+      description,
+      canonical: "/",
+      storefront,
+      imageAlt: `${siteName} vista previa`,
+    }),
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -69,24 +87,26 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const storefront = await getStorefrontSettingsSafe();
+  const siteName = resolveSiteName(storefront.storeName);
   const storefrontVars = storefrontCssVars(storefront) as CSSProperties;
   const customFontCssUrl = storefront.font?.cssUrl?.trim() || "";
   const faviconUrl = toStoreMediaProxyUrl(storefront.faviconUrl.trim()) || "/favicon.ico";
   const faviconType = detectFaviconType(faviconUrl);
+  const logoUrl = toStoreMediaProxyUrl(storefront.logoUrl.trim());
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: storefront.storeName || SITE_NAME,
+    name: siteName,
     url: getSiteUrl(),
-    logo: storefront.logoUrl || storefront.faviconUrl || absoluteUrl("/favicon.ico"),
+    logo: toAbsolutePublicUrl(logoUrl || faviconUrl || "/favicon.ico"),
     sameAs: [],
   };
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: storefront.storeName || SITE_NAME,
+    name: siteName,
     url: getSiteUrl(),
     inLanguage: storefront.storeLocale || "es-AR",
     potentialAction: {
@@ -157,4 +177,3 @@ export default async function RootLayout({
     </html>
   );
 }
-
