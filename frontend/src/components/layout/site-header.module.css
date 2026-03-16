@@ -354,6 +354,12 @@
     row-gap: 0.4rem;
   }
 
+  .innerAdmin {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand right";
+    row-gap: 0;
+  }
+
   .brand {
     grid-area: brand;
   }
