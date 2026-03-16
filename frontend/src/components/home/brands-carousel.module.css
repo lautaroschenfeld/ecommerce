@@ -1,10 +1,22 @@
 .wrap {
+  --brands-wrap-alpha: 0.5;
+  --brands-wrap-rgb: 221 221 221;
   position: relative;
   overflow: hidden;
   border-radius: calc((var(--radius-base) + 1rem) * var(--radius-scale));
   border: 1px solid var(--ui-border);
-  background: var(--ui-color-rgba-35-35-35-0p72);
+  background: rgb(var(--brands-wrap-rgb) / var(--brands-wrap-alpha));
   box-shadow: var(--shadow-sm);
+}
+
+:global([data-theme-mode="dark"]) .wrap {
+  /*
+    Match the perceived tone of category cards while using more transparency:
+    - target over dark page: #1a1a1a (cards)
+    - page base: #121212
+    - alpha: 0.5 -> source ~ rgb(34,34,34)
+  */
+  --brands-wrap-rgb: 34 34 34;
 }
 
 .row {

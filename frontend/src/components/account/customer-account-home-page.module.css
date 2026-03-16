@@ -48,7 +48,7 @@
 
 .orderCard:hover {
   transform: translate3d(0, -2px, 0);
-  border-color: var(--ui-color-rgba-15-23-42-0p25);
+  border-color: var(--ui-border-stronger);
   box-shadow: 0 10px 26px var(--ui-border-soft);
 }
 
@@ -107,7 +107,7 @@
 
 .profileBlockButton:hover {
   transform: translate3d(0, -2px, 0);
-  border-color: var(--ui-color-rgba-15-23-42-0p25);
+  border-color: var(--ui-border-stronger);
   box-shadow: 0 10px 26px var(--ui-border-soft);
 }
 
@@ -122,7 +122,7 @@
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.45;
-  color: var(--ui-color-rgba-15-23-42-0p85);
+  color: rgb(var(--ui-ink-rgb) / 0.72);
 }
 
 .profileEditIcon {
@@ -132,7 +132,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--ui-color-rgba-15-23-42-0p88);
+  color: rgb(var(--ui-ink-rgb) / 0.58);
 }
 
 .profileSheet {
@@ -167,11 +167,11 @@
 .sheetMessage {
   margin: 0;
   font-size: 0.85rem;
-  color: var(--ui-color-rgba-15-23-42-0p8);
+  color: rgb(var(--ui-ink-rgb) / 0.82);
 }
 
 .sheetFooter {
-  border-top: 1px solid var(--ui-color-rgba-15-23-42-0p1);
+  border-top: 1px solid var(--ui-border-soft);
   padding-top: 0.95rem;
 }
 

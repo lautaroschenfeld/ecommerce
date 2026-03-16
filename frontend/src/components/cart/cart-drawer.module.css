@@ -30,7 +30,7 @@
   height: 1.2rem;
   min-width: 1.2rem;
   padding: 0 0.3rem;
-  border-radius: var(--radius-pill);
+  border-radius: calc(0.34rem * var(--radius-scale));
   border: 1px solid rgb(var(--brand-primary-rgb) / 0.34);
   background: var(--primary);
   color: var(--primary-foreground);

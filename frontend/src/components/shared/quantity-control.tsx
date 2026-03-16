@@ -3,6 +3,7 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import styles from "./quantity-control.module.css";
@@ -17,6 +18,8 @@ export function QuantityControl({
   max = 99,
   disabled = false,
   decrementStyle = "minus",
+  variant = "default",
+  className,
   onDecrementClick,
   onChange,
 }: {
@@ -25,11 +28,14 @@ export function QuantityControl({
   max?: number;
   disabled?: boolean;
   decrementStyle?: "minus" | "trash";
+  variant?: "default" | "cta";
+  className?: string;
   onDecrementClick?: () => void;
   onChange: (next: number) => void;
 }) {
   const safeValue = useMemo(() => clampInt(value, min, max), [value, min, max]);
   const [text, setText] = useState(String(safeValue));
+  const buttonVariant = variant === "cta" ? "outline" : "secondary";
 
   useEffect(() => {
     setText(String(safeValue));
@@ -40,11 +46,14 @@ export function QuantityControl({
   const decrementLabel = decrementStyle === "trash" ? "Quitar" : "Restar";
 
   return (
-    <div className={styles.wrap} aria-label="Cantidad">
+    <div
+      className={cn(styles.wrap, variant === "cta" && styles.wrapCta, className)}
+      aria-label="Cantidad"
+    >
       <Button
         type="button"
         size="icon-xs"
-        variant="secondary"
+        variant={buttonVariant}
         disabled={!canDec}
         onClick={() => {
           if (onDecrementClick) {
@@ -84,7 +93,7 @@ export function QuantityControl({
       <Button
         type="button"
         size="icon-xs"
-        variant="secondary"
+        variant={buttonVariant}
         disabled={!canInc}
         onClick={() => onChange(clampInt(safeValue + 1, min, max))}
         aria-label="Sumar"

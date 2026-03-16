@@ -36,7 +36,7 @@
   font-weight: 600;
   border: 0;
   background: transparent;
-  color: rgb(var(--ui-status-blue-strong-rgb) / 0.88);
+  color: rgb(56 189 248 / 0.96);
   text-decoration: none;
   cursor: pointer;
   padding: 0;
@@ -45,7 +45,7 @@
 }
 
 .showMoreLink:hover {
-  color: rgb(var(--ui-status-blue-strong-rgb) / 1);
+  color: rgb(14 165 233 / 1);
 }
 
 .linkAction:focus-visible,

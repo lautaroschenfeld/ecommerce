@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useStoreProducts } from "@/lib/store-catalog";
 import { ProductCard } from "@/components/products/product-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useStoreProducts } from "@/lib/store-catalog";
+import { cn } from "@/lib/utils";
+
 import styles from "./home-best-sellers.module.css";
 
 function range(count: number) {
@@ -14,6 +16,38 @@ function range(count: number) {
 export function HomeBestSellers() {
   const query = useMemo(() => ({ limit: 12, sort: "relevancia" as const }), []);
   const { products, loading, error } = useStoreProducts(query);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const node = scrollerRef.current;
+    if (!node) return;
+
+    const updateEdgeFade = () => {
+      const maxScrollLeft = Math.max(0, node.scrollWidth - node.clientWidth);
+      if (maxScrollLeft <= 1) {
+        setCanScrollLeft(false);
+        setCanScrollRight(false);
+        return;
+      }
+
+      setCanScrollLeft(node.scrollLeft > 1);
+      setCanScrollRight(node.scrollLeft < maxScrollLeft - 1);
+    };
+
+    updateEdgeFade();
+    const rafId = window.requestAnimationFrame(updateEdgeFade);
+
+    node.addEventListener("scroll", updateEdgeFade, { passive: true });
+    window.addEventListener("resize", updateEdgeFade);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      node.removeEventListener("scroll", updateEdgeFade);
+      window.removeEventListener("resize", updateEdgeFade);
+    };
+  }, [loading, products.length]);
 
   if (!loading && products.length === 0) {
     return null;
@@ -27,7 +61,16 @@ export function HomeBestSellers() {
 
       {error && !loading ? <p className={styles.error}>{error}</p> : null}
 
-      <div className={styles.scroller} role="region" aria-label="Productos más vendidos">
+      <div
+        ref={scrollerRef}
+        className={cn(
+          styles.scroller,
+          canScrollLeft ? styles.scrollerFadeLeft : "",
+          canScrollRight ? styles.scrollerFadeRight : ""
+        )}
+        role="region"
+        aria-label="Productos más vendidos"
+      >
         {loading
           ? range(6).map((idx) => (
               <div key={`skeleton-${idx}`} className={styles.item}>

@@ -75,7 +75,7 @@
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
   padding: 0.5rem 0.75rem;
-  color: var(--ui-color-rgba-15-23-42-0p8);
+  color: rgb(var(--ui-ink-rgb) / 0.78);
   font-size: 0.85rem;
   font-weight: 600;
   transition: background-color 180ms var(--ease-out),
@@ -89,8 +89,8 @@
 }
 
 .tabActive {
-  border-color: var(--ui-color-rgba-15-23-42-0p18);
-  background: var(--ui-border-soft);
+  border-color: var(--ui-border-strong);
+  background: var(--ui-surface-subtle-strong);
   color: var(--foreground);
 }
 

@@ -374,6 +374,7 @@ export function ProductCard({
                         : 99
                     }
                     decrementStyle="trash"
+                    variant="cta"
                     onDecrementClick={() => {
                       if (!interactive) return;
                       setItemQty(product.id, 0);
