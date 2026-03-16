@@ -217,8 +217,9 @@
 }
 
 .addBtn {
+  --button-radius: var(--cta-btn-radius);
   white-space: nowrap;
-  border-radius: var(--cta-btn-radius);
+  border-radius: var(--button-radius);
   border-color: var(--cta-btn-border);
   background: var(--cta-btn-bg);
   box-shadow: var(--cta-btn-shadow);

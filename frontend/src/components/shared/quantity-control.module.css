@@ -18,6 +18,11 @@
   box-shadow: var(--control-shadow);
 }
 
+.wrapCta :global(button) {
+  --button-radius: calc(var(--field-radius-sm) - 0.18rem);
+  border-radius: var(--button-radius);
+}
+
 .input {
   width: 3.1rem;
   height: 1.75rem;

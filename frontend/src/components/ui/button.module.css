@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  border-radius: var(--radius-pill);
+  border-radius: var(--button-radius, var(--radius-pill));
   border: 1px solid transparent;
   font-weight: 650;
   letter-spacing: -0.01em;
