@@ -1,7 +1,7 @@
 .container {
   --admin-header-offset: var(--dynamic-grid-top, 4.75rem);
   --admin-sidebar-expanded-width: 260px;
-  --admin-sidebar-collapsed-width: 5.25rem;
+  --admin-sidebar-collapsed-width: 5.75rem;
   --admin-sidebar-mobile-width: 16.25rem;
   --admin-content-max-width: var(--container);
   --admin-content-inline-padding: clamp(1rem, 3.8vw, 1.6rem);
@@ -57,7 +57,7 @@
 /* ===== NAVIGATION ===== */
 .nav {
   flex: 1;
-  padding: 1rem 0.45rem;
+  padding: 1rem 0.75rem;
   overflow-y: auto;
   transition: padding 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -68,7 +68,7 @@
 }
 
 .navFooter {
-  padding: 0.75rem 0.45rem 1rem;
+  padding: 0.75rem 0.75rem 1rem;
   transition: padding 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
