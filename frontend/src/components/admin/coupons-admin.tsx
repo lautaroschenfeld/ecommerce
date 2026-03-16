@@ -386,9 +386,11 @@ export function CouponsAdmin({ mode = "list" }: CouponsAdminProps) {
         <AdminPanelCard
           title="Cupones cargados"
           subtitle={
-            count > 0
+            loading
+              ? "Cargando cupones..."
+              : count > 0
               ? `Mostrando ${pageFrom}-${pageTo} de ${count} cupon${count === 1 ? "" : "es"}.`
-              : EMPTY_COUPONS_MESSAGE
+              : undefined
           }
           className={styles.card}
           bodyClassName={styles.listPanelBody}

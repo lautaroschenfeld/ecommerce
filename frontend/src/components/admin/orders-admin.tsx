@@ -233,13 +233,13 @@ export function OrdersAdmin() {
           </div>
 
           <div className={styles.paginationBar}>
-            <p className={styles.paginationMeta}>
-              {loading
-                ? "Cargando ordenes..."
-                : ordersCount > 0
-                ? `Mostrando del ${pageFrom} al ${pageTo} de ${ordersCount} órdenes.`
-                : emptyOrdersMessage}
-            </p>
+            {loading || ordersCount > 0 ? (
+              <p className={styles.paginationMeta}>
+                {loading
+                  ? "Cargando ordenes..."
+                  : `Mostrando del ${pageFrom} al ${pageTo} de ${ordersCount} órdenes.`}
+              </p>
+            ) : null}
           </div>
 
           {loading ? (

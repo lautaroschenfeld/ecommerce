@@ -224,7 +224,7 @@ export default function AdminClientesPage() {
               ? "Cargando clientes..."
               : rowsCount > 0
               ? `Mostrando ${pageFrom}-${pageTo} de ${rowsCount} cliente${rowsCount === 1 ? "" : "s"}.`
-              : emptyClientsMessage
+              : undefined
           }
           className={styles.listCard}
           bodyClassName={styles.listBody}

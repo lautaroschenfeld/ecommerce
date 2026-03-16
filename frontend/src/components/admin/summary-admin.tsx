@@ -73,6 +73,10 @@ export function SummaryAdmin() {
     plotClipId,
     handleChartMouseMove,
   } = useSummaryAdminController({ chartWidth, chartHeight });
+  const hasDeliveryData =
+    summary !== null &&
+    summary.funnel.purchases.value > 0 &&
+    deliveryMetrics.length > 0;
 
   if (!summary) {
     return (
@@ -208,7 +212,12 @@ export function SummaryAdmin() {
           subtitleClassName={styles.insightSubtitle}
           title="Estado de pagos"
         >
-          <div className={styles.statusList}>
+          <div
+            className={cn(
+              styles.statusList,
+              orderedPaymentStatuses.length ? null : styles.statusListEmpty
+            )}
+          >
             {orderedPaymentStatuses.length ? (
               orderedPaymentStatuses.map((status) => (
                 <SummaryPaymentStatusItem key={status.key} status={status} />
@@ -231,8 +240,13 @@ export function SummaryAdmin() {
             showComparisons ? <SummaryComparisonBadge label={comparisonLabel} /> : null
           }
         >
-          <div className={styles.deliveryList}>
-            {deliveryMetrics.length ? (
+          <div
+            className={cn(
+              styles.deliveryList,
+              hasDeliveryData ? null : styles.deliveryListEmpty
+            )}
+          >
+            {hasDeliveryData ? (
               deliveryMetrics.map((metric) => (
                 <SummaryDeliveryMetricItem
                   key={metric.key}

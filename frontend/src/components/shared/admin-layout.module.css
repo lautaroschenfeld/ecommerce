@@ -4,6 +4,7 @@
   --admin-sidebar-collapsed-width: 5.25rem;
   --admin-sidebar-mobile-width: 16.25rem;
   --admin-content-max-width: var(--container);
+  --admin-content-inline-padding: clamp(1rem, 3.8vw, 1.6rem);
   --admin-surface-offset: 0.75rem;
   --site-main-block-padding: 2.25rem;
   display: flex;
@@ -157,6 +158,7 @@
 .main {
   flex: 1;
   margin-left: var(--admin-sidebar-collapsed-width);
+  padding-right: var(--admin-sidebar-collapsed-width);
   min-height: 100vh;
   transition: margin-left 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -165,7 +167,7 @@
   width: 100%;
   max-width: var(--admin-content-max-width);
   margin: 0 auto;
-  padding: 1.5rem 1.25rem;
+  padding: 1.5rem var(--admin-content-inline-padding);
 }
 
 /* ===== TOPBAR ===== */
@@ -174,8 +176,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  width: calc(100% - 2.5rem);
-  max-width: calc(var(--admin-content-max-width) - 2.5rem);
+  width: calc(100% - (var(--admin-content-inline-padding) * 2));
+  max-width: calc(
+    var(--admin-content-max-width) - (var(--admin-content-inline-padding) * 2)
+  );
   margin: calc((var(--admin-surface-offset) * 2) - var(--site-main-block-padding)) auto 0;
   min-height: 3.2rem;
   padding: 0.5rem 1.2rem;
@@ -272,6 +276,10 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 767px) {
+  .container {
+    --admin-content-inline-padding: 1rem;
+  }
+
   .sidebar {
     width: min(calc(100vw - 1rem), var(--admin-sidebar-mobile-width));
     position: fixed;
@@ -367,6 +375,7 @@
 
   .main {
     margin-left: 0;
+    padding-right: 0;
   }
 
   .sidebar:hover ~ .main,
@@ -375,8 +384,6 @@
   }
 
   .topbar {
-    width: calc(100% - 2rem);
-    max-width: calc(var(--admin-content-max-width) - 2rem);
     margin: 1rem auto 0;
     padding: 0.85rem 1rem;
     padding-right: 0.5rem;
@@ -413,7 +420,7 @@
   }
 
   .content {
-    padding: 1.25rem 1rem;
+    padding: 1.25rem var(--admin-content-inline-padding);
   }
 }
 
@@ -441,6 +448,7 @@
 
   .main {
     margin-left: var(--admin-sidebar-expanded-width);
+    padding-right: var(--admin-sidebar-expanded-width);
   }
 }
 

@@ -545,7 +545,7 @@ export function QuestionsAdmin() {
                 ? "Cargando preguntas..."
                 : count > 0
                   ? `Mostrando ${from}-${to} de ${count} pregunta${count === 1 ? "" : "s"}.`
-                  : emptyQuestionsMessage
+                  : undefined
             }
             className={styles.resultsCard}
             headerClassName={styles.panelHeader}

@@ -634,7 +634,7 @@ export default function AdminInventarioPage() {
                 ? "Cargando inventario..."
                 : inventoryCount > 0
                 ? `Mostrando ${pageFrom}-${pageTo} de ${inventoryCount} producto${inventoryCount === 1 ? "" : "s"}.`
-                : emptyInventoryMessage
+                : undefined
             }
             className={styles.card}
             bodyClassName={styles.tableCardBody}

@@ -26,10 +26,6 @@ import {
   ProductGroupCards,
   ProductsEmptyStateCard,
 } from "./products-admin-group-cards";
-import {
-  ADMIN_PRODUCTS_EMPTY_STATE_MESSAGES,
-  resolveAdminEmptyStateMessage,
-} from "./admin-empty-state-utils";
 import { ProductsAdminCreateSection } from "./products-admin-create-section";
 import styles from "./products-admin.module.css";
 import { useProductsAdminController } from "./use-products-admin-controller";
@@ -123,12 +119,6 @@ export function ProductsAdmin({ mode = "list" }: ProductsAdminProps) {
   } = useProductsAdminController(mode);
 
   const categorySpan = isApparel ? styles.createSpanHalf : styles.createSpanFull;
-  const emptyProductsMessage = resolveAdminEmptyStateMessage({
-    hasActiveFilters,
-    hasAnyRecords: hasAnyProducts,
-    ...ADMIN_PRODUCTS_EMPTY_STATE_MESSAGES,
-  });
-
   return (
     <div className={styles.page}>
       {isCreateMode ? (
@@ -436,7 +426,7 @@ export function ProductsAdmin({ mode = "list" }: ProductsAdminProps) {
                     ? "Cargando productos..."
                     : count > 0
                       ? `Mostrando del ${pageFrom} al ${pageTo} de ${count} grupo${count === 1 ? "" : "s"}.`
-                      : emptyProductsMessage
+                      : undefined
                 }
                 className={styles.card}
                 bodyClassName={styles.listResultsBody}
