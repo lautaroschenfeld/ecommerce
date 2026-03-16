@@ -24,11 +24,8 @@
 }
 
 .innerAdmin {
-  width: 100%;
-  max-width: var(--container);
-  margin-inline: auto;
-  padding-inline: clamp(1rem, 3.8vw, 1.6rem);
   grid-template-columns: minmax(0, 1fr) auto;
+  max-width: var(--admin-content-max-width);
 }
 
 .innerLogoOnly {
@@ -171,6 +168,11 @@
   background: var(--ui-surface-strong);
 }
 
+.adminMenuTriggerOpen {
+  background: var(--ui-surface-strong);
+  border-color: var(--ui-border-strong);
+}
+
 .accountLoading {
   display: inline-flex;
   align-items: center;
@@ -214,7 +216,7 @@
   height: 2.2rem;
   border-radius: var(--field-radius);
   border: 1px solid var(--ui-border-stronger);
-  background: var(--ui-surface-soft-alt);
+  background: var(--ui-surface-soft);
   box-shadow: var(--shadow-sm);
   padding: 0 0.75rem;
   display: inline-flex;

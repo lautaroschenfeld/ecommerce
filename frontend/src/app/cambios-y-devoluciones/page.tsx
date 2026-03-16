@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = resolveSiteName(storefront.storeName);
   const title = "Cambios y devoluciones";
   const description = cleanMetaText(
-    `Politica de cambios, devoluciones, garantia y arrepentimiento de ${siteName}.`
+    `Cambios, devoluciones y garantia en ${siteName}. Conoce plazos, condiciones y pasos de postventa de forma clara.`
   );
 
   return {
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ...buildSocialMetadata({
       title: `${title} | ${siteName}`,
       description: cleanMetaText(
-        "Procedimientos de postventa con enfoque legal para compras online."
+        "Guia clara para gestionar cambios, devoluciones y reclamos de garantia en tus compras online."
       ),
       canonical: "/cambios-y-devoluciones",
       storefront,

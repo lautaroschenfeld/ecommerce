@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { Saira_Semi_Condensed } from "next/font/google";
+import { headers } from "next/headers";
 
 import { DynamicGridSync } from "@/components/layout/dynamic-grid-sync";
 import { GlobalAlertModal } from "@/components/layout/global-alert-modal";
@@ -40,13 +41,37 @@ function detectFaviconType(href: string) {
   return undefined;
 }
 
+function pickHeaderValue(raw: string | null) {
+  if (!raw) return "";
+  const first = raw.split(",")[0];
+  return first?.trim() || "";
+}
+
+async function resolveRequestSiteUrl() {
+  const requestHeaders = await headers();
+  const host =
+    pickHeaderValue(requestHeaders.get("x-forwarded-host")) ||
+    pickHeaderValue(requestHeaders.get("host"));
+  if (!host) return "";
+
+  const forwardedProto = pickHeaderValue(requestHeaders.get("x-forwarded-proto"));
+  const protocol = forwardedProto || (host.includes("localhost") ? "http" : "https");
+
+  try {
+    return new URL(`${protocol}://${host}`).origin;
+  } catch {
+    return "";
+  }
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const storefront = await getStorefrontSettingsSafe();
   const siteName = resolveSiteName(storefront.storeName);
   const description = cleanMetaText(SITE_DESCRIPTION, 160);
+  const runtimeSiteUrl = (await resolveRequestSiteUrl()) || getSiteUrl();
 
   return {
-    metadataBase: new URL(getSiteUrl()),
+    metadataBase: new URL(runtimeSiteUrl),
     applicationName: siteName,
     title: {
       default: siteName,
@@ -54,11 +79,14 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description,
     keywords: [
-      "ecommerce",
-      "tienda online",
-      "catalogo",
-      "carrito",
-      "finalizacion de compra",
+      "repuestos para motos",
+      "accesorios para motos",
+      "indumentaria para motos",
+      "tienda de motos online",
+      "pastillas de freno",
+      "filtros de moto",
+      "envios a todo el pais",
+      "fr motos",
     ],
     ...buildSocialMetadata({
       title: siteName,

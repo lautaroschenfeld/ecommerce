@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = resolveSiteName(storefront.storeName);
   const title = "Terminos y condiciones";
   const description = cleanMetaText(
-    `Condiciones generales de compra y uso del sitio de ${siteName}.`
+    `Condiciones de compra y uso de ${siteName}. Revisa derechos, obligaciones y politicas aplicables a tu operacion online.`
   );
 
   return {
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ...buildSocialMetadata({
       title: `${title} | ${siteName}`,
       description: cleanMetaText(
-        "Lee las condiciones de compra y uso antes de operar en nuestra tienda."
+        "Consulta reglas de compra, pagos, envios y uso del sitio antes de finalizar tu pedido."
       ),
       canonical: "/terminos-y-condiciones",
       storefront,

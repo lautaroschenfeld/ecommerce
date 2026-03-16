@@ -13,6 +13,7 @@ import {
   Package,
   UserRound,
   Wrench,
+  X,
 } from "lucide-react";
 
 import { CartDrawer } from "@/components/cart/cart-drawer";
@@ -124,9 +125,16 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   const hasStoreName = Boolean(storeName);
   const hasLogo = Boolean(logoUrl) && !logoLoadFailed;
   const logoOnly = hasLogo && !hasStoreName;
-  const brandName = hasStoreName ? storeName : hasLogo ? "" : "Ecommerce";
+  const fallbackStoreName = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "FR Motos";
+  const brandName = hasStoreName ? storeName : hasLogo ? "" : fallbackStoreName;
   const logoAlt = hasStoreName ? `Logo ${storeName}` : "Logo de la tienda";
   const brandHref = "/";
+  const innerClassName = cn(
+    styles.inner,
+    "container",
+    isAdminRoute ? styles.innerAdmin : "",
+    logoOnly && !isAdminRoute ? styles.innerLogoOnly : ""
+  );
 
   useEffect(() => {
     if (!isAdminRoute) {
@@ -145,15 +153,8 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     };
   }, [isAdminRoute]);
 
-  return (
-    <header className={styles.header} data-site-header>
-      <div
-        className={cn(
-          isAdminRoute ? styles.innerAdmin : "container",
-          styles.inner,
-          logoOnly && !isAdminRoute ? styles.innerLogoOnly : ""
-        )}
-      >
+  const headerInner = (
+    <div className={innerClassName}>
         <Link
           href={brandHref}
           className={cn(styles.brand, logoOnly ? styles.brandNoName : "")}
@@ -350,7 +351,10 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
           {isAdminRoute ? (
             <button
               type="button"
-              className={styles.adminMenuTrigger}
+              className={cn(
+                styles.adminMenuTrigger,
+                adminSidebarOpen ? styles.adminMenuTriggerOpen : ""
+              )}
               aria-label={adminSidebarOpen ? "Cerrar menú del panel" : "Abrir menú del panel"}
               aria-haspopup="dialog"
               aria-controls={ADMIN_MOBILE_SIDEBAR_ID}
@@ -360,11 +364,16 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
                 window.dispatchEvent(new Event(ADMIN_SIDEBAR_TOGGLE_EVENT));
               }}
             >
-              <Menu size={16} />
+              {adminSidebarOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           ) : null}
         </div>
-      </div>
+    </div>
+  );
+
+  return (
+    <header className={styles.header} data-site-header>
+      {headerInner}
     </header>
   );
 }

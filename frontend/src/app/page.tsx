@@ -24,10 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = cleanMetaText(SITE_DESCRIPTION, 160);
 
   return {
-    title: "Inicio",
+    title: "Repuestos y accesorios para motos",
     description,
     ...buildSocialMetadata({
-      title: siteName,
+      title: `${siteName} - Repuestos y accesorios para motos`,
       description,
       canonical: "/",
       storefront,

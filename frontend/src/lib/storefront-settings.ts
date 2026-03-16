@@ -37,7 +37,7 @@ export type AdminStorefrontSettings = StorefrontSettings & {
 export const STOREFRONT_RUNTIME_UPDATED_EVENT = "storefront:runtime:updated";
 
 export const DEFAULT_STOREFRONT_SETTINGS: StorefrontSettings = {
-  storeName: "Ecommerce",
+  storeName: process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "FR Motos",
   logoUrl: "",
   faviconUrl: "",
   themeMode: "light",

@@ -69,17 +69,17 @@ export async function generateMetadata({
 
   const title = query
     ? category
-      ? `${category} - ${query} | Productos`
-      : `${query} | Productos`
+      ? `${query} en ${category}`
+      : `${query} para motos`
     : category
-      ? `${category} | Productos`
-      : "Productos";
+      ? `${category} para motos`
+      : "Catalogo de repuestos para motos";
   const description = cleanMetaText(
     query
-      ? `Resultados para "${query}" en el catalogo de ${siteName}. Filtra por categoria, marca y precio.`
+      ? `Encuentra ${query} en ${siteName}. Filtra por categoria y marca, compara opciones y compra repuestos para motos con stock actualizado.`
       : category
-        ? `Explora ${category.toLowerCase()} con filtros por marca y precio. Compra rapido en ${siteName}.`
-        : `Explora todo el catalogo con filtros por marca y precio. Compra rapido en ${siteName}.`
+        ? `Compra ${category.toLowerCase()} para motos en ${siteName}. Filtra por marca y precio, y recibe tu pedido con envio rapido.`
+        : `Explora repuestos, accesorios e indumentaria para motos en ${siteName}. Busca por marca, categoria y precio con stock actualizado.`
   );
 
   const canonicalParams = new URLSearchParams();

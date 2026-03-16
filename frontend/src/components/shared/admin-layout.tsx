@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   BarChart3,
-  X,
   ShoppingCart,
   Package,
   MessageSquare,
@@ -96,7 +95,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [mobileViewport, setMobileViewport] = useState(false);
   const sidebarRef = useRef<HTMLElement | null>(null);
   const mainRef = useRef<HTMLElement | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const onAuthLost = () => {
@@ -190,10 +188,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     const focusInsideSidebar = () => {
       const focusable = getFocusableElements();
-      if (closeButtonRef.current && !closeButtonRef.current.disabled) {
-        closeButtonRef.current.focus();
-        return;
-      }
       if (focusable.length > 0) {
         focusable[0].focus();
         return;
@@ -408,16 +402,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           tabIndex={mobileViewport ? -1 : undefined}
         >
           <div className={styles.sidebarBox}>
-            <button
-              type="button"
-              ref={closeButtonRef}
-              className={styles.sidebarCloseButton}
-              onClick={closeMobileSidebar}
-              aria-label="Cerrar menú del panel"
-            >
-              <X size={16} />
-            </button>
-
             <nav className={styles.nav}>
               {primaryNavItems.map((item) => {
                 const Icon = item.icon;

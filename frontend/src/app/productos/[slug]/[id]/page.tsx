@@ -59,8 +59,10 @@ export async function generateMetadata({
   const canonical = buildProductDetailPath(product?.id ?? id, product?.name);
 
   if (!product) {
-    const title = "Producto";
-    const description = "Detalle de producto.";
+    const title = "Producto no disponible";
+    const description = cleanMetaText(
+      `No encontramos ese producto en ${siteName}. Explora repuestos y accesorios para motos en nuestro catalogo.`
+    );
 
     return {
       title,
@@ -77,10 +79,10 @@ export async function generateMetadata({
 
   const title = `${product.name} | ${product.brand}`;
   const description = cleanMetaText(
-    `${product.name} de ${product.brand}. ${formatMoney(product.priceArs, {
+    `${product.name} de ${product.brand} en ${siteName}: ${formatMoney(product.priceArs, {
       currencyCode: storefront.currencyCode,
       locale: storefront.storeLocale,
-    })} en ${siteName}.`
+    })}. Compra online con stock actualizado y envio a todo el pais.`
   );
 
   return {

@@ -73,6 +73,7 @@
   --z-overlay-top: 1100;
 
   --container: 72rem; /* ~1152px */
+  --admin-content-max-width: var(--container);
 
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 

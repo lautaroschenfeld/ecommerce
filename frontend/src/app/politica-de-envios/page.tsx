@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = resolveSiteName(storefront.storeName);
   const title = "Politica de envios";
   const description = cleanMetaText(
-    `Alcance, plazos y condiciones de despacho de ${siteName} para Argentina.`
+    `Tiempos, cobertura y condiciones de envio de ${siteName}. Compra repuestos para motos con informacion clara y seguimiento.`
   );
 
   return {
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ...buildSocialMetadata({
       title: `${title} | ${siteName}`,
       description: cleanMetaText(
-        "Reglas operativas de entrega, seguimiento y reclamos logistico-comerciales."
+        "Cobertura, plazos estimados, tracking y gestion de reclamos logistico-comerciales."
       ),
       canonical: "/politica-de-envios",
       storefront,

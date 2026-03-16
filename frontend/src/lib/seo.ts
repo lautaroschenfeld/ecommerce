@@ -1,13 +1,28 @@
 import type { Metadata } from "next";
 
-const FALLBACK_SITE_URL = "http://localhost:3000";
+const LOCAL_FALLBACK_SITE_URL = "http://localhost:3000";
+const DEPLOYMENT_FALLBACK_SITE_URL =
+  process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() ||
+  process.env.VERCEL_URL?.trim() ||
+  "";
 
-export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "Ecommerce";
+const DEFAULT_SITE_NAME = "FR Motos";
+
+function isGenericSiteName(input: string) {
+  return /^ecommerce$/i.test(input.trim());
+}
+
+const configuredSiteName = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "";
+export const SITE_NAME =
+  configuredSiteName && !isGenericSiteName(configuredSiteName)
+    ? configuredSiteName
+    : DEFAULT_SITE_NAME;
 export const SITE_DESCRIPTION =
-  "Catalogo ecommerce moderno con busqueda, filtros, carrito y finalizacion de compra rapida.";
+  process.env.NEXT_PUBLIC_SITE_DESCRIPTION?.trim() ||
+  "Repuestos, accesorios e indumentaria para motos con stock actualizado, marcas lideres y compra online segura en FR Motos.";
 export const SOCIAL_IMAGE_PATH = "/social-image";
-export const SOCIAL_IMAGE_WIDTH = 1200;
-export const SOCIAL_IMAGE_HEIGHT = 630;
+export const SOCIAL_IMAGE_WIDTH = 600;
+export const SOCIAL_IMAGE_HEIGHT = 600;
 
 export type SeoStorefrontSnapshot = {
   storeName?: string | null;
@@ -19,7 +34,7 @@ export type SeoStorefrontSnapshot = {
 
 function normalizeSiteUrl(input: string) {
   const trimmed = input.trim();
-  if (!trimmed) return FALLBACK_SITE_URL;
+  if (!trimmed) return LOCAL_FALLBACK_SITE_URL;
 
   const withProtocol =
     trimmed.startsWith("http://") || trimmed.startsWith("https://")
@@ -30,9 +45,13 @@ function normalizeSiteUrl(input: string) {
     const url = new URL(withProtocol);
     return url.origin.replace(/\/$/, "");
   } catch {
-    return FALLBACK_SITE_URL;
+    return LOCAL_FALLBACK_SITE_URL;
   }
 }
+
+const FALLBACK_SITE_URL = normalizeSiteUrl(
+  DEPLOYMENT_FALLBACK_SITE_URL || LOCAL_FALLBACK_SITE_URL
+);
 
 function isAbsoluteHttpUrl(input: string) {
   return /^https?:\/\//i.test(input.trim());
@@ -84,7 +103,9 @@ export function cleanMetaText(input: string, max = 160) {
 }
 
 export function resolveSiteName(storeName?: string | null) {
-  return cleanMetaText(storeName ?? "", 80) || SITE_NAME;
+  const normalized = cleanMetaText(storeName ?? "", 80);
+  if (!normalized || isGenericSiteName(normalized)) return SITE_NAME;
+  return normalized;
 }
 
 export function toOpenGraphLocale(locale?: string | null) {
@@ -112,7 +133,7 @@ export function buildStorefrontSeoVersion(storefront?: SeoStorefrontSnapshot) {
 export function buildStorefrontSocialImageUrl(storefront?: SeoStorefrontSnapshot) {
   const params = new URLSearchParams();
   params.set("v", buildStorefrontSeoVersion(storefront));
-  return absoluteUrl(`${SOCIAL_IMAGE_PATH}?${params.toString()}`);
+  return `${SOCIAL_IMAGE_PATH}?${params.toString()}`;
 }
 
 type BuildSocialMetadataInput = {
@@ -159,7 +180,7 @@ export function buildSocialMetadata(
       ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title,
       description,
       images: [imageUrl],

@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = resolveSiteName(storefront.storeName);
   const title = "Boton de arrepentimiento";
   const description = cleanMetaText(
-    `Procedimiento de revocacion para compras a distancia en ${siteName}.`
+    `Boton de arrepentimiento de ${siteName}. Revoca tu compra online dentro del plazo legal con pasos simples y sin costos ocultos.`
   );
 
   return {
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ...buildSocialMetadata({
       title: `${title} | ${siteName}`,
       description: cleanMetaText(
-        "Canales, plazos y costos para ejercer el derecho de arrepentimiento."
+        "Canales, plazos y condiciones para ejercer el derecho de arrepentimiento de forma simple."
       ),
       canonical: "/boton-de-arrepentimiento",
       storefront,

@@ -10,6 +10,8 @@ function isBypassPath(pathname: string) {
   if (
     pathname === "/mantenimiento" ||
     pathname.startsWith("/mantenimiento/") ||
+    pathname === "/social-image" ||
+    pathname.startsWith("/social-image/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/store-media/") ||
     pathname.startsWith("/api/")

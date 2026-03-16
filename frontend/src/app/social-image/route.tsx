@@ -3,23 +3,27 @@ import { Buffer } from "node:buffer";
 import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 
-import { absoluteUrl, resolveSiteName } from "@/lib/seo";
+import {
+  absoluteUrl,
+  resolveSiteName,
+  SOCIAL_IMAGE_HEIGHT,
+  SOCIAL_IMAGE_WIDTH,
+} from "@/lib/seo";
 import { toStoreMediaProxyUrl } from "@/lib/store-media-url";
 import { getStorefrontSettingsSafe } from "@/lib/storefront-settings";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const WIDTH = 1200;
-const HEIGHT = 630;
-const LOGO_MAX_BYTES = 2_000_000;
+const LOGO_MAX_BYTES = 5_000_000;
 
-function toAbsoluteImageUrl(raw: string) {
+function toAbsoluteImageUrl(raw: string, requestOrigin: string) {
   const normalized = raw.trim();
   if (!normalized) return "";
   if (/^data:/i.test(normalized)) return normalized;
   if (/^https?:\/\//i.test(normalized)) return normalized;
   const safePath = normalized.startsWith("/") ? normalized : `/${normalized}`;
+  if (requestOrigin) return `${requestOrigin}${safePath}`;
   return absoluteUrl(safePath);
 }
 
@@ -85,9 +89,16 @@ export async function GET(request: NextRequest) {
   const siteName = resolveSiteName(storefront.storeName);
   const themeMode = storefront.themeMode === "dark" ? "dark" : "light";
   const palette = resolvePalette(themeMode);
+  const requestOrigin = request.nextUrl.origin;
+  const panelSize = Math.round(Math.min(SOCIAL_IMAGE_WIDTH, SOCIAL_IMAGE_HEIGHT) * 0.68);
+  const panelRadius = Math.max(22, Math.round(panelSize * 0.09));
+  const logoSize = Math.round(panelSize * 0.72);
+  const labelSize = Math.max(24, Math.round(panelSize * 0.12));
+  const labelBottom = Math.max(24, Math.round(SOCIAL_IMAGE_HEIGHT * 0.06));
+  const glowSize = Math.max(180, Math.round(panelSize * 0.68));
 
   const logoProxyUrl = toStoreMediaProxyUrl(storefront.logoUrl.trim());
-  const logoUrl = toAbsoluteImageUrl(logoProxyUrl);
+  const logoUrl = toAbsoluteImageUrl(logoProxyUrl, requestOrigin);
   const logoDataUrl = await loadLogoDataUrl(logoUrl);
 
   const version = request.nextUrl.searchParams.get("v")?.trim();
@@ -118,9 +129,9 @@ export async function GET(request: NextRequest) {
         />
         <div
           style={{
-            width: 760,
-            height: 360,
-            borderRadius: 36,
+            width: panelSize,
+            height: panelSize,
+            borderRadius: panelRadius,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -136,8 +147,8 @@ export async function GET(request: NextRequest) {
               src={logoDataUrl}
               alt={siteName}
               style={{
-                width: 340,
-                height: 340,
+                width: logoSize,
+                height: logoSize,
                 objectFit: "contain",
               }}
             />
@@ -158,8 +169,8 @@ export async function GET(request: NextRequest) {
         <span
           style={{
             position: "absolute",
-            bottom: 42,
-            fontSize: 36,
+            bottom: labelBottom,
+            fontSize: labelSize,
             color: palette.text,
             opacity: 0.84,
             letterSpacing: "0.02em",
@@ -171,10 +182,10 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             position: "absolute",
-            top: -120,
-            right: -80,
-            width: 340,
-            height: 340,
+            top: -Math.round(glowSize * 0.35),
+            right: -Math.round(glowSize * 0.24),
+            width: glowSize,
+            height: glowSize,
             borderRadius: "999px",
             background: palette.glow,
           }}
@@ -182,8 +193,8 @@ export async function GET(request: NextRequest) {
       </div>
     ),
     {
-      width: WIDTH,
-      height: HEIGHT,
+      width: SOCIAL_IMAGE_WIDTH,
+      height: SOCIAL_IMAGE_HEIGHT,
       headers: {
         "cache-control": cacheControl,
       },

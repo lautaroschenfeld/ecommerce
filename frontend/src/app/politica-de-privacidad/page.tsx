@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = resolveSiteName(storefront.storeName);
   const title = "Politica de privacidad";
   const description = cleanMetaText(
-    `Tratamiento de datos personales, cesiones y derechos de titulares en ${siteName}.`
+    `Como protegemos tus datos personales en ${siteName}: recoleccion, uso, seguridad y derechos del titular.`
   );
 
   return {
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ...buildSocialMetadata({
       title: `${title} | ${siteName}`,
       description: cleanMetaText(
-        "Conoce como tratamos tus datos personales y como ejercer tus derechos."
+        "Conoce como tratamos tu informacion y como ejercer acceso, rectificacion y supresion."
       ),
       canonical: "/politica-de-privacidad",
       storefront,

@@ -12,14 +12,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const storefront = await getStorefrontSettingsSafe();
   const siteName = resolveSiteName(storefront.storeName);
   const title = "Contacto";
-  const description = cleanMetaText(`Canales de contacto y atencion para clientes de ${siteName}.`);
+  const description = cleanMetaText(
+    `Habla con ${siteName} para asesoramiento, estado de pedidos y postventa. Atencion directa por canales oficiales.`
+  );
 
   return {
     title,
     description,
     ...buildSocialMetadata({
       title: `${title} | ${siteName}`,
-      description: cleanMetaText("Escribinos para consultas de compra, pedidos y postventa."),
+      description: cleanMetaText(
+        "Recibe ayuda para elegir repuestos, resolver compras y gestionar postventa sin vueltas."
+      ),
       canonical: "/contacto",
       storefront,
       imageAlt: `${siteName} contacto`,
