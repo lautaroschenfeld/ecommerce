@@ -43,6 +43,7 @@
 
 .sheet {
   background: var(--ui-surface-elevated);
+  --button-radius: var(--field-radius);
 }
 
 .body {
@@ -111,8 +112,9 @@
   font-size: 0.92rem;
 }
 
-.emptyActions {
-  margin-top: 0.6rem;
+.emptyAction {
+  width: fit-content;
+  margin-top: 0.15rem;
 }
 
 @media (max-width: 640px) {

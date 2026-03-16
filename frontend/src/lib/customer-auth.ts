@@ -151,6 +151,7 @@ let currentSnapshot: SessionSnapshot = EMPTY_CLIENT_SNAPSHOT;
 let bootPromise: Promise<void> | null = null;
 let bootstrapped = false;
 let authLostListenerAttached = false;
+let clientHydrationSettled = false;
 
 function forceLoggedOutSnapshot() {
   replaceSnapshot({
@@ -320,6 +321,13 @@ function subscribe(onStoreChange: () => void) {
   if (typeof window === "undefined") return () => {};
   window.addEventListener(AUTH_CHANGE_EVENT, onStoreChange);
   return () => window.removeEventListener(AUTH_CHANGE_EVENT, onStoreChange);
+}
+
+function getClientSessionSnapshot() {
+  // Keep the first client render aligned with SSR to avoid hydration mismatches
+  // in auth-gated trees (gate skeleton vs authenticated content).
+  if (!clientHydrationSettled) return SERVER_SNAPSHOT;
+  return currentSnapshot;
 }
 
 async function requestWithRefresh<T>(
@@ -577,11 +585,15 @@ export function getCustomerDisplayName(
 export function useCustomerSession() {
   const snap = useSyncExternalStore(
     subscribe,
-    () => currentSnapshot,
+    getClientSessionSnapshot,
     () => SERVER_SNAPSHOT
   );
 
   useEffect(() => {
+    if (!clientHydrationSettled) {
+      clientHydrationSettled = true;
+      window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+    }
     void ensureBootstrapped();
   }, []);
 

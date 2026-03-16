@@ -128,7 +128,7 @@
   left: var(--select-menu-left, 0);
   width: var(--select-menu-width, auto);
   max-height: var(--select-menu-max-height, min(18rem, 45vh));
-  z-index: var(--z-popover);
+  z-index: var(--z-overlay-top);
 }
 
 .menuPortalInOverlay {

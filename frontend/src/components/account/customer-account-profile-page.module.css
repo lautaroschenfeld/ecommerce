@@ -40,13 +40,24 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.95rem;
-  color: var(--ui-color-rgba-15-23-42-0p82);
+  color: var(--foreground);
+}
+
+.checkRow span {
+  color: var(--foreground);
+  font-weight: 620;
+}
+
+.checkRow input[type="checkbox"] {
+  flex-shrink: 0;
+  border-color: var(--ui-border-stronger);
+  background: var(--control-background-strong);
 }
 
 .message {
   margin: 0;
   font-size: 0.85rem;
-  color: var(--ui-color-rgba-15-23-42-0p74);
+  color: var(--muted-foreground);
 }
 
 .muted {
@@ -62,16 +73,17 @@
 
 .addressItem {
   border-radius: calc((var(--radius-base) + 0.5rem) * var(--radius-scale));
-  border: 1px solid var(--ui-border);
-  background: var(--ui-surface-subtle);
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface-strong);
   padding: 0.75rem;
   display: grid;
   gap: 0.35rem;
+  color: var(--foreground);
 }
 
 .addressItem p {
   margin: 0;
-  color: var(--ui-color-rgba-15-23-42-0p8);
+  color: var(--muted-foreground);
   font-size: 0.85rem;
   line-height: 1.35;
 }
@@ -92,7 +104,8 @@
   font-size: 0.85rem;
   font-weight: 700;
   border: 1px solid var(--ui-border-stronger);
-  background: var(--ui-border-soft);
+  background: var(--ui-surface-subtle);
+  color: var(--foreground);
 }
 
 .addressActions {

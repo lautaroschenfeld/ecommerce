@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -104,6 +104,7 @@ type CompletedCheckoutSummary = {
 
 export function CheckoutPage() {
   const reduceMotion = useReducedMotion();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const beginCheckoutTrackedRef = useRef(false);
   const buyNowIntent = searchParams.get("intent") === "buy-now";
@@ -403,6 +404,19 @@ export function CheckoutPage() {
   }, [items.length]);
 
   useEffect(() => {
+    if (!hydrated) return;
+    if (items.length > 0) return;
+    if (placeOrderOpen || mercadoPagoReturnSummary) return;
+    router.replace("/productos");
+  }, [
+    hydrated,
+    items.length,
+    mercadoPagoReturnSummary,
+    placeOrderOpen,
+    router,
+  ]);
+
+  useEffect(() => {
     if (!draftRestored || !customerHydrated || !isLoggedIn || !customer) return;
 
     const defaultAddress = addresses.find((entry) => entry.isDefault) ?? addresses[0];
@@ -522,62 +536,62 @@ export function CheckoutPage() {
   const errors = useMemo(() => {
     const out: Record<string, string> = {};
 
-    if (!draft.firstName.trim()) out.firstName = "IngresÃ¡ tu nombre.";
-    if (!draft.lastName.trim()) out.lastName = "IngresÃ¡ tu apellido.";
-    if (!validateEmail(draft.email)) out.email = "IngresÃ¡ un email vÃ¡lido.";
+    if (!draft.firstName.trim()) out.firstName = "Ingresá tu nombre.";
+    if (!draft.lastName.trim()) out.lastName = "Ingresá tu apellido.";
+    if (!validateEmail(draft.email)) out.email = "Ingresá un email válido.";
 
     const phoneDigits = digitsOnly(draft.phone);
-    if (phoneDigits.length < 8) out.phone = "IngresÃ¡ un telÃ©fono vÃ¡lido.";
+    if (phoneDigits.length < 8) out.phone = "Ingresá un teléfono válido.";
 
     const dniDigits = digitsOnly(draft.dni);
     if (!dniDigits) {
-      out.dni = "IngresÃ¡ DNI o CUIT.";
+      out.dni = "Ingresá DNI o CUIT.";
     } else {
       const validDni = dniDigits.length === 7 || dniDigits.length === 8;
       const validCuit = dniDigits.length === 11;
       if (!validDni && !validCuit) {
-        out.dni = "IngresÃ¡ un DNI o CUIT vÃ¡lido.";
+        out.dni = "Ingresá un DNI o CUIT válido.";
       }
     }
 
-    if (!draft.address1.trim()) out.address1 = "IngresÃ¡ calle y nÃºmero.";
-    if (!draft.city.trim()) out.city = "IngresÃ¡ la localidad.";
-    if (!draft.province.trim()) out.province = "ElegÃ­ la provincia.";
-    if (!draft.postalCode.trim()) out.postalCode = "IngresÃ¡ el cÃ³digo postal.";
+    if (!draft.address1.trim()) out.address1 = "Ingresá calle y número.";
+    if (!draft.city.trim()) out.city = "Ingresá la localidad.";
+    if (!draft.province.trim()) out.province = "Elegí la provincia.";
+    if (!draft.postalCode.trim()) out.postalCode = "Ingresá el código postal.";
 
     if (!draft.billingSameAsShipping) {
       if (!draft.billingAddress1.trim())
-        out.billingAddress1 = "IngresÃ¡ la direcciÃ³n de facturaciÃ³n.";
+        out.billingAddress1 = "Ingresá la dirección de facturación.";
       if (!draft.billingCity.trim())
-        out.billingCity = "IngresÃ¡ la localidad de facturaciÃ³n.";
+        out.billingCity = "Ingresá la localidad de facturación.";
       if (!draft.billingProvince.trim())
-        out.billingProvince = "ElegÃ­ la provincia de facturaciÃ³n.";
+        out.billingProvince = "Elegí la provincia de facturación.";
       if (!draft.billingPostalCode.trim())
-        out.billingPostalCode = "IngresÃ¡ el CP de facturaciÃ³n.";
+        out.billingPostalCode = "Ingresá el CP de facturación.";
     }
 
     if (draft.invoiceType === "factura_a") {
       const cuitDigits = digitsOnly(draft.cuit);
       if (cuitDigits.length < 11)
-        out.cuit = "IngresÃ¡ un CUIT vÃ¡lido (11 dÃ­gitos).";
-      if (!draft.razonSocial.trim()) out.razonSocial = "IngresÃ¡ la razÃ³n social.";
+        out.cuit = "Ingresá un CUIT válido (11 dígitos).";
+      if (!draft.razonSocial.trim()) out.razonSocial = "Ingresá la razón social.";
     }
 
     if (draft.paymentMethod === "card") {
       if (!cardName.trim())
-        out.cardName = "IngresÃ¡ el nombre como figura en la tarjeta.";
+        out.cardName = "Ingresá el nombre como figura en la tarjeta.";
       const ccDigits = digitsOnly(cardNumber);
       if (ccDigits.length < 15)
-        out.cardNumber = "IngresÃ¡ un nÃºmero de tarjeta vÃ¡lido.";
+        out.cardNumber = "Ingresá un número de tarjeta válido.";
       const expDigits = digitsOnly(cardExp);
       const month = Number(expDigits.slice(0, 2));
       if (expDigits.length !== 4 || month < 1 || month > 12)
-        out.cardExp = "IngresÃ¡ MM/AA.";
+        out.cardExp = "Ingresá MM/AA.";
       const cvcDigits = digitsOnly(cardCvc);
-      if (cvcDigits.length < 3) out.cardCvc = "IngresÃ¡ el CVC.";
+      if (cvcDigits.length < 3) out.cardCvc = "Ingresá el CVC.";
     }
 
-    if (!draft.acceptTerms) out.acceptTerms = "TenÃ©s que aceptar los tÃ©rminos.";
+    if (!draft.acceptTerms) out.acceptTerms = "Tenés que aceptar los términos.";
 
     return out;
   }, [draft, cardName, cardNumber, cardExp, cardCvc]);
@@ -693,7 +707,7 @@ export function CheckoutPage() {
     } catch (error) {
       setAppliedCoupon(null);
       if (error instanceof ApiHttpError && error.status === 404) {
-        setPromoError("CupÃ³n invÃ¡lido o inactivo.");
+        setPromoError("Cupón inválido o inactivo.");
       } else {
         setPromoError(
           mapFriendlyError(error, "No pudimos validar el cupon. Intenta nuevamente.")
@@ -715,12 +729,12 @@ export function CheckoutPage() {
       }
 
       if (accountPassword !== accountPasswordConfirm) {
-        setPostCheckoutMessage("Las contraseÃ±as no coinciden.");
+        setPostCheckoutMessage("Las contraseñas no coinciden.");
         return;
       }
     } else {
       setPostCheckoutMessage(
-        "Pedido listo como invitado. Si luego creÃ¡s cuenta, podrÃ¡s activar avisos."
+        "Pedido listo como invitado. Si luego creás cuenta, podrás activar avisos."
       );
       return;
     }
@@ -895,7 +909,7 @@ export function CheckoutPage() {
         ? (data.order as Record<string, unknown>)
         : null;
       if (!order) {
-        throw new Error("Respuesta invÃ¡lida al crear el pedido.");
+        throw new Error("Respuesta inválida al crear el pedido.");
       }
 
       const transferProofUpload =
@@ -1121,7 +1135,7 @@ export function CheckoutPage() {
       }
       setPlaceOrderOpen(true);
     } catch (error) {
-      let message = "No pudimos completar la acciÃ³n. Intenta nuevamente.";
+      let message = "No pudimos completar la acción. Intenta nuevamente.";
       let shouldMarkUnavailable = true;
       if (error instanceof ApiHttpError) {
         if (error.status === 429) {
@@ -1159,7 +1173,7 @@ export function CheckoutPage() {
           } else {
             message =
               error.code === "STOCK_RESERVATION_EXPIRED"
-                ? "Se venciÃ³ la reserva de stock. Reintenta la finalizacion de compra."
+                ? "Se venció la reserva de stock. Reintenta la finalizacion de compra."
                 : "Algunos productos ya no tienen stock suficiente.";
           }
         } else {
@@ -1261,7 +1275,7 @@ export function CheckoutPage() {
           <div className={styles.postPurchaseHead}>
             <h3>Comprobante de transferencia</h3>
             <p>
-              Subilo ahora o guardÃ¡ el link seguro para subirlo mÃ¡s
+              Subilo ahora o guardá el link seguro para subirlo más
               tarde.
             </p>
           </div>
@@ -1291,7 +1305,7 @@ export function CheckoutPage() {
 
           <div className={styles.field}>
             <Label htmlFor="transfer_proof_link">
-              Link seguro para subir mÃ¡s tarde
+              Link seguro para subir más tarde
             </Label>
             <div className={styles.transferLinkRow}>
               <div className={styles.transferLinkField}>
@@ -1345,17 +1359,17 @@ export function CheckoutPage() {
           {createAccountAfterBuy ? (
             <div className={styles.grid2}>
               <div className={styles.field}>
-                <Label htmlFor="post_password">ContraseÃ±a</Label>
+                <Label htmlFor="post_password">Contraseña</Label>
                 <PasswordInput
                   id="post_password"
                   value={accountPassword}
                   onChange={(e) => setAccountPassword(e.target.value)}
-                  placeholder="MÃ­nimo 8, mayÃºscula, minÃºscula y nÃºmero"
+                  placeholder="Mínimo 8, mayúscula, minúscula y número"
                 />
               </div>
               <div className={styles.field}>
                 <Label htmlFor="post_password_confirm">
-                  Repetir contraseÃ±a
+                  Repetir contraseña
                 </Label>
                 <PasswordInput
                   id="post_password_confirm"
@@ -1460,7 +1474,7 @@ export function CheckoutPage() {
 
       <DialogFooter>
         <Button asChild variant="outline">
-          <Link href="/productos">Volver al catÃ¡logo</Link>
+          <Link href="/productos">Volver al catálogo</Link>
         </Button>
         <Button type="button" onClick={() => setPlaceOrderOpen(false)}>
           Cerrar
@@ -1501,50 +1515,8 @@ export function CheckoutPage() {
     );
   }
 
-  if (items.length === 0) {
-    return (
-      <>
-      <div className={styles.page}>
-        <div className={styles.topRow}>
-          <div className={styles.heading}>
-            <h1 className={styles.title}>Finalizar compra</h1>
-                      <p className={styles.subtitle}>
-            Completa tus datos, elige envio y metodo de pago. Si seleccionas
-            Mercado Pago, te redirigimos al pago seguro y vuelves con el
-            estado del pago. Tambien puedes comprar como invitado y crear cuenta
-            al finalizar.
-          </p>
-          </div>
-          <div className={styles.topActions}>
-            <Button asChild variant="outline">
-              <Link href="/productos">Ver catÃ¡logo</Link>
-            </Button>
-          </div>
-        </div>
-
-        <Card className={styles.emptyCard}>
-          <CardHeader>
-            <CardTitle>EmpezÃ¡ por el catÃ¡logo</CardTitle>
-            <CardDescription>
-              Tu carrito esta vacio. Agrega productos para continuar con la finalizacion de compra.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className={styles.emptyContent}>
-            <p className={styles.emptyText}>
-              Tip: agrega 2 o 3 productos desde <strong>/productos</strong> y
-              vuelve para completar envio, cupones y pago.
-            </p>
-            <Button asChild>
-              <Link href="/productos">
-                Ir al catÃ¡logo <ArrowRight size={16} />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-      {placeOrderDialog}
-      </>
-    );
+  if (items.length === 0 && !mercadoPagoReturnSummary) {
+    return <>{placeOrderDialog}</>;
   }
 
   const Summary = (
@@ -1553,11 +1525,11 @@ export function CheckoutPage() {
         <div className={styles.sectionTitleRow}>
           <CardTitle>Resumen</CardTitle>
           <Badge variant="secondary">
-            {itemCount} Ã­tem{itemCount === 1 ? "" : "s"}
+            {itemCount} ítem{itemCount === 1 ? "" : "s"}
           </Badge>
         </div>
         <CardDescription>
-          EditÃ¡ cantidades acÃ¡ mismo o desde <Link href="/carrito">/carrito</Link>.
+          Editá cantidades acá mismo o desde <Link href="/carrito">/carrito</Link>.
         </CardDescription>
       </CardHeader>
       <CardContent className={styles.cardPad}>
@@ -1579,13 +1551,13 @@ export function CheckoutPage() {
 
           <div className={styles.promoBox}>
             <div className={styles.promoTitle}>
-              <Percent size={16} /> CupÃ³n
+              <Percent size={16} /> Cupón
             </div>
             <div className={styles.promoRow}>
               <Input
                 value={promoInput}
                 onChange={(e) => setPromoInput(e.target.value)}
-                placeholder="CÃ³digo de cupÃ³n"
+                placeholder="Código de cupón"
               />
               <Button
                 type="button"
@@ -1600,7 +1572,7 @@ export function CheckoutPage() {
             {appliedCoupon ? (
               <>
                 <p className={styles.promoMsgOk}>
-                  CupÃ³n aplicado Â· {appliedCoupon.percentage}% OFF
+                  Cupón aplicado · {appliedCoupon.percentage}% OFF
                 </p>
                 <div className={styles.promoActions}>
                   <Button
@@ -1620,7 +1592,7 @@ export function CheckoutPage() {
               <p className={styles.promoMsgBad}>{promoError}</p>
             ) : (
               <p className={styles.promoHint}>
-                IngresÃ¡ un cupÃ³n vÃ¡lido para aplicar descuento.
+                Ingresá un cupón válido para aplicar descuento.
               </p>
             )}
           </div>
@@ -1631,13 +1603,13 @@ export function CheckoutPage() {
               <strong><MoneyAmount value={subtotalArs} /></strong>
             </div>
             <div className={styles.sumRow}>
-              <span className={styles.muted}>EnvÃ­o</span>
+              <span className={styles.muted}>Envío</span>
               <strong>{shippingArs === 0 ? "Gratis" : <MoneyAmount value={shippingArs} />}</strong>
             </div>
             {appliedCoupon ? (
               <div className={styles.sumRow}>
                 <span className={styles.muted}>
-                  CupÃ³n <span className="mono">{appliedCoupon.code}</span>
+                  Cupón <span className="mono">{appliedCoupon.code}</span>
                 </span>
                 <strong className={styles.discount}>
                   -<MoneyAmount value={couponDiscountArs} />
@@ -1662,7 +1634,7 @@ export function CheckoutPage() {
               <span className={styles.trustIcon}>
                 <ShieldCheck size={16} />
               </span>
-              <span>ProtecciÃ³n de compra y garantÃ­a.</span>
+              <span>Protección de compra y garantía.</span>
             </div>
           </div>
         </div>
@@ -1686,7 +1658,7 @@ export function CheckoutPage() {
         <div className={styles.topActions}>
           {!isLoggedIn ? (
             <Link href={loginHref} className={styles.inlineLoginLink}>
-              Â¿Ya tenÃ©s cuenta? Ingresar
+              ¿Ya tenés cuenta? Ingresar
             </Link>
           ) : null}
 
@@ -1759,7 +1731,7 @@ export function CheckoutPage() {
           <div className={styles.summaryToggleTitle}>
             <strong>Resumen</strong>
             <span>
-              {itemCount} Ã­tem{itemCount === 1 ? "" : "s"} Â· Total{" "}
+              {itemCount} ítem{itemCount === 1 ? "" : "s"} · Total{" "}
               <MoneyAmount value={totalArs} />
             </span>
           </div>
@@ -1837,10 +1809,10 @@ export function CheckoutPage() {
                     {draft.deliveryMethod === "pickup" ? (
                       <Badge variant="secondary">Retiro</Badge>
                     ) : subtotalArs >= shippingSettings.freeShippingThresholdArs ? (
-                      <Badge variant="secondary">EnvÃ­o estÃ¡ndar gratis</Badge>
+                      <Badge variant="secondary">Envío estándar gratis</Badge>
                     ) : (
                       <Badge variant="outline">
-                        EnvÃ­o desde <MoneyAmount value={STANDARD_SHIPPING_AMOUNT} />
+                        Envío desde <MoneyAmount value={STANDARD_SHIPPING_AMOUNT} />
                       </Badge>
                     )}
                   </div>
@@ -1853,7 +1825,7 @@ export function CheckoutPage() {
                           ? "Selecciona la velocidad de entrega."
                           : paymentStage === "method"
                             ? "Elegi como queres pagar. Al continuar te pedimos los datos."
-                            : "CompletÃ¡ los datos del mÃ©todo elegido y confirmÃ¡ el pedido."}
+                            : "Completá los datos del método elegido y confirmá el pedido."}
                   </CardDescription>
                 </CardHeader>
 
@@ -1891,7 +1863,7 @@ export function CheckoutPage() {
                             setDraft((d) => ({ ...d, lastName: e.target.value }))
                           }
                           onBlur={() => touch("lastName")}
-                          placeholder="PÃ©rez"
+                          placeholder="Pérez"
                         />
                         {isTouched("lastName") && errors.lastName ? (
                           <div className={styles.error}>{errors.lastName}</div>
@@ -1924,7 +1896,7 @@ export function CheckoutPage() {
 
                       <div className={styles.field}>
                         <div className={styles.fieldLabelRow}>
-                          <Label htmlFor="checkout_phone">TelÃ©fono</Label>
+                          <Label htmlFor="checkout_phone">Teléfono</Label>
                           <span className={styles.help}>Obligatorio</span>
                         </div>
                         <Input
@@ -1967,7 +1939,7 @@ export function CheckoutPage() {
 
                       <div className={styles.field}>
                         <div className={styles.fieldLabelRow}>
-                          <Label htmlFor="checkout_postal">CÃ³digo postal</Label>
+                          <Label htmlFor="checkout_postal">Código postal</Label>
                           <span className={styles.help}>Obligatorio</span>
                         </div>
                         <Input
@@ -1987,7 +1959,7 @@ export function CheckoutPage() {
 
                       <div className={`${styles.field} ${styles.fieldFullSpan}`}>
                         <div className={styles.fieldLabelRow}>
-                          <Label htmlFor="checkout_address1">DirecciÃ³n</Label>
+                          <Label htmlFor="checkout_address1">Dirección</Label>
                           <span className={styles.help}>Obligatorio</span>
                         </div>
                         <Input
@@ -2075,7 +2047,7 @@ export function CheckoutPage() {
                           onChange={(e) =>
                             setDraft((d) => ({ ...d, notes: e.target.value }))
                           }
-                          placeholder="Ej: PortÃ³n negro, llamar antes de llegar."
+                          placeholder="Ej: Portón negro, llamar antes de llegar."
                           rows={3}
                         />
                       </div>
@@ -2101,9 +2073,9 @@ export function CheckoutPage() {
                             <Truck size={18} />
                           </span>
                           <span className={styles.radioInfo}>
-                            <span className={styles.radioTitle}>EnvÃ­o estÃ¡ndar</span>
+                            <span className={styles.radioTitle}>Envío estándar</span>
                             <span className={styles.radioSub}>
-                              2 a 5 dÃ­as hÃ¡biles Â· Seguimiento incluido
+                              2 a 5 días hábiles · Seguimiento incluido
                             </span>
                           </span>
                         </span>
@@ -2135,9 +2107,9 @@ export function CheckoutPage() {
                             <Truck size={18} />
                           </span>
                           <span className={styles.radioInfo}>
-                            <span className={styles.radioTitle}>EnvÃ­o express</span>
+                            <span className={styles.radioTitle}>Envío express</span>
                             <span className={styles.radioSub}>
-                              24 a 48 hs Â· Prioridad en despacho
+                              24 a 48 hs · Prioridad en despacho
                             </span>
                           </span>
                         </span>
@@ -2169,7 +2141,7 @@ export function CheckoutPage() {
                           <span className={styles.radioInfo}>
                             <span className={styles.radioTitle}>Retiro en tienda</span>
                             <span className={styles.radioSub}>
-                              CoordinÃ¡ por WhatsApp Â· Sin costo de envÃ­o
+                              Coordiná por WhatsApp · Sin costo de envío
                             </span>
                           </span>
                         </span>
@@ -2184,7 +2156,7 @@ export function CheckoutPage() {
                         </span>
                         <span>
                           Envios a todo el pais. Gratis desde{" "}
-                          <strong><MoneyAmount value={shippingSettings.freeShippingThresholdArs} /></strong> (estÃ¡ndar).
+                          <strong><MoneyAmount value={shippingSettings.freeShippingThresholdArs} /></strong> (estándar).
                         </span>
                       </div>
                     </div>
@@ -2209,7 +2181,7 @@ export function CheckoutPage() {
                             <span className={styles.radioInfo}>
                               <span className={styles.radioTitle}>Tarjeta</span>
                               <span className={styles.radioSub}>
-                                Visa / Master / Amex Â· Hasta 12 cuotas
+                                Visa / Master / Amex · Hasta 12 cuotas
                               </span>
                             </span>
                           </span>
@@ -2237,7 +2209,7 @@ export function CheckoutPage() {
                             <span className={styles.radioInfo}>
                               <span className={styles.radioTitle}>Mercado Pago</span>
                               <span className={styles.radioSub}>
-                                RedirecciÃ³n segura Â· AcreditaciÃ³n al instante
+                                Redirección segura · Acreditación al instante
                               </span>
                             </span>
                           </span>
@@ -2263,7 +2235,7 @@ export function CheckoutPage() {
                             <span className={styles.radioInfo}>
                               <span className={styles.radioTitle}>Transferencia</span>
                               <span className={styles.radioSub}>
-                                Alias/CBU Â· SubÃ­ comprobante
+                                Alias/CBU · Subí comprobante
                               </span>
                             </span>
                           </span>
@@ -2273,7 +2245,7 @@ export function CheckoutPage() {
                       {paymentStage === "method" ? (
                         <div className={styles.promoBox}>
                           <p className={styles.promoHint}>
-                            ElegÃ­ el mÃ©todo y presionÃ¡ Continuar para completar los datos de
+                            Elegí el método y presioná Continuar para completar los datos de
                             pago.
                           </p>
                         </div>
@@ -2456,7 +2428,7 @@ export function CheckoutPage() {
                       <div className={styles.grid2}>
                         <div className={`${styles.field} ${styles.fieldFullSpan}`}>
                           <div className={styles.fieldLabelRow}>
-                            <Label>FacturaciÃ³n</Label>
+                            <Label>Facturación</Label>
                             <span className={styles.help}>Opcional</span>
                           </div>
 
@@ -2516,7 +2488,7 @@ export function CheckoutPage() {
                                 <span className={styles.radioInfo}>
                                   <span className={styles.radioTitle}>Factura A</span>
                                   <span className={styles.radioSub}>
-                                    Requiere CUIT y razÃ³n social
+                                    Requiere CUIT y razón social
                                   </span>
                                 </span>
                               </span>
@@ -2551,7 +2523,7 @@ export function CheckoutPage() {
 
                             <div className={styles.field}>
                               <div className={styles.fieldLabelRow}>
-                                <Label htmlFor="checkout_razon">RazÃ³n social</Label>
+                                <Label htmlFor="checkout_razon">Razón social</Label>
                                 <span className={styles.help}>Obligatorio</span>
                               </div>
                               <Input
@@ -2575,7 +2547,7 @@ export function CheckoutPage() {
 
                         <div className={`${styles.field} ${styles.fieldFullSpan}`}>
                           <div className={styles.fieldLabelRow}>
-                            <Label>DirecciÃ³n de facturaciÃ³n</Label>
+                            <Label>Dirección de facturación</Label>
                             <span className={styles.help}>Opcional</span>
                           </div>
 
@@ -2584,7 +2556,7 @@ export function CheckoutPage() {
                               <MapPin size={16} />
                             </span>
                             <span>
-                              Usar la misma direcciÃ³n que entrega
+                              Usar la misma dirección que entrega
                               <span className={styles.inlineCheckbox}>
                                 <Checkbox
                                   checked={draft.billingSameAsShipping}
@@ -2604,7 +2576,7 @@ export function CheckoutPage() {
                           <>
                             <div className={`${styles.field} ${styles.fieldFullSpan}`}>
                               <div className={styles.fieldLabelRow}>
-                                <Label htmlFor="checkout_bill_addr">DirecciÃ³n</Label>
+                                <Label htmlFor="checkout_bill_addr">Dirección</Label>
                                 <span className={styles.help}>Obligatorio</span>
                               </div>
                               <Input
@@ -2703,7 +2675,7 @@ export function CheckoutPage() {
                               <Lock size={16} />
                             </span>
                             <span>
-                              Acepto tÃ©rminos y condiciones
+                              Acepto términos y condiciones
                               <span className={styles.inlineCheckbox}>
                                 <Checkbox
                                   checked={draft.acceptTerms}
@@ -2803,13 +2775,13 @@ export function CheckoutPage() {
 
                             <div className={styles.promoBox}>
                               <p className={styles.promoHint}>
-                                <strong>Total:</strong> <MoneyAmount value={totalArs} /> Â· <strong>EnvÃ­o:</strong>{" "}
+                                <strong>Total:</strong> <MoneyAmount value={totalArs} /> · <strong>Envío:</strong>{" "}
                                 {draft.deliveryMethod === "pickup"
                                   ? "Retiro"
                                   : shippingArs === 0
                                     ? "Gratis"
                                     : <MoneyAmount value={shippingArs} />}{" "}
-                                Â· <strong>Pago:</strong>{" "}
+                                · <strong>Pago:</strong>{" "}
                                 {draft.paymentMethod === "card"
                                   ? "Tarjeta"
                                   : draft.paymentMethod === "mercadopago"
@@ -2821,7 +2793,7 @@ export function CheckoutPage() {
                                 <p className={styles.promoHint}>
                                   <strong>Orden:</strong> {placedOrder.orderNumber}
                                   {placedOrder.trackingCode
-                                    ? ` Â· Tracking: ${placedOrder.trackingCode}`
+                                    ? ` · Tracking: ${placedOrder.trackingCode}`
                                     : ""}
                                 </p>
                               ) : null}
@@ -2832,7 +2804,7 @@ export function CheckoutPage() {
                                 <div className={styles.postPurchaseHead}>
                                   <h3>Comprobante de transferencia</h3>
                                   <p>
-                                    Subilo ahora o guardÃ¡ el link seguro para subirlo mÃ¡s
+                                    Subilo ahora o guardá el link seguro para subirlo más
                                     tarde.
                                   </p>
                                 </div>
@@ -2862,7 +2834,7 @@ export function CheckoutPage() {
 
                                 <div className={styles.field}>
                                   <Label htmlFor="transfer_proof_link">
-                                    Link seguro para subir mÃ¡s tarde
+                                    Link seguro para subir más tarde
                                   </Label>
                                   <div className={styles.transferLinkRow}>
                                     <div className={styles.transferLinkField}>
@@ -2896,7 +2868,7 @@ export function CheckoutPage() {
                             {!isLoggedIn && placedOrder ? (
                               <div className={styles.postPurchaseBox}>
                                 <div className={styles.postPurchaseHead}>
-                                  <h3>DespuÃ©s de comprar</h3>
+                                  <h3>Después de comprar</h3>
                                   <p>
                                     Compra invitada habilitada. Si queres, crea tu cuenta ahora
                                     y guarda tus notificaciones.
@@ -2916,17 +2888,17 @@ export function CheckoutPage() {
                                 {createAccountAfterBuy ? (
                                   <div className={styles.grid2}>
                                     <div className={styles.field}>
-                                      <Label htmlFor="post_password">ContraseÃ±a</Label>
+                                      <Label htmlFor="post_password">Contraseña</Label>
                                       <PasswordInput
                                         id="post_password"
                                         value={accountPassword}
                                         onChange={(e) => setAccountPassword(e.target.value)}
-                                        placeholder="MÃ­nimo 8, mayÃºscula, minÃºscula y nÃºmero"
+                                        placeholder="Mínimo 8, mayúscula, minúscula y número"
                                       />
                                     </div>
                                     <div className={styles.field}>
                                       <Label htmlFor="post_password_confirm">
-                                        Repetir contraseÃ±a
+                                        Repetir contraseña
                                       </Label>
                                       <PasswordInput
                                         id="post_password_confirm"
@@ -3031,7 +3003,7 @@ export function CheckoutPage() {
 
                             <DialogFooter>
                               <Button asChild variant="outline">
-                                <Link href="/productos">Volver al catÃ¡logo</Link>
+                                <Link href="/productos">Volver al catálogo</Link>
                               </Button>
                               <Button type="button" onClick={() => setPlaceOrderOpen(false)}>
                                 Cerrar
@@ -3057,12 +3029,3 @@ export function CheckoutPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-

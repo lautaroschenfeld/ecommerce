@@ -196,7 +196,7 @@
   position: fixed;
   left: var(--context-menu-x, 0);
   top: var(--context-menu-y, 0);
-  z-index: var(--z-popover);
+  z-index: var(--z-overlay-top);
   min-width: 12.5rem;
   border-radius: var(--field-radius);
   border: 1px solid var(--ui-border-strong);

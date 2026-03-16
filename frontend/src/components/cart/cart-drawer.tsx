@@ -69,11 +69,11 @@ export function CartDrawer() {
       <SheetContent className={styles.sheet}>
         <SheetHeader>
           <SheetTitle>Carrito</SheetTitle>
-            {itemCount > 0 && (
-              <SheetDescription>
-                {itemsLabel} · Subtotal <MoneyAmount value={subtotalArs} />
-              </SheetDescription>
-            )}
+          {itemCount > 0 && (
+            <SheetDescription>
+              {itemsLabel} · Subtotal <MoneyAmount value={subtotalArs} />
+            </SheetDescription>
+          )}
         </SheetHeader>
 
         <div className={styles.body}>
@@ -81,15 +81,13 @@ export function CartDrawer() {
             <div className={styles.empty}>
               <p className={styles.emptyTitle}>Todavía no agregaste productos.</p>
               <p className={styles.emptyText}>
-                Suma repuestos al carrito para ver el flujo de compra completo.
+                Explora el catálogo y agrega repuestos para iniciar tu compra.
               </p>
-              <div className={styles.emptyActions}>
-                <Button asChild>
-                  <Link href="/productos" onClick={closeDrawer}>
-                    Ver catálogo
-                  </Link>
-                </Button>
-              </div>
+              <Button asChild className={styles.emptyAction}>
+                <Link href="/productos" onClick={closeDrawer}>
+                  Ir al catálogo
+                </Link>
+              </Button>
             </div>
           ) : (
             <>
@@ -129,38 +127,30 @@ export function CartDrawer() {
           )}
         </div>
 
-        <SheetFooter className={styles.footer}>
-          {items.length ? (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={clear}
-                className={styles.footerGrow}
-              >
-                Vaciar
-              </Button>
+        {items.length ? (
+          <SheetFooter className={styles.footer}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={clear}
+              className={styles.footerGrow}
+            >
+              Vaciar
+            </Button>
 
-              <Button asChild variant="outline" className={styles.footerGrow}>
-                <Link href="/carrito" onClick={closeDrawer}>
-                  Ver carrito
-                </Link>
-              </Button>
-
-              <Button asChild className={styles.footerGrow}>
-                <Link href="/checkout" onClick={closeDrawer}>
-                  Finalizar compra
-                </Link>
-              </Button>
-            </>
-          ) : (
-            <Button asChild className={styles.footerGrow}>
-              <Link href="/productos" onClick={closeDrawer}>
-                Ir al catálogo
+            <Button asChild variant="outline" className={styles.footerGrow}>
+              <Link href="/carrito" onClick={closeDrawer}>
+                Ver carrito
               </Link>
             </Button>
-          )}
-        </SheetFooter>
+
+            <Button asChild className={styles.footerGrow}>
+              <Link href="/checkout" onClick={closeDrawer}>
+                Finalizar compra
+              </Link>
+            </Button>
+          </SheetFooter>
+        ) : null}
       </SheetContent>
     </Sheet>
   );

@@ -24,8 +24,21 @@
 }
 
 .innerAdmin {
+  --admin-sidebar-collapsed-width: 5.75rem;
+  --admin-surface-offset: 0.75rem;
+  --admin-sidebar-collapsed-footprint: calc(
+    var(--admin-sidebar-collapsed-width) + var(--admin-surface-offset)
+  );
   grid-template-columns: minmax(0, 1fr) auto;
-  max-width: var(--admin-content-max-width);
+  width: min(
+    var(--admin-content-max-width),
+    calc(100% - var(--admin-sidebar-collapsed-footprint))
+  );
+  max-width: min(
+    var(--admin-content-max-width),
+    calc(100% - var(--admin-sidebar-collapsed-footprint))
+  );
+  transform: translateX(calc(var(--admin-sidebar-collapsed-footprint) / 2));
 }
 
 .innerLogoOnly {
@@ -210,6 +223,7 @@
 
 .accountMenu {
   position: relative;
+  z-index: var(--z-overlay-top);
 }
 
 .accountTrigger {
@@ -261,7 +275,7 @@
   padding: 0.55rem;
   display: grid;
   gap: 0.25rem;
-  z-index: var(--z-sticky);
+  z-index: var(--z-overlay-top);
 }
 
 .accountDropdownHeader {
@@ -357,6 +371,9 @@
   .innerAdmin {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "brand right";
+    width: 100%;
+    max-width: none;
+    transform: none;
     row-gap: 0;
   }
 
