@@ -7,6 +7,7 @@ import { createLatestRequestController } from "@/lib/latest-request";
 import { mapFriendlyError } from "@/lib/user-facing-errors";
 
 const STORE_PRODUCT_QUESTIONS_TIMEOUT_MS = 4000;
+const STORE_PRODUCT_QUESTION_MAX_CHARS = 120;
 
 export type StoreProductQuestionStatus = "pending" | "answered";
 
@@ -145,7 +146,7 @@ export async function createStoreProductQuestion(
   const productId = productIdRaw.trim();
   if (!productId) throw new Error("Producto inválido.");
 
-  const question = input.question.trim();
+  const question = input.question.trim().slice(0, STORE_PRODUCT_QUESTION_MAX_CHARS);
   if (!question) throw new Error("Escribe tu pregunta.");
 
   await fetchJsonWithAuthRetry(

@@ -1,4 +1,5 @@
 .wrap {
+  --qty-disabled-button-bg: var(--control-background);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -7,6 +8,14 @@
   border: 1px solid var(--ui-border);
   background: transparent;
   box-shadow: var(--shadow-sm);
+}
+
+.wrapDisabled {
+  --qty-disabled-button-bg: var(--control-background-disabled);
+}
+
+.wrap :global(button:disabled) {
+  background: var(--qty-disabled-button-bg);
 }
 
 .wrapCta {

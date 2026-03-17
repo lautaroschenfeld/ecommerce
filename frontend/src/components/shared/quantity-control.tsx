@@ -47,7 +47,12 @@ export function QuantityControl({
 
   return (
     <div
-      className={cn(styles.wrap, variant === "cta" && styles.wrapCta, className)}
+      className={cn(
+        styles.wrap,
+        disabled && styles.wrapDisabled,
+        variant === "cta" && styles.wrapCta,
+        className
+      )}
       aria-label="Cantidad"
     >
       <Button

@@ -18,6 +18,7 @@ import {
 const DEFAULT_LIMIT = 3
 const MAX_LIMIT = 100
 const MAX_OFFSET = 1_000_000
+const STORE_PRODUCT_QUESTION_MAX_CHARS = 120
 
 function parseBoundedInt(
   value: unknown,
@@ -87,7 +88,10 @@ export async function POST(req: HttpRequest, res: HttpResponse) {
 
   const ctx = await requireCustomerAuth(req, res)
   const body = asRecord(req.body) ?? {}
-  const question = normalizeQuestionText(body.question ?? body.pregunta, 1200)
+  const question = normalizeQuestionText(
+    body.question ?? body.pregunta,
+    STORE_PRODUCT_QUESTION_MAX_CHARS
+  )
   if (!question || question.length < 8) {
     return res
       .status(400)

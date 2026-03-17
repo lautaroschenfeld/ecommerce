@@ -103,6 +103,8 @@ import {
 import styles from "./product-detail-page.module.css";
 
 const BUY_NOW_INTENT_KEY = "store:checkout:buy-now:v1";
+const PRODUCT_QUESTION_MIN_CHARS = 8;
+const PRODUCT_QUESTION_MAX_CHARS = 120;
 type ProductSelectionState = {
   scopeId: string;
   variantId: string | null;
@@ -116,6 +118,14 @@ function normalizeSearchText(input: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
+}
+
+function clampProductQuestionDraft(input: string) {
+  return input.slice(0, PRODUCT_QUESTION_MAX_CHARS);
+}
+
+function normalizeProductQuestionForSubmit(input: string) {
+  return clampProductQuestionDraft(input).trim();
 }
 
 export function ProductDetailPage({ productId }: { productId: string }) {
@@ -432,9 +442,11 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
   const submitQuestion = useCallback(
     async (questionRaw: string, source: "manual" | "recovered" = "manual") => {
-      const question = questionRaw.trim();
-      if (question.length < 8) {
-        setQuestionFormError("Escribe una pregunta de al menos 8 caracteres.");
+      const question = normalizeProductQuestionForSubmit(questionRaw);
+      if (question.length < PRODUCT_QUESTION_MIN_CHARS) {
+        setQuestionFormError(
+          `Escribe una pregunta de al menos ${PRODUCT_QUESTION_MIN_CHARS} caracteres.`
+        );
         setQuestionFormMessage(null);
         return false;
       }
@@ -514,7 +526,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
     recoveredQuestionRef.current = true;
     clearPendingProductQuestion();
-    setQuestionDraft(pending.question);
+    setQuestionDraft(clampProductQuestionDraft(pending.question));
     void submitQuestion(pending.question, "recovered");
   }, [customerHydrated, isLoggedIn, product?.id, submitQuestion]);
 
@@ -939,9 +951,11 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   const handleQuestionSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const question = questionDraft.trim();
-    if (question.length < 8) {
-      setQuestionFormError("Escribe una pregunta de al menos 8 caracteres.");
+    const question = normalizeProductQuestionForSubmit(questionDraft);
+    if (question.length < PRODUCT_QUESTION_MIN_CHARS) {
+      setQuestionFormError(
+        `Escribe una pregunta de al menos ${PRODUCT_QUESTION_MIN_CHARS} caracteres.`
+      );
       setQuestionFormMessage(null);
       return;
     }
@@ -1245,11 +1259,13 @@ export function ProductDetailPage({ productId }: { productId: string }) {
             <form className={styles.questionsFormRow} onSubmit={handleQuestionSubmit}>
               <Input
                 value={questionDraft}
-                onChange={(event) => setQuestionDraft(event.target.value)}
+                onChange={(event) =>
+                  setQuestionDraft(clampProductQuestionDraft(event.target.value))
+                }
                 placeholder="Escribe tu pregunta"
                 className={styles.questionsInput}
                 disabled={questionSending}
-                maxLength={1200}
+                maxLength={PRODUCT_QUESTION_MAX_CHARS}
               />
               <Button
                 type="submit"

@@ -42,6 +42,7 @@ import styles from "./questions-admin.module.css";
 
 const PAGE_LIMIT = 50;
 const MINUTE_MS = 60 * 1000;
+const ADMIN_QUESTION_ANSWER_MAX_CHARS = 500;
 
 type StatusFilter = "all" | "pending" | "answered";
 type ConfirmAction = ReturnType<typeof useConfirmModal>["confirm"];
@@ -109,7 +110,9 @@ function QuestionRow({
   question: AdminProductQuestion;
   confirm: ConfirmAction;
 }) {
-  const [answer, setAnswer] = useState(question.answer);
+  const [answer, setAnswer] = useState(
+    question.answer.slice(0, ADMIN_QUESTION_ANSWER_MAX_CHARS)
+  );
   const [savingAnswer, setSavingAnswer] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,7 +132,9 @@ function QuestionRow({
   const productLabel = question.productTitle || question.productId;
   const hasEmail = Boolean(question.customerEmail);
   const hasName = Boolean(question.customerName);
-  const trimmedCurrentAnswer = question.answer.trim();
+  const trimmedCurrentAnswer = question.answer
+    .slice(0, ADMIN_QUESTION_ANSWER_MAX_CHARS)
+    .trim();
   const trimmedDraftAnswer = answer.trim();
   const answerChanged = trimmedCurrentAnswer !== trimmedDraftAnswer;
   const isAnswered = question.status === "answered";
@@ -154,7 +159,7 @@ function QuestionRow({
       return;
     }
 
-    setAnswer(question.answer);
+    setAnswer(question.answer.slice(0, ADMIN_QUESTION_ANSWER_MAX_CHARS));
     setError(null);
   }, [answerChanged, question.answer, question.id, question.status, question.updatedAt]);
 
@@ -166,7 +171,10 @@ function QuestionRow({
   async function saveAnswer() {
     if (isAnswered) return;
     if (!answerChanged) return;
-    if (!trimmedDraftAnswer) {
+    const normalizedAnswer = answer
+      .slice(0, ADMIN_QUESTION_ANSWER_MAX_CHARS)
+      .trim();
+    if (!normalizedAnswer) {
       setError("Escribe una respuesta antes de enviarla.");
       return;
     }
@@ -176,7 +184,7 @@ function QuestionRow({
       setError(null);
       await adminProductQuestionsActions.update(
         question.id,
-        { answer },
+        { answer: normalizedAnswer },
         { successMessage: "Respuesta enviada" }
       );
     } catch (saveError) {
@@ -286,13 +294,16 @@ function QuestionRow({
                 ref={answerTextareaRef}
                 className={styles.answerInput}
                 value={answer}
-                onChange={(event) => setAnswer(event.target.value)}
+                onChange={(event) =>
+                  setAnswer(event.target.value.slice(0, ADMIN_QUESTION_ANSWER_MAX_CHARS))
+                }
                 onInput={(event) =>
                   syncAnswerTextareaHeight(event.currentTarget)
                 }
                 rows={4}
                 placeholder="Escribe una respuesta para el cliente..."
                 disabled={busy}
+                maxLength={ADMIN_QUESTION_ANSWER_MAX_CHARS}
               />
             </>
           )}

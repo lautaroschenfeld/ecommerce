@@ -13,6 +13,7 @@ import { fetchJsonWithAuthRetry as fetchJson } from "@/lib/store-client";
 import { mapFriendlyError } from "@/lib/user-facing-errors";
 
 const ADMIN_INVALIDATE_EVENT = "store:invalidate:admin-product-questions";
+const ADMIN_PRODUCT_QUESTION_ANSWER_MAX_CHARS = 500;
 
 export type AdminProductQuestionStatus = "pending" | "answered";
 export type AdminProductQuestionsSort =
@@ -272,7 +273,11 @@ export const adminProductQuestionsActions = {
     const successMessage = options?.successMessage?.trim() || "Respuesta enviada";
     const payload: Record<string, unknown> = {};
 
-    if (input.answer !== undefined) payload.answer = input.answer;
+    if (input.answer !== undefined) {
+      payload.answer = input.answer
+        .trim()
+        .slice(0, ADMIN_PRODUCT_QUESTION_ANSWER_MAX_CHARS);
+    }
     if (input.status !== undefined) payload.status = input.status;
 
     try {

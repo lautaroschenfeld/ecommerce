@@ -62,7 +62,7 @@
   padding-right: 0;
   padding-bottom: var(--rail-shadow-space);
   padding-left: 0;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   overscroll-behavior-x: contain;
   scroll-padding-inline: 0;
   width: 100%;
@@ -105,6 +105,10 @@
 
 .rootDragging {
   user-select: none;
+}
+
+.rootDragging .rail {
+  scroll-snap-type: none;
 }
 
 .rootDragging .scrollbarThumb {

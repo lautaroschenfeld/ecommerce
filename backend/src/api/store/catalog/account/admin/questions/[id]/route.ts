@@ -15,6 +15,7 @@ const VALID_STATUSES = new Set<ProductQuestionStatus>([
   "pending",
   "answered",
 ])
+const ADMIN_PRODUCT_QUESTION_ANSWER_MAX_CHARS = 500
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -60,8 +61,10 @@ export async function PATCH(req: HttpRequest, res: HttpResponse) {
   const currentStatus = normalizeQuestionStatus(current.status, "pending")
 
   if (currentStatus === "answered" && hasAnswer) {
-    const incomingAnswer = normalizeQuestionText(body.answer, 2400) || null
-    const savedAnswer = normalizeQuestionText(current.answer, 2400) || null
+    const incomingAnswer =
+      normalizeQuestionText(body.answer, ADMIN_PRODUCT_QUESTION_ANSWER_MAX_CHARS) || null
+    const savedAnswer =
+      normalizeQuestionText(current.answer, ADMIN_PRODUCT_QUESTION_ANSWER_MAX_CHARS) || null
     if ((incomingAnswer ?? "") !== (savedAnswer ?? "")) {
       return res.status(409).json({
         message: "La respuesta ya fue enviada y no puede editarse.",
@@ -70,7 +73,7 @@ export async function PATCH(req: HttpRequest, res: HttpResponse) {
   }
 
   const nextAnswer = hasAnswer
-    ? normalizeQuestionText(body.answer, 2400) || null
+    ? normalizeQuestionText(body.answer, ADMIN_PRODUCT_QUESTION_ANSWER_MAX_CHARS) || null
     : current.answer ?? null
 
   let nextStatus: ProductQuestionStatus = currentStatus
