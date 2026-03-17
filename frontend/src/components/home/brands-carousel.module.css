@@ -1,0 +1,144 @@
+.wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc((var(--radius-base) + 1rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: rgb(var(--brands-wrap-rgb) / var(--brands-wrap-alpha));
+  box-shadow: var(--shadow-sm);
+}
+
+.row {
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+  perspective: 1600px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    var(--mask-edge-transparent) 0%,
+    var(--mask-edge-opaque) 10%,
+    var(--mask-edge-opaque) 90%,
+    var(--mask-edge-transparent) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    var(--mask-edge-transparent) 0%,
+    var(--mask-edge-opaque) 10%,
+    var(--mask-edge-opaque) 90%,
+    var(--mask-edge-transparent) 100%
+  );
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 1.05rem;
+  width: max-content;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+.item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: calc((var(--radius-base) + 0.85rem) * var(--radius-scale));
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  opacity: var(--cyl_opacity, 1);
+  transform: translateZ(var(--cyl_z, 0px)) rotateY(var(--cyl_angle, 0deg))
+    scale(var(--cyl_scale, 1));
+  filter: blur(var(--cyl_blur, 0px)) brightness(var(--cyl_brightness, 1))
+    saturate(var(--cyl_saturate, 1));
+  will-change: transform, opacity, filter;
+  transition: opacity 140ms var(--ease-out);
+}
+
+.item:hover {
+  opacity: 1;
+}
+
+.item:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--ui-border);
+  outline-offset: 4px;
+}
+
+.logo {
+  height: var(--brand-logo-height, 3.1rem);
+  width: auto;
+  padding: var(--brand-logo-padding, 0.65rem 1rem);
+  opacity: 0.82;
+  filter: grayscale(1) saturate(0.45) contrast(1.06) brightness(1.1);
+  transition: opacity 160ms var(--ease-out), filter 180ms var(--ease-out);
+  display: block;
+}
+
+.item:hover .logo {
+  opacity: 1;
+  filter: grayscale(0) saturate(1) contrast(1.06) brightness(1.12)
+    drop-shadow(0 12px 22px var(--brands-logo-glow));
+}
+
+@media (max-width: 640px) {
+  .row {
+    padding: 0.9rem 1rem;
+    perspective: 1400px;
+
+    -webkit-mask-image: linear-gradient(
+      to right,
+      var(--mask-edge-transparent) 0%,
+      var(--mask-edge-opaque) 9%,
+      var(--mask-edge-opaque) 91%,
+      var(--mask-edge-transparent) 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      var(--mask-edge-transparent) 0%,
+      var(--mask-edge-opaque) 9%,
+      var(--mask-edge-opaque) 91%,
+      var(--mask-edge-transparent) 100%
+    );
+  }
+
+  .logo {
+    height: 2.85rem;
+    padding: 0.6rem 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transform: none;
+  }
+
+  .row {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .item {
+    transform: none;
+    filter: none;
+    opacity: 1;
+  }
+}

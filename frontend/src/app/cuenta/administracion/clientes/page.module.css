@@ -1,0 +1,531 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.toolbarCard,
+.listCard,
+.auditCard {
+  gap: 0;
+}
+
+.toolbarCard {
+  align-self: start;
+  position: static;
+}
+
+.toolbarBody,
+.listBody,
+.auditBody {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.searchField,
+.filterField,
+.bulkModeRow,
+.actionField {
+  min-width: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.searchActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.filtersRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  align-items: end;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.cardHeader {
+  padding: 1rem 1rem 0.8rem;
+}
+
+.sheet {
+  width: min(36rem, 100%);
+  background: var(--ui-surface-panel);
+}
+
+.sheetHeader {
+  padding-bottom: 0.9rem;
+  margin-bottom: 0.2rem;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.sheetTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sheetTitleMain {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sheetBody {
+  flex: 1;
+  overflow: auto;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem 1.2rem;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bulkPanel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.8rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--ui-surface-strong);
+}
+
+.bulkTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bulkControls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+.error {
+  margin: 0;
+  color: var(--tone-danger-fg-strong);
+  background: var(--tone-danger-bg-faint);
+  border: 1px solid var(--tone-danger-border-soft);
+  border-radius: var(--admin-radius-sm);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+}
+
+.listHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.clientList {
+  display: grid;
+  gap: 0.7rem;
+  max-height: 62vh;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.paginationFooter {
+  display: flex;
+  justify-content: center;
+}
+
+.clientRow {
+  display: grid;
+  gap: 0.55rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--ui-surface-strong);
+  padding: 0.82rem;
+  transition: border-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out);
+}
+
+.clientRow:hover {
+  border-color: var(--ui-border-stronger);
+}
+
+.clientRow:focus-within {
+  border-color: var(--ui-border-stronger);
+  box-shadow: var(--focus-ring-tight);
+}
+
+.clientRowSelected {
+  border-color: var(--ui-border-strong);
+  box-shadow: var(--focus-ring-tight);
+}
+
+.clientHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.62rem;
+  align-items: start;
+}
+
+.clientOpen {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  min-width: 0;
+  cursor: pointer;
+  display: grid;
+  gap: 0.16rem;
+}
+
+.clientOpen:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-soft);
+  border-radius: var(--admin-radius-xs);
+}
+
+.clientName {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clientEmail {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clientBadges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.clientStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.detailBlock {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border-radius: var(--admin-radius-md);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-strong);
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.keyValueGrid,
+.metricGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.keyValueGrid p,
+.metricGrid p {
+  margin: 0;
+  display: grid;
+  gap: 0.16rem;
+}
+
+.keyValueGrid strong,
+.metricGrid strong {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  font-weight: 700;
+}
+
+.keyValueGrid span {
+  font-size: 0.95rem;
+}
+
+.metricGrid p {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-xs);
+  background: var(--ui-surface-panel);
+  padding: 0.55rem 0.62rem;
+}
+
+.metricGrid span {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.inlineActions {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.actionField {
+  min-width: 12rem;
+  flex: 1 1 12rem;
+}
+
+.addressList {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.addressItem {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-xs);
+  background: var(--ui-surface-panel);
+  padding: 0.58rem 0.68rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.addressLabel {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.addressLine {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ordersTable {
+  display: grid;
+  gap: 0.36rem;
+  overflow: hidden;
+}
+
+.ordersHead,
+.ordersRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.5rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.ordersHead {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  font-weight: 700;
+}
+
+.ordersRow {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-xs);
+  background: var(--ui-surface-panel);
+  padding: 0.55rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.ordersColOrder,
+.ordersColDate,
+.ordersColStatus,
+.ordersColTotal {
+  min-width: 0;
+}
+
+.ordersColOrder,
+.ordersColDate,
+.ordersColStatus {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ordersColTotal {
+  white-space: nowrap;
+  text-align: right;
+  font-weight: 700;
+}
+
+.ordersColOrder {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.ordersColDate {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.ordersColStatus {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  text-align: right;
+}
+
+.ordersColTotal {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.noteActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.timeline {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.timelineItem {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--ui-surface-panel);
+  padding: 0.56rem 0.68rem;
+  display: grid;
+  gap: 0.14rem;
+}
+
+.timelineTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.timelineDetail {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.timelineDate {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.auditList {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 20rem;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.auditRow {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--ui-surface-strong);
+  padding: 0.58rem 0.7rem;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.auditAction {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.auditMeta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.auditDetails {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.auditDate {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+@media (width >= 641px) {
+  .ordersHead,
+  .ordersRow {
+    grid-template-columns:
+      minmax(6.2rem, 0.95fr)
+      minmax(7.4rem, 1fr)
+      minmax(6rem, 0.9fr)
+      minmax(5.4rem, 0.78fr);
+    gap: 0.55rem;
+  }
+
+  .ordersColOrder,
+  .ordersColDate,
+  .ordersColStatus,
+  .ordersColTotal {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .ordersColStatus {
+    justify-self: auto;
+    text-align: left;
+  }
+}
+
+@media (width >= 768px) {
+  .bulkControls,
+  .keyValueGrid,
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1201px) {
+  .mainGrid {
+    grid-template-columns: minmax(16rem, 20.5rem) minmax(0, 1fr);
+  }
+
+  .toolbarCard {
+    position: sticky;
+    top: 1rem;
+  }
+}
+

@@ -1,0 +1,235 @@
+.dialog {
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100dvh - 1.25rem);
+  height: min(44rem, calc(100dvh - 1.25rem));
+  padding: 0.95rem 0.88rem 0.95rem;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.stageShell {
+  margin-top: 0;
+  min-height: 0;
+  width: 100%;
+  border-radius: var(--admin-radius-sm);
+  border: 1px solid var(--ui-border);
+  background:
+    radial-gradient(circle at 12% 18%, rgb(var(--ui-ink-rgb) / 0.12), transparent 42%),
+    radial-gradient(circle at 88% 16%, rgb(var(--ui-ink-rgb) / 0.06), transparent 38%),
+    var(--ui-surface-sidebar);
+  padding: 0.6rem;
+  display: grid;
+  place-items: center;
+}
+
+.stage {
+  --safe-top: 35.3125%;
+  --safe-height: 29.375%;
+  --tablet-left: 13.7695%;
+  --tablet-width: 72.4609%;
+  --all-left: 19.8047%;
+  --all-width: 60.3906%;
+  position: relative;
+  width: auto;
+  max-width: min(100%, 70rem);
+  height: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+  aspect-ratio: 2560 / 1440;
+  border-radius: var(--admin-radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  box-shadow:
+    inset 0 0 0 1px var(--ui-border),
+    0 22px 44px var(--ui-color-rgba-0-0-0-0p35);
+  cursor: grab;
+  background: var(--ui-surface-faint-soft);
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--ui-border-stronger);
+  outline-offset: 4px;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.stageImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--banner-focus-position, 50% 50%);
+  transform-origin: var(--banner-focus-position, 50% 50%);
+  transform: scale(var(--banner-focus-scale, 1));
+  pointer-events: none;
+  user-select: none;
+  transition: transform 120ms ease-out;
+}
+
+.overlayRoot {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.overlayDesktop,
+.overlayTablet,
+.overlayAllDevices {
+  position: absolute;
+  top: var(--safe-top);
+  height: var(--safe-height);
+  border: 1.5px solid var(--ui-border-stronger);
+  box-shadow: inset 0 0 0 1px var(--ui-border-stronger);
+}
+
+.overlayDesktop {
+  left: 0;
+  right: 0;
+  background: var(--ui-surface-faint-strong);
+}
+
+.overlayTablet {
+  left: var(--tablet-left);
+  width: var(--tablet-width);
+  background: var(--ui-surface-faint-soft);
+}
+
+.overlayAllDevices {
+  left: var(--all-left);
+  width: var(--all-width);
+  background: rgb(var(--ui-ink-rgb) / 0.1);
+}
+
+.labelDesktop,
+.labelTablet,
+.labelMobile {
+  position: absolute;
+  display: inline-block;
+  min-width: 10.8rem;
+  text-align: center;
+  border-radius: var(--admin-radius-pill);
+  border: 1px solid var(--ui-border-strong);
+  padding: 0.4rem 0.72rem 0.34rem;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  background: var(--ui-surface-loading);
+  box-shadow: 0 8px 18px var(--ui-color-rgba-2-6-23-0p16);
+  white-space: normal;
+}
+
+.labelDesktop {
+  top: calc(var(--safe-top) - 3.2rem);
+  left: 0.8rem;
+}
+
+.labelTablet {
+  top: calc(var(--safe-top) + var(--safe-height) + 0.62rem);
+  left: calc(var(--tablet-left) + 0.8rem);
+  min-width: 9.8rem;
+  display: none;
+}
+
+.labelMobile {
+  top: calc(var(--safe-top) - 3.2rem);
+  left: calc(var(--all-left) + (var(--all-width) / 2));
+  transform: translateX(-50%);
+  min-width: 12.2rem;
+  display: none;
+}
+
+.labelTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.labelSpec {
+  display: inline-block;
+  margin-top: 0.12rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ui-color-rgba-255-255-255-0p92);
+  background: var(--ui-backdrop);
+}
+
+.controls {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0;
+}
+
+.controlField {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.controlHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sliderLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.controlValue {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+}
+
+.slider {
+  width: 100%;
+  justify-self: stretch;
+  accent-color: var(--primary);
+}
+
+.footer {
+  margin-top: 0;
+}
+
+@media (width >= 768px) {
+  .dialog {
+    width: min(60rem, 100%);
+    max-width: min(60rem, 100%);
+    max-height: calc(100dvh - 2rem);
+    height: min(52rem, calc(100dvh - 2rem));
+    padding: 1rem 1rem 1.05rem;
+    gap: 0.6rem;
+  }
+
+  .stageShell {
+    padding: 0.85rem;
+  }
+
+  .labelTablet,
+  .labelMobile {
+    display: inline-block;
+  }
+}
+

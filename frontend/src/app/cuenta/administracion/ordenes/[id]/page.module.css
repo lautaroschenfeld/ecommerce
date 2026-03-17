@@ -1,0 +1,101 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.topRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.backButton {
+  align-self: flex-start;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+.center {
+  padding: 2rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--muted-foreground);
+}
+
+.spin {
+  animation: adminOrderSpin 1s linear infinite;
+}
+
+@keyframes adminOrderSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card {
+  gap: 0;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.timeline {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.event {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--admin-radius-sm);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.muted {
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+}

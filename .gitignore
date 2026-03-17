@@ -1,0 +1,41 @@
+# Dependencies
+**/node_modules/
+.pnpm-store/
+.npm/
+
+# Build artifacts
+**/dist/
+**/.next/
+**/out/
+**/build/
+**/coverage/
+**/.turbo/
+**/*.tsbuildinfo
+
+# Logs and temp runtime files
+*.log
+**/*.log
+*.pid
+**/tmp-*
+**/*.tmp
+backend/.integration-http-runtime.json
+backend/.seed.done
+frontend/playwright-report/
+frontend/test-results/
+frontend/tests/ui/visual-a11y.spec.ts-snapshots/
+
+# Environment and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.template
+!.env.example
+
+# User-generated or sensitive uploads
+backend/uploads/
+backend/static/
+
+# System files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,71 @@
+name: Backend Quality Gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  backend-quality:
+    name: Backend Build + Unit + Integration
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: store_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d store_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/store_db
+      STORE_CORS: http://localhost:3000
+      ADMIN_CORS: http://localhost:3000
+      AUTH_CORS: http://localhost:3000
+      STORE_CURRENCY_CODE: ars
+      STORE_REGION_NAME: Argentina
+      STORE_REGION_COUNTRY_CODE: ar
+      ALLOW_DEV_RESET_TOKEN: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve backend directory
+        id: backend-dir
+        run: |
+          if [ -f backend/package.json ]; then
+            echo "dir=backend" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=." >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ steps.backend-dir.outputs.dir }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ steps.backend-dir.outputs.dir }}
+        run: npm ci
+
+      - name: Audit production dependencies
+        working-directory: ${{ steps.backend-dir.outputs.dir }}
+        run: npm run audit:prod
+
+      - name: Run backend CI script
+        working-directory: ${{ steps.backend-dir.outputs.dir }}
+        run: npm run ci

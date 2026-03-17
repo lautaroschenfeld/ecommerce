@@ -1,0 +1,118 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-store_db}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-store_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: ["sh", "-c", "node dist/scripts/seed.js && node dist/server.js"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${BACKEND_NODE_ENV:-production}
+      PORT: 9000
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-store_db}
+      REDIS_URL: redis://redis:6379
+      STORE_CORS: ${STORE_CORS:-http://localhost:3000,http://127.0.0.1:3000}
+      ADMIN_CORS: ${ADMIN_CORS:-http://localhost:3000,http://127.0.0.1:3000}
+      AUTH_CORS: ${AUTH_CORS:-http://localhost:3000,http://127.0.0.1:3000}
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
+      BACKEND_PUBLIC_URL: ${BACKEND_PUBLIC_URL:-http://localhost:9000}
+      NEXT_PUBLIC_PUBLISHABLE_API_KEY: ${NEXT_PUBLIC_PUBLISHABLE_API_KEY:-pk_dev_local_store_0123456789abcdef}
+      JWT_SECRET: ${JWT_SECRET:-change_me_backend_secret_0123456789abcdef}
+      COOKIE_SECRET: ${COOKIE_SECRET:-change_me_cookie_secret_0123456789abcdef}
+      CHECKOUT_IDEMPOTENCY_RETENTION_DAYS: ${CHECKOUT_IDEMPOTENCY_RETENTION_DAYS:-14}
+      CHECKOUT_IDEMPOTENCY_CLEANUP_INTERVAL_MS: ${CHECKOUT_IDEMPOTENCY_CLEANUP_INTERVAL_MS:-900000}
+      MAINTENANCE_JOBS_ENABLED: ${MAINTENANCE_JOBS_ENABLED:-true}
+      MAINTENANCE_INITIAL_DELAY_MS: ${MAINTENANCE_INITIAL_DELAY_MS:-45000}
+      MAINTENANCE_TRANSFER_PROOF_INTERVAL_MS: ${MAINTENANCE_TRANSFER_PROOF_INTERVAL_MS:-21600000}
+      MAINTENANCE_CHECKOUT_IDEMPOTENCY_INTERVAL_MS: ${MAINTENANCE_CHECKOUT_IDEMPOTENCY_INTERVAL_MS:-900000}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+      SEED_DEMO_PRODUCTS: ${SEED_DEMO_PRODUCTS:-}
+      SEED_DEMO_COUPONS: ${SEED_DEMO_COUPONS:-}
+    ports:
+      - "${BACKEND_PORT:-9000}:9000"
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_static:/app/static
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:9000/health').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:9000}
+        NEXT_PUBLIC_PUBLISHABLE_API_KEY: ${NEXT_PUBLIC_PUBLISHABLE_API_KEY:-pk_dev_local_store_0123456789abcdef}
+        NEXT_PUBLIC_STORE_LOCALE: ${NEXT_PUBLIC_STORE_LOCALE:-es-AR}
+        NEXT_PUBLIC_STORE_CURRENCY_CODE: ${NEXT_PUBLIC_STORE_CURRENCY_CODE:-USD}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:9000}
+      BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:9000}
+      NEXT_PUBLIC_PUBLISHABLE_API_KEY: ${NEXT_PUBLIC_PUBLISHABLE_API_KEY:-pk_dev_local_store_0123456789abcdef}
+      NEXT_PUBLIC_STORE_LOCALE: ${NEXT_PUBLIC_STORE_LOCALE:-es-AR}
+      NEXT_PUBLIC_STORE_CURRENCY_CODE: ${NEXT_PUBLIC_STORE_CURRENCY_CODE:-USD}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:3000').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_uploads:
+  backend_static:

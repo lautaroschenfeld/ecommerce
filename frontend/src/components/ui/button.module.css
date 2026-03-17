@@ -1,0 +1,151 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: var(--button-radius, var(--radius-pill));
+  border: 1px solid transparent;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+  transform: translate3d(0, 0, 0);
+  transition: transform 180ms var(--ease-out),
+    background-color 180ms var(--ease-out), border-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out), color 180ms var(--ease-out),
+    opacity 180ms var(--ease-out);
+}
+
+.button:active {
+  transform: translate3d(0, 1px, 0);
+}
+
+.button:disabled {
+  pointer-events: none;
+  transform: none;
+  background: var(--control-background-disabled);
+  border-color: var(--control-border-weak);
+  color: var(--muted-foreground);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--brand-primary-rgb) / 0.18);
+}
+
+.button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.variant_default {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 2px var(--ui-border);
+}
+
+.variant_default:hover {
+  background: rgb(var(--brand-primary-rgb) / 0.88);
+}
+
+.variant_outline {
+  background: var(--control-background);
+  color: var(--foreground);
+  border-color: var(--ui-border-stronger);
+  box-shadow: var(--control-shadow);
+}
+
+.variant_outline:hover {
+  background: var(--control-background-hover);
+}
+
+.variant_secondary {
+  background: var(--ui-surface-subtle);
+  color: var(--foreground);
+  border-color: var(--ui-border);
+}
+
+.variant_secondary:hover {
+  background: var(--ui-surface-subtle-strong);
+}
+
+.variant_ghost {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.variant_ghost:hover {
+  background: var(--ui-surface-subtle);
+}
+
+.variant_destructive {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}
+
+.variant_destructive:hover {
+  background: var(--ui-color-rgba-220-38-38-0p9);
+}
+
+.variant_link {
+  padding: 0;
+  border: none;
+  height: auto;
+  background: transparent;
+  color: var(--foreground);
+  box-shadow: none;
+}
+
+.variant_link:hover {
+  text-decoration: underline;
+}
+
+.size_default {
+  height: 2.5rem;
+  padding: 0 1.05rem;
+  font-size: 0.92rem;
+}
+
+.size_sm {
+  height: 2.125rem;
+  padding: 0 0.9rem;
+  font-size: 0.85rem;
+}
+
+.size_xs {
+  height: 1.75rem;
+  padding: 0 0.65rem;
+  font-size: 0.75rem;
+  gap: 0.4rem;
+}
+
+.size_lg {
+  height: 2.75rem;
+  padding: 0 1.2rem;
+  font-size: 1rem;
+}
+
+.size_icon {
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0;
+}
+
+.size_icon-sm {
+  height: 2.125rem;
+  width: 2.125rem;
+  padding: 0;
+}
+
+.size_icon-xs {
+  height: 1.75rem;
+  width: 1.75rem;
+  padding: 0;
+}
+
+.size_icon-lg {
+  height: 2.75rem;
+  width: 2.75rem;
+  padding: 0;
+}

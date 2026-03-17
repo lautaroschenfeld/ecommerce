@@ -1,0 +1,227 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.nativeSelectProxy {
+  display: none;
+}
+
+.trigger {
+  width: 100%;
+  min-width: 0;
+  height: 2.25rem;
+  padding: 0 0.8rem;
+  border-radius: var(--field-radius);
+  border: 1px solid var(--input);
+  background: var(--control-background);
+  color: inherit;
+  box-shadow: var(--control-shadow);
+  transition: border-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  border-color: var(--control-border-hover);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--control-border-hover);
+  box-shadow: var(--control-focus-ring);
+}
+
+.trigger:disabled {
+  background: var(--control-background-disabled);
+  cursor: not-allowed;
+  color: var(--muted-foreground);
+  border-color: var(--control-border-weak);
+}
+
+.triggerOpen {
+  border-color: var(--control-border-hover);
+  box-shadow: var(--control-focus-ring);
+}
+
+.value {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.valueChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.valueChipBadge {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--select-badge-border, transparent);
+  background: var(--select-badge-bg, transparent);
+  color: var(--select-badge-color, inherit);
+  box-shadow: var(--select-badge-shadow, none);
+  padding: 0.18rem 0.56rem;
+}
+
+.valueLabel {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.valueIcon {
+  flex: 0 0 auto;
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+  margin-left: auto;
+  color: var(--ui-icon-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 140ms var(--ease-out, ease);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.chevron svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.menu {
+  border-radius: calc((var(--radius-base) + 0.5rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border-strong);
+  background: var(--control-background-strong);
+  box-shadow: var(--shadow-md);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-height: min(18rem, 45vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.menuPortal {
+  position: fixed;
+  top: var(--select-menu-top, 0);
+  left: var(--select-menu-left, 0);
+  width: var(--select-menu-width, auto);
+  max-height: var(--select-menu-max-height, min(18rem, 45vh));
+  z-index: var(--z-overlay-top);
+}
+
+.menuPortalInOverlay {
+  z-index: var(--z-overlay-top);
+}
+
+.menuPortalDown {
+  transform: none;
+}
+
+.menuPortalUp {
+  transform: translateY(calc(-100% - 0.2rem));
+}
+
+.menuUnpositioned {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.option {
+  position: relative;
+  width: 100%;
+  border: 0;
+  border-radius: calc((var(--radius-base) + 0.35rem) * var(--radius-scale));
+  background: transparent;
+  color: var(--ui-text-emphasis);
+  text-align: left;
+  padding: 0.58rem 0.72rem;
+  font-size: 0.9rem;
+  font-weight: 610;
+  overflow: visible;
+  transition: background-color 160ms var(--ease-out, ease), color 160ms var(--ease-out, ease);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.option:hover {
+  background: var(--ui-surface-subtle);
+  color: var(--foreground);
+}
+
+.optionHighlighted {
+  background: var(--ui-surface-subtle);
+  color: var(--foreground);
+}
+
+.optionActive {
+  background: transparent;
+  color: var(--foreground);
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.optionActive::before {
+  content: "";
+  position: absolute;
+  left: -0.35rem;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgb(var(--brand-primary-rgb) / 0.9);
+}
+
+.optionLabel {
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionBody {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.optionBodyBadge {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--select-badge-border, transparent);
+  background: var(--select-badge-bg, transparent);
+  color: var(--select-badge-color, inherit);
+  box-shadow: var(--select-badge-shadow, none);
+  padding: 0.18rem 0.56rem;
+}
+
+.optionIcon {
+  flex: 0 0 auto;
+}
+
+.optionDisabled {
+  cursor: not-allowed;
+  color: var(--muted-foreground);
+  background: var(--control-background-disabled);
+}

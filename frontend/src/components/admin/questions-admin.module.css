@@ -1,0 +1,334 @@
+.page {
+  --qa-border-default: var(--ui-border-strong);
+  --qa-fs-sm: 0.8rem;
+  --qa-fs-note: 0.85rem;
+  --qa-fs-md: 0.9rem;
+  --qa-fs-body: 0.95rem;
+  --qa-fs-title: 1rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1 1 18rem;
+  min-width: min(100%, 18rem);
+}
+
+.searchIcon {
+  pointer-events: none;
+  position: absolute;
+  left: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ui-icon-muted);
+}
+
+.searchField {
+  height: 2.75rem;
+  border-radius: var(--field-radius);
+  padding-left: 2.6rem;
+}
+
+.sortWrap {
+  flex: 0 1 clamp(12rem, 28vw, 19rem);
+  min-width: 12rem;
+}
+
+.layout {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.filtersCard {
+  gap: 0;
+}
+
+.resultsCard {
+  gap: 0;
+}
+
+.titleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panelHeader {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.panelBody {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.filterSeparator {
+  background: var(--ui-border);
+}
+
+.clearButton {
+  color: var(--muted-foreground);
+}
+
+.clearButton:hover {
+  color: var(--foreground);
+}
+
+.clearButton:focus-visible {
+  outline: none;
+  color: var(--foreground);
+  box-shadow: 0 0 0 3px var(--ui-color-rgba-15-23-42-0p12);
+}
+
+.results {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.resultsBody {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.paginationFooter {
+  display: flex;
+  justify-content: center;
+}
+
+.emptyState {
+  color: var(--muted-foreground);
+  min-height: 6rem;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.questionCard {
+  border-color: var(--qa-border-default);
+  position: relative;
+  overflow: hidden;
+}
+
+.questionCard::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.32rem;
+  pointer-events: none;
+}
+
+.questionCardPending::before {
+  background: rgb(var(--ui-status-warning-rgb) / 0.95);
+}
+
+.questionCardAnswered::before {
+  background: rgb(var(--ui-status-success-rgb) / 0.95);
+}
+
+.questionCardHidden::before {
+  background: rgb(var(--ui-status-neutral-rgb) / 0.8);
+}
+
+.questionCardBody {
+  display: grid;
+  gap: 1rem;
+  padding: 1.15rem 1.05rem 1rem;
+}
+
+.questionTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.questionProduct {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.questionProductLabel {
+  margin: 0;
+  font-size: var(--qa-fs-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+
+.productLink {
+  color: var(--foreground);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--qa-fs-title);
+  line-height: 1.35;
+}
+
+.productLink:hover {
+  text-decoration: underline;
+}
+
+.productLink:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  box-shadow: 0 0 0 3px var(--ui-color-rgba-15-23-42-0p12);
+  border-radius: var(--admin-radius-xs);
+}
+
+.deleteIconButton {
+  color: var(--muted-foreground);
+}
+
+.deleteIconButton:hover {
+  color: rgb(var(--ui-status-danger-strong-rgb) / 0.96);
+  background: rgb(var(--ui-status-danger-rgb) / 0.12);
+}
+
+.deleteIconButton:focus-visible {
+  outline: none;
+  color: rgb(var(--ui-status-danger-strong-rgb) / 0.96);
+  background: rgb(var(--ui-status-danger-rgb) / 0.12);
+  box-shadow: 0 0 0 3px rgb(var(--ui-status-danger-rgb) / 0.22);
+}
+
+.questionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.6rem;
+  margin: 0;
+}
+
+.questionStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  padding: 0.16rem 0.52rem;
+  border-radius: var(--admin-radius-pill);
+  border: 1px solid transparent;
+  font-size: var(--qa-fs-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.questionStatusDot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: var(--admin-radius-pill);
+  background: currentColor;
+}
+
+.customerMeta {
+  margin: 0;
+  font-size: var(--qa-fs-md);
+}
+
+.questionBlock,
+.answerBlock {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.blockLabel {
+  margin: 0;
+  font-size: var(--qa-fs-note);
+  font-weight: 700;
+}
+
+.questionText {
+  margin: 0;
+  font-size: var(--qa-fs-title);
+  line-height: 1.55;
+}
+
+.answerInput {
+  border-color: var(--qa-border-default);
+  resize: none;
+  overflow-y: hidden;
+}
+
+.answerText {
+  margin: 0;
+  font-size: var(--qa-fs-body);
+  line-height: 1.58;
+  color: var(--foreground);
+  border: 1px solid var(--qa-border-default);
+  border-radius: var(--admin-radius-xs);
+  background: var(--ui-surface-strong);
+  padding: 0.7rem 0.8rem;
+  white-space: pre-wrap;
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding-top: 0.2rem;
+}
+
+.timestampsRow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  color: var(--muted-foreground);
+  font-size: var(--qa-fs-sm);
+}
+
+.timestampItem {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.timestampItem + .timestampItem::before {
+  content: "|";
+  margin-right: 0.5rem;
+  color: var(--ui-color-rgba-15-23-42-0p42);
+}
+
+.sendButton {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.errorText {
+  margin: 0;
+  color: var(--destructive);
+  font-size: var(--qa-fs-note);
+}
+
+@media (width >= 1025px) {
+  .layout {
+    grid-template-columns: minmax(18rem, 22rem) 1fr;
+  }
+
+  .questionCardBody {
+    padding: 1.65rem 1.25rem 1.1rem 1.2rem;
+  }
+}
+

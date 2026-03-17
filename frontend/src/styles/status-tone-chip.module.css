@@ -1,0 +1,74 @@
+.statusToneChip {
+  --status-rgb: var(--ui-status-neutral-rgb);
+  --status-strong-rgb: var(--ui-status-neutral-strong-rgb);
+  --status-bg-alpha: 0.18;
+  --status-border-alpha: 0.32;
+  --status-fg-alpha: 0.96;
+  background: rgb(var(--status-rgb) / var(--status-bg-alpha));
+  border-color: rgb(var(--status-rgb) / var(--status-border-alpha));
+  color: rgb(var(--status-strong-rgb) / var(--status-fg-alpha));
+}
+
+.statusToneNeutral {
+  --status-rgb: var(--ui-status-neutral-rgb);
+  --status-strong-rgb: var(--ui-status-neutral-strong-rgb);
+  --status-bg-alpha: 0.18;
+  --status-border-alpha: 0.32;
+  --status-fg-alpha: 0.96;
+}
+
+.statusToneOrange {
+  --status-rgb: var(--ui-status-orange-rgb);
+  --status-strong-rgb: var(--ui-status-orange-strong-rgb);
+  --status-bg-alpha: 0.16;
+  --status-border-alpha: 0.34;
+  --status-fg-alpha: 0.96;
+}
+
+.statusToneBlue {
+  --status-rgb: var(--ui-status-blue-rgb);
+  --status-strong-rgb: var(--ui-status-blue-strong-rgb);
+  --status-bg-alpha: 0.14;
+  --status-border-alpha: 0.28;
+  --status-fg-alpha: 0.96;
+}
+
+.statusToneIndigo {
+  --status-rgb: var(--ui-status-indigo-rgb);
+  --status-strong-rgb: var(--ui-status-indigo-strong-rgb);
+  --status-bg-alpha: 0.14;
+  --status-border-alpha: 0.3;
+  --status-fg-alpha: 0.96;
+}
+
+.statusToneInfo {
+  --status-rgb: var(--ui-status-info-rgb);
+  --status-strong-rgb: var(--ui-status-info-strong-rgb);
+  --status-bg-alpha: 0.14;
+  --status-border-alpha: 0.3;
+  --status-fg-alpha: 0.96;
+}
+
+.statusToneWarning {
+  --status-rgb: var(--ui-status-warning-rgb);
+  --status-strong-rgb: var(--ui-status-warning-strong-rgb);
+  --status-bg-alpha: 0.16;
+  --status-border-alpha: 0.34;
+  --status-fg-alpha: 0.96;
+}
+
+.statusToneSuccess {
+  --status-rgb: var(--ui-status-success-rgb);
+  --status-strong-rgb: var(--ui-status-success-strong-rgb);
+  --status-bg-alpha: 0.14;
+  --status-border-alpha: 0.28;
+  --status-fg-alpha: 0.95;
+}
+
+.statusToneDanger {
+  --status-rgb: var(--ui-status-danger-rgb);
+  --status-strong-rgb: var(--ui-status-danger-strong-rgb);
+  --status-bg-alpha: 0.14;
+  --status-border-alpha: 0.32;
+  --status-fg-alpha: 0.96;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --max-warnings=0",
+    "lint:ui": "node scripts/check-ui-consistency.mjs",
+    "lint:border": "node scripts/check-border-consistency.mjs",
+    "lint:opacity": "node scripts/check-opacity-consistency.mjs",
+    "lint:radius": "node scripts/check-radius-consistency.mjs",
+    "test:l10n": "node scripts/check-mojibake.mjs",
+    "test:theme:geometry": "node scripts/verify-theme-geometry.mjs",
+    "test:layout:widths": "node scripts/audit-layout-widths.mjs",
+    "test:admin:redirects": "node scripts/verify-admin-redirects.mjs",
+    "audit:theme:tokens": "node scripts/audit-theme-tokens.mjs",
+    "lint:theme:budget": "node scripts/check-theme-budget.mjs",
+    "test": "vitest run --passWithNoTests=false",
+    "test:ui": "npm run build && playwright test",
+    "test:ui:only": "playwright test",
+    "test:ui:update": "npm run build && playwright test --update-snapshots",
+    "ci": "npm run lint && npm run test && npm run build && npm run lint:theme:budget && npm run test:ui:only"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.34.0",
+    "lucide-react": "^0.563.0",
+    "nanoid": "^3.3.11",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  }
+}

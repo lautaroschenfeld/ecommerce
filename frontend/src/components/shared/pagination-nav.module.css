@@ -1,0 +1,49 @@
+.paginationNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding-top: 0.6rem;
+  margin-inline: auto;
+}
+
+.paginationPages {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.paginationControl {
+  border-radius: var(--admin-radius-pill);
+  padding-inline: 0.65rem;
+  font-weight: 600;
+}
+
+.paginationPage {
+  min-width: 2.15rem;
+  height: 2.15rem;
+  border-radius: var(--admin-radius-pill);
+  padding: 0 0.55rem;
+  font-weight: 600;
+}
+
+.paginationPageActive {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: 0 6px 14px rgb(var(--brand-primary-rgb) / 0.26);
+}
+
+@media (width >= 641px) {
+  .paginationNav {
+    gap: 0.5rem;
+  }
+
+  .paginationPages {
+    gap: 0.3rem;
+  }
+}

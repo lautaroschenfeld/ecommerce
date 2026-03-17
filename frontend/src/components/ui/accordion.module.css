@@ -1,0 +1,52 @@
+.accordion {
+  width: 100%;
+}
+
+.item {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.trigger {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.trigger::-webkit-details-marker {
+  display: none;
+}
+
+.trigger::marker {
+  content: "";
+}
+
+.triggerLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chevron {
+  color: var(--ui-color-rgba-15-23-42-0p6);
+  transition: transform 180ms var(--ease-out);
+}
+
+.item[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.content {
+  padding: 0.25rem 0 1rem;
+}

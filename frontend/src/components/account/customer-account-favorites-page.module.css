@@ -1,0 +1,66 @@
+.stack {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.headerRow {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.countText {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--ui-text-emphasis);
+}
+
+.unavailableText {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted-foreground);
+}
+
+.grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+}
+
+.item {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.itemActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.stateCard {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: start;
+  padding: 1.1rem 1rem;
+}
+
+.stateMessage {
+  margin: 0;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.spin {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

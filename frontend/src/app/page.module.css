@@ -1,0 +1,36 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.85rem;
+  padding-top: 0.45rem;
+  min-height: calc(
+    100dvh - var(--dynamic-grid-top, 0px) - var(--dynamic-footer-row-height, 0px) - 4.5rem
+  );
+  justify-content: flex-start;
+}
+
+.heroBleed {
+  width: 100%;
+  margin-top: 0;
+  border-radius: calc((var(--radius-base) + 0.65rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-panel);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.heroBleedMedia {
+  width: 100%;
+  height: clamp(10rem, 20vw, 18rem);
+  overflow: hidden;
+}
+
+.heroBleedImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--banner-focus-position, center);
+  transform-origin: var(--banner-focus-position, center);
+  transform: scale(var(--banner-focus-scale, 1));
+  display: block;
+}

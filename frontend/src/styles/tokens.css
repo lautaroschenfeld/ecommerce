@@ -1,0 +1,538 @@
+:root {
+  --radius-base: 0.75rem;
+  --radius-scale: 1;
+  --radius: calc(var(--radius-base) * var(--radius-scale));
+  --radius-pill: calc(999px * var(--radius-scale));
+  --field-radius: calc(0.85rem * var(--radius-scale));
+  --field-radius-sm: calc(0.75rem * var(--radius-scale));
+  --field-radius-xs: calc(0.65rem * var(--radius-scale));
+  --native-select-radius: calc(0.95rem * var(--radius-scale));
+
+  --page-max-width: 72rem; /* ~1152px */
+  --container: var(--page-max-width);
+  --admin-content-max-width: var(--page-max-width);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layering scale */
+  --z-underlay: -1;
+  --z-base: 0;
+  --z-content: 1;
+  --z-raised: 2;
+  --z-control: 5;
+  --z-sticky: 20;
+  --z-flyout: 24;
+  --z-dropdown: 30;
+  --z-sidebar: 40;
+  --z-footer: 45;
+  --z-header: 50;
+  --z-floating: 60;
+  --z-drawer: 70;
+  --z-drawer-overlay: 72;
+  --z-toast: 120;
+  --z-popover: 220;
+  --z-overlay: 1000;
+  --z-overlay-top: 1100;
+
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --admin-panel-surface-radius: calc(
+    (var(--radius-base) + 0.85rem) * var(--radius-scale)
+  );
+  --admin-panel-content-radius: calc(
+    (var(--radius-base) + 0.85rem) * var(--radius-scale)
+  );
+  --admin-radius-xs: calc((var(--radius-base) + 0.2rem) * var(--radius-scale));
+  --admin-radius-sm: calc((var(--radius-base) + 0.3rem) * var(--radius-scale));
+  --admin-radius-md: calc((var(--radius-base) + 0.4rem) * var(--radius-scale));
+  --admin-radius-lg: calc((var(--radius-base) + 0.5rem) * var(--radius-scale));
+  --admin-radius-xl: calc((var(--radius-base) + 0.6rem) * var(--radius-scale));
+  --admin-radius-pill: var(--radius-pill);
+
+  --brands-wrap-alpha: 0.5;
+}
+
+:root,
+[data-theme-mode="light"] {
+  color-scheme: light;
+
+  --bg-page: #f5f5f5;
+  --bg-surface-1: #ffffff;
+  --bg-surface-2: #f0f0f0;
+  --bg-header: var(--bg-surface-1);
+  --bg-footer: var(--bg-surface-1);
+  --border-default: #b5b5b5;
+  --text-primary: #171717;
+  --text-muted: #5f5f5f;
+  --layout-shell-border: var(--border-default);
+
+  --ui-neutral-surface-primary: var(--bg-surface-1);
+  --ui-neutral-surface-secondary: var(--bg-surface-2);
+
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+
+  --brand-primary: #1f1f1f;
+  --brand-primary-rgb: 31 31 31;
+  --brand-accent: #5f5f5f;
+  --brand-accent-rgb: 95 95 95;
+  --brand-border: #c9c9c9;
+  --brand-border-rgb: 201 201 201;
+
+  --card: var(--bg-surface-1);
+  --muted-foreground: var(--text-muted);
+
+  --primary: #1f1f1f;
+  --primary-foreground: #ffffff;
+  --accent: #5f5f5f;
+
+  --ui-ink-rgb: 38 38 38;
+  --ui-border: var(--border-default);
+  --ui-border-soft: var(--ui-border);
+  --ui-border-strong: var(--ui-border);
+  --ui-border-stronger: var(--ui-border);
+  --ui-icon-muted: #545454;
+  --ui-text-emphasis: #2f2f2f;
+
+  --ui-surface-panel: var(--ui-neutral-surface-primary);
+  --ui-surface-sidebar: var(--ui-neutral-surface-secondary);
+  --ui-surface-content: var(--ui-neutral-surface-primary);
+  --ui-surface-glass: var(--ui-neutral-surface-primary);
+  --ui-surface-soft: var(--ui-neutral-surface-secondary);
+  --ui-surface-soft-alt: var(--ui-neutral-surface-secondary);
+  --ui-surface-strong: var(--ui-neutral-surface-primary);
+  --ui-surface-elevated: var(--ui-neutral-surface-primary);
+  --ui-surface-popover: var(--ui-neutral-surface-primary);
+  --ui-surface-loading: var(--ui-neutral-surface-secondary);
+  --ui-surface-faint: var(--ui-neutral-surface-secondary);
+  --ui-surface-faint-soft: var(--ui-neutral-surface-secondary);
+  --ui-surface-faint-strong: var(--ui-neutral-surface-secondary);
+  --ui-backdrop: #171717;
+
+  --border: var(--ui-border);
+  --input: var(--ui-border);
+  --ring: #8f8f8f;
+
+  --control-background: var(--ui-neutral-surface-primary);
+  --control-background-hover: var(--ui-neutral-surface-secondary);
+  --control-background-disabled: var(--ui-neutral-surface-secondary);
+  --control-background-strong: var(--ui-neutral-surface-primary);
+  --control-border-weak: var(--ui-border);
+  --control-border-hover: var(--ui-border);
+  --control-border-strong: var(--ui-border);
+  --control-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --control-shadow-strong: 0 14px 30px rgba(0, 0, 0, 0.16);
+  --control-focus-ring: 0 0 0 3px var(--ui-border-strong);
+  --native-select-arrow-stroke: #2b2b2b;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 18px 40px rgba(0, 0, 0, 0.14);
+
+  --admin-panel-surface-border-color: var(--ui-border-strong);
+  --admin-panel-surface-background: var(--ui-neutral-surface-primary);
+  --admin-panel-surface-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+  --admin-panel-content-background: var(--ui-neutral-surface-primary);
+
+  --ui-shadow-card: 0 10px 26px rgb(var(--ui-ink-rgb) / 0.06);
+  --ui-shadow-soft: 0 8px 20px rgb(var(--ui-ink-rgb) / 0.05);
+  --ui-border-subtle: var(--ui-border);
+  --ui-surface-subtle: var(--ui-neutral-surface-secondary);
+  --ui-surface-subtle-strong: var(--ui-neutral-surface-secondary);
+
+  --ui-link-accent: rgb(var(--brand-accent-rgb));
+  --ui-link-accent-hover: rgb(var(--brand-accent-rgb));
+
+  --ui-status-success-rgb: 34 197 94;
+  --ui-status-success-strong-rgb: 21 128 61;
+  --ui-status-warning-rgb: 234 179 8;
+  --ui-status-warning-strong-rgb: 133 77 14;
+  --ui-status-info-rgb: 115 115 115;
+  --ui-status-info-strong-rgb: 82 82 82;
+  --ui-status-indigo-rgb: 148 148 148;
+  --ui-status-indigo-strong-rgb: 99 99 99;
+  --ui-status-blue-rgb: 99 99 99;
+  --ui-status-blue-strong-rgb: 64 64 64;
+  --ui-status-orange-rgb: 249 115 22;
+  --ui-status-orange-strong-rgb: 154 52 18;
+  --ui-status-neutral-rgb: 148 148 148;
+  --ui-status-neutral-strong-rgb: 64 64 64;
+  --ui-status-danger-rgb: 220 38 38;
+  --ui-status-danger-strong-rgb: 153 27 27;
+  --tone-success-bg: rgb(var(--ui-status-success-rgb) / 0.16);
+  --tone-success-border: rgb(var(--ui-status-success-rgb) / 0.42);
+  --tone-success-fg: rgb(var(--ui-status-success-strong-rgb) / 0.98);
+  --tone-info-bg: rgb(var(--ui-status-info-rgb) / 0.16);
+  --tone-info-border: rgb(var(--ui-status-info-rgb) / 0.42);
+  --tone-info-fg: rgb(var(--ui-status-info-strong-rgb) / 0.98);
+  --tone-warning-bg: rgb(var(--ui-status-warning-rgb) / 0.16);
+  --tone-warning-border: rgb(var(--ui-status-warning-rgb) / 0.42);
+  --tone-warning-fg: rgb(var(--ui-status-warning-strong-rgb) / 0.98);
+  --tone-danger-bg: rgb(var(--ui-status-danger-rgb) / 0.16);
+  --tone-danger-border: rgb(var(--ui-status-danger-rgb) / 0.42);
+  --tone-danger-fg: rgb(var(--ui-status-danger-strong-rgb) / 0.98);
+  --tone-success-solid-bg: rgb(var(--ui-status-success-rgb) / 0.92);
+  --tone-success-solid-border: rgb(var(--ui-status-success-rgb) / 0.98);
+  --tone-danger-solid-bg: rgb(var(--ui-status-danger-rgb) / 0.92);
+  --tone-danger-solid-border: rgb(var(--ui-status-danger-rgb) / 0.98);
+  --tone-on-solid: #f8fafc;
+  --tone-danger-bg-soft: rgb(var(--ui-status-danger-rgb) / 0.06);
+  --tone-danger-bg-faint: rgb(var(--ui-status-danger-rgb) / 0.08);
+  --tone-danger-border-soft: rgb(var(--ui-status-danger-rgb) / 0.2);
+  --tone-danger-border-strong: rgb(var(--ui-status-danger-rgb) / 0.24);
+  --tone-danger-fg-strong: rgb(var(--ui-status-danger-rgb) / 0.95);
+  --tone-danger-fg-emphasis: rgb(var(--ui-status-danger-strong-rgb) / 0.98);
+  --tone-success-fg-strong: rgb(var(--ui-status-success-rgb) / 0.92);
+  --tone-success-border-soft: rgb(var(--ui-status-success-rgb) / 0.35);
+  --tone-success-gradient-start: rgb(var(--ui-status-success-rgb) / 0.92);
+  --tone-success-gradient-end: rgb(var(--ui-status-success-strong-rgb) / 0.9);
+  --tone-info-bg-soft: rgb(var(--brand-accent-rgb) / 0.08);
+  --tone-info-border-soft: rgb(var(--brand-accent-rgb) / 0.18);
+  --tone-info-fg-strong: rgb(var(--ui-ink-rgb) / 0.9);
+  --tone-info-fg-muted: rgb(var(--ui-ink-rgb) / 0.75);
+
+  --focus-ring-soft: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.12);
+  --focus-ring-default: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.18);
+  --focus-ring-contrast: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.2);
+  --focus-ring-tight: 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.1);
+  --focus-ring-tight-soft: 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.14);
+  --focus-ring-inset-default: inset 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.18);
+  --focus-ring-inset-soft: inset 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.14);
+
+  --overlay-scrim-soft: rgb(0 0 0 / 0.5);
+  --overlay-scrim-muted: rgb(0 0 0 / 0.55);
+  --overlay-scrim-strong: rgb(0 0 0 / 0.62);
+  --overlay-scrim-panel: rgb(17 17 17 / 0.42);
+  --overlay-gloss-soft: rgb(255 255 255 / 0.25);
+  --overlay-border-soft: rgb(0 0 0 / 0.28);
+  --overlay-border-default: rgb(0 0 0 / 0.32);
+  --overlay-shadow-strong: 0 2px 8px rgb(0 0 0 / 0.35);
+
+  --mask-edge-transparent: rgb(0 0 0 / 0);
+  --mask-edge-opaque: rgb(0 0 0 / 1);
+  --brands-logo-glow: rgb(255 255 255 / 0.14);
+
+  --badge-stock-ok-bg: rgb(var(--brand-accent-rgb) / 0.12);
+  --badge-stock-low-bg: rgb(var(--ui-status-warning-rgb) / 0.18);
+  --badge-stock-out-bg: rgb(var(--ui-status-danger-rgb) / 0.14);
+  --badge-stock-out-fg: rgb(var(--ui-status-danger-strong-rgb) / 0.9);
+
+  --swatch-fallback-bg: rgb(var(--ui-status-neutral-rgb) / 0.82);
+  --swatch-focus-border: rgb(var(--brand-primary-rgb) / 0.96);
+  --skeleton-shimmer-start: rgb(var(--ui-status-neutral-rgb) / 0.18);
+  --skeleton-shimmer-mid: rgb(var(--ui-status-neutral-rgb) / 0.34);
+
+  --ui-chart-positive-fill-start: #34d399;
+  --ui-chart-positive-fill-mid: #6ee7b7;
+  --ui-chart-positive-fill-end: #a7f3d0;
+  --ui-chart-positive-line-start: rgb(22, 163, 74);
+  --ui-chart-positive-line-end: rgb(5, 150, 105);
+  --ui-chart-positive-glow: rgb(var(--ui-status-success-rgb) / 0.16);
+  --ui-chart-positive-guide: rgb(var(--ui-status-success-strong-rgb) / 0.28);
+  --ui-chart-positive-point-outer: rgb(var(--ui-status-success-rgb) / 0.2);
+  --ui-chart-positive-point-inner: rgb(var(--ui-status-success-strong-rgb) / 0.98);
+
+  --checkbox-surface-bg: var(--control-background);
+  --checkbox-checked-bg: var(--primary);
+  --checkbox-checked-border: rgb(var(--brand-primary-rgb) / 0.68);
+  --checkbox-mark-color: #ffffff;
+
+  --product-card-body-bg: var(--ui-surface-panel);
+  --product-card-visual-bg: var(--ui-surface-sidebar);
+
+  --brands-wrap-rgb: 221 221 221;
+
+  --summary-tone-up-fg: rgb(var(--ui-status-success-strong-rgb) / 0.98);
+  --summary-tone-down-fg: rgb(var(--ui-status-danger-strong-rgb) / 0.98);
+  --summary-tone-neutral-fg: rgb(var(--ui-status-neutral-strong-rgb) / 0.92);
+  --summary-tone-up-border: rgb(var(--ui-status-success-rgb) / 0.28);
+  --summary-tone-up-bg: rgb(var(--ui-status-success-rgb) / 0.13);
+  --summary-tone-down-border: rgb(var(--ui-status-danger-rgb) / 0.26);
+  --summary-tone-down-bg: rgb(var(--ui-status-danger-rgb) / 0.12);
+  --summary-tone-neutral-border: rgb(var(--ui-status-neutral-rgb) / 0.26);
+  --summary-tone-neutral-bg: rgb(var(--ui-status-neutral-rgb) / 0.15);
+  --summary-status-success-border: rgb(var(--ui-status-success-rgb) / 0.28);
+  --summary-status-success-bg: rgb(var(--ui-status-success-rgb) / 0.12);
+  --summary-status-warning-border: rgb(var(--ui-status-warning-rgb) / 0.34);
+  --summary-status-warning-bg: rgb(var(--ui-status-warning-rgb) / 0.14);
+  --summary-status-danger-border: rgb(var(--ui-status-danger-rgb) / 0.32);
+  --summary-status-danger-bg: rgb(var(--ui-status-danger-rgb) / 0.12);
+  --summary-status-orange-border: rgb(var(--ui-status-orange-rgb) / 0.34);
+  --summary-status-orange-bg: rgb(var(--ui-status-orange-rgb) / 0.12);
+  --summary-comparison-badge-fg: rgb(var(--ui-status-neutral-strong-rgb) / 0.9);
+  --summary-comparison-badge-border: rgb(var(--ui-status-neutral-rgb) / 0.26);
+  --summary-comparison-badge-bg: rgb(var(--ui-status-neutral-rgb) / 0.15);
+}
+
+[data-theme-mode="dark"] {
+  color-scheme: dark;
+
+  --bg-page: #121212;
+  --bg-surface-1: #1b1b1b;
+  --bg-surface-2: #232323;
+  --bg-header: var(--bg-surface-1);
+  --bg-footer: var(--bg-surface-1);
+  --border-default: #4a4a4a;
+  --text-primary: #ededed;
+  --text-muted: #c7c7c7;
+  --layout-shell-border: var(--border-default);
+
+  --ui-neutral-surface-primary: var(--bg-surface-1);
+  --ui-neutral-surface-secondary: var(--bg-surface-2);
+
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface-1);
+  --muted-foreground: var(--text-muted);
+
+  --brand-primary: #d4d4d4;
+  --brand-primary-rgb: 212 212 212;
+  --brand-accent: #a3a3a3;
+  --brand-accent-rgb: 163 163 163;
+  --brand-border: #8a8a8a;
+  --brand-border-rgb: 138 138 138;
+
+  --primary: #d4d4d4;
+  --primary-foreground: #111111;
+  --accent: #a3a3a3;
+
+  --border: var(--ui-border);
+  --input: var(--ui-border);
+  --ring: #606060;
+
+  --control-background: var(--ui-neutral-surface-primary);
+  --control-background-hover: var(--ui-neutral-surface-secondary);
+  --control-background-disabled: var(--ui-neutral-surface-secondary);
+  --control-background-strong: var(--ui-neutral-surface-primary);
+  --control-border-weak: var(--ui-border);
+  --control-border-hover: var(--ui-border);
+  --control-border-strong: var(--ui-border);
+  --control-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --control-shadow-strong: 0 18px 34px rgba(0, 0, 0, 0.42);
+  --control-focus-ring: 0 0 0 3px rgb(212 212 212 / 0.1);
+  --native-select-arrow-stroke: #ededed;
+
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 24px 52px rgba(0, 0, 0, 0.45);
+
+  --ui-ink-rgb: 229 229 229;
+  --ui-border: var(--border-default);
+  --ui-border-soft: var(--ui-border);
+  --ui-border-strong: var(--ui-border);
+  --ui-border-stronger: var(--ui-border);
+  --ui-icon-muted: #b8b8b8;
+  --ui-text-emphasis: #ededed;
+
+  --ui-surface-panel: var(--ui-neutral-surface-primary);
+  --ui-surface-sidebar: var(--ui-neutral-surface-secondary);
+  --ui-surface-content: var(--ui-neutral-surface-primary);
+  --ui-surface-glass: var(--ui-neutral-surface-primary);
+  --ui-surface-soft: var(--ui-neutral-surface-secondary);
+  --ui-surface-soft-alt: var(--ui-neutral-surface-secondary);
+  --ui-surface-strong: var(--ui-neutral-surface-primary);
+  --ui-surface-elevated: var(--ui-neutral-surface-primary);
+  --ui-surface-popover: var(--ui-neutral-surface-primary);
+  --ui-surface-loading: var(--ui-neutral-surface-secondary);
+  --ui-surface-faint: var(--ui-neutral-surface-secondary);
+  --ui-surface-faint-soft: var(--ui-neutral-surface-secondary);
+  --ui-surface-faint-strong: var(--ui-neutral-surface-secondary);
+  --ui-backdrop: #000000;
+
+  --admin-panel-surface-shadow: 0 16px 34px rgba(0, 0, 0, 0.36);
+  --ui-shadow-card: 0 18px 42px rgba(0, 0, 0, 0.32);
+  --ui-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.26);
+  --ui-surface-subtle: var(--ui-neutral-surface-secondary);
+  --ui-surface-subtle-strong: var(--ui-neutral-surface-secondary);
+
+  --ui-status-success-rgb: 74 222 128;
+  --ui-status-success-strong-rgb: 134 239 172;
+  --ui-status-warning-rgb: 250 204 21;
+  --ui-status-warning-strong-rgb: 253 224 71;
+  --ui-status-info-rgb: 168 168 168;
+  --ui-status-info-strong-rgb: 232 232 232;
+  --ui-status-indigo-rgb: 168 168 168;
+  --ui-status-indigo-strong-rgb: 232 232 232;
+  --ui-status-blue-rgb: 168 168 168;
+  --ui-status-blue-strong-rgb: 238 238 238;
+  --ui-status-orange-rgb: 251 146 60;
+  --ui-status-orange-strong-rgb: 253 186 116;
+  --ui-status-neutral-rgb: 168 168 168;
+  --ui-status-neutral-strong-rgb: 232 232 232;
+  --ui-status-danger-rgb: 248 113 113;
+  --ui-status-danger-strong-rgb: 252 165 165;
+  --tone-success-bg: rgb(var(--ui-status-success-rgb) / 0.2);
+  --tone-success-border: rgb(var(--ui-status-success-rgb) / 0.44);
+  --tone-success-fg: rgb(var(--ui-status-success-strong-rgb) / 0.98);
+  --tone-info-bg: rgb(var(--ui-status-info-rgb) / 0.2);
+  --tone-info-border: rgb(var(--ui-status-info-rgb) / 0.44);
+  --tone-info-fg: rgb(var(--ui-status-info-strong-rgb) / 0.98);
+  --tone-warning-bg: rgb(var(--ui-status-warning-rgb) / 0.2);
+  --tone-warning-border: rgb(var(--ui-status-warning-rgb) / 0.44);
+  --tone-warning-fg: rgb(var(--ui-status-warning-strong-rgb) / 0.98);
+  --tone-danger-bg: rgb(var(--ui-status-danger-rgb) / 0.2);
+  --tone-danger-border: rgb(var(--ui-status-danger-rgb) / 0.44);
+  --tone-danger-fg: rgb(var(--ui-status-danger-strong-rgb) / 0.98);
+  --tone-success-solid-bg: rgb(var(--ui-status-success-rgb) / 0.9);
+  --tone-success-solid-border: rgb(var(--ui-status-success-rgb) / 0.98);
+  --tone-danger-solid-bg: rgb(var(--ui-status-danger-rgb) / 0.9);
+  --tone-danger-solid-border: rgb(var(--ui-status-danger-rgb) / 0.98);
+  --tone-on-solid: #f8fafc;
+  --tone-danger-bg-soft: rgb(var(--ui-status-danger-rgb) / 0.1);
+  --tone-danger-bg-faint: rgb(var(--ui-status-danger-rgb) / 0.14);
+  --tone-danger-border-soft: rgb(var(--ui-status-danger-rgb) / 0.28);
+  --tone-danger-border-strong: rgb(var(--ui-status-danger-rgb) / 0.34);
+  --tone-danger-fg-strong: rgb(var(--ui-status-danger-rgb) / 0.96);
+  --tone-danger-fg-emphasis: rgb(var(--ui-status-danger-strong-rgb) / 0.98);
+  --tone-success-fg-strong: rgb(var(--ui-status-success-rgb) / 0.96);
+  --tone-success-border-soft: rgb(var(--ui-status-success-rgb) / 0.4);
+  --tone-success-gradient-start: rgb(var(--ui-status-success-rgb) / 0.94);
+  --tone-success-gradient-end: rgb(var(--ui-status-success-strong-rgb) / 0.92);
+  --tone-info-bg-soft: rgb(var(--brand-accent-rgb) / 0.14);
+  --tone-info-border-soft: rgb(var(--brand-accent-rgb) / 0.26);
+  --tone-info-fg-strong: rgb(var(--ui-ink-rgb) / 0.94);
+  --tone-info-fg-muted: rgb(var(--ui-ink-rgb) / 0.82);
+
+  --focus-ring-soft: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.16);
+  --focus-ring-default: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.24);
+  --focus-ring-contrast: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.3);
+  --focus-ring-tight: 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.14);
+  --focus-ring-tight-soft: 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.2);
+  --focus-ring-inset-default: inset 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.24);
+  --focus-ring-inset-soft: inset 0 0 0 2px rgb(var(--ui-ink-rgb) / 0.2);
+
+  --overlay-scrim-soft: rgb(0 0 0 / 0.5);
+  --overlay-scrim-muted: rgb(0 0 0 / 0.55);
+  --overlay-scrim-strong: rgb(0 0 0 / 0.62);
+  --overlay-scrim-panel: rgb(0 0 0 / 0.42);
+  --overlay-gloss-soft: rgb(255 255 255 / 0.25);
+  --overlay-border-soft: rgb(0 0 0 / 0.32);
+  --overlay-border-default: rgb(0 0 0 / 0.38);
+  --overlay-shadow-strong: 0 2px 8px rgb(0 0 0 / 0.42);
+
+  --mask-edge-transparent: rgb(0 0 0 / 0);
+  --mask-edge-opaque: rgb(0 0 0 / 1);
+  --brands-logo-glow: rgb(255 255 255 / 0.2);
+
+  --badge-stock-ok-bg: rgb(var(--ui-status-blue-rgb) / 0.18);
+  --badge-stock-low-bg: rgb(var(--ui-status-warning-rgb) / 0.24);
+  --badge-stock-out-bg: rgb(var(--ui-status-danger-rgb) / 0.2);
+  --badge-stock-out-fg: rgb(var(--ui-status-danger-strong-rgb) / 0.96);
+
+  --swatch-fallback-bg: rgb(var(--ui-status-neutral-rgb) / 0.92);
+  --swatch-focus-border: rgb(var(--brand-primary-rgb) / 0.96);
+  --skeleton-shimmer-start: rgb(var(--ui-status-neutral-rgb) / 0.2);
+  --skeleton-shimmer-mid: rgb(var(--ui-status-neutral-rgb) / 0.38);
+
+  --ui-chart-positive-fill-start: #10b981;
+  --ui-chart-positive-fill-mid: #34d399;
+  --ui-chart-positive-fill-end: #6ee7b7;
+  --ui-chart-positive-line-start: rgb(52, 211, 153);
+  --ui-chart-positive-line-end: rgb(16, 185, 129);
+  --ui-chart-positive-glow: rgb(var(--ui-status-success-rgb) / 0.24);
+  --ui-chart-positive-guide: rgb(var(--ui-status-success-rgb) / 0.34);
+  --ui-chart-positive-point-outer: rgb(var(--ui-status-success-rgb) / 0.26);
+  --ui-chart-positive-point-inner: rgb(var(--ui-status-success-strong-rgb) / 0.98);
+
+  --checkbox-surface-bg: var(--ui-surface-soft);
+  --checkbox-checked-bg: var(--ui-border-strong);
+  --checkbox-checked-border: var(--ui-border-stronger);
+  --checkbox-mark-color: var(--foreground);
+
+  --product-card-body-bg: var(--ui-surface-sidebar);
+  --product-card-visual-bg: var(--ui-surface-panel);
+
+  --brands-wrap-rgb: 34 34 34;
+
+  --summary-tone-up-fg: rgb(var(--ui-status-success-rgb) / 0.98);
+  --summary-tone-down-fg: rgb(var(--ui-status-danger-rgb) / 0.98);
+  --summary-tone-neutral-fg: rgb(var(--ui-ink-rgb) / 0.94);
+  --summary-tone-up-border: rgb(var(--ui-status-success-rgb) / 0.34);
+  --summary-tone-up-bg: rgb(var(--ui-status-success-rgb) / 0.2);
+  --summary-tone-down-border: rgb(var(--ui-status-danger-rgb) / 0.34);
+  --summary-tone-down-bg: rgb(var(--ui-status-danger-rgb) / 0.18);
+  --summary-tone-neutral-border: rgb(var(--ui-ink-rgb) / 0.32);
+  --summary-tone-neutral-bg: rgb(var(--ui-ink-rgb) / 0.16);
+  --summary-status-success-border: rgb(var(--ui-status-success-rgb) / 0.34);
+  --summary-status-success-bg: rgb(var(--ui-status-success-rgb) / 0.18);
+  --summary-status-warning-border: rgb(var(--ui-status-warning-rgb) / 0.34);
+  --summary-status-warning-bg: rgb(var(--ui-status-warning-rgb) / 0.18);
+  --summary-status-danger-border: rgb(var(--ui-status-danger-rgb) / 0.34);
+  --summary-status-danger-bg: rgb(var(--ui-status-danger-rgb) / 0.18);
+  --summary-status-orange-border: rgb(var(--ui-status-orange-rgb) / 0.34);
+  --summary-status-orange-bg: rgb(var(--ui-status-orange-rgb) / 0.18);
+  --summary-comparison-badge-fg: rgb(var(--ui-ink-rgb) / 0.82);
+  --summary-comparison-badge-border: var(--ui-border-strong);
+  --summary-comparison-badge-bg: rgb(var(--ui-ink-rgb) / 0.16);
+}
+
+:root,
+[data-theme-mode="light"],
+[data-theme-mode="dark"] {
+  /* AUTO_COLOR_TOKENS_START */
+  --ui-color-hex-b91c1c: #b91c1c;
+  --ui-color-hex-ffffff: #ffffff;
+  --ui-color-rgba-0-0-0-0p35: rgba(0,0,0,0.35);
+  --ui-color-rgba-0-0-0-0p48: rgba(0,0,0,0.48);
+  --ui-color-rgba-15-23-42-0p04: rgba(31,31,31,0.04);
+  --ui-color-rgba-15-23-42-0p05: rgba(31,31,31,0.05);
+  --ui-color-rgba-15-23-42-0p06: rgba(31,31,31,0.06);
+  --ui-color-rgba-15-23-42-0p1: rgba(31,31,31,0.1);
+  --ui-color-rgba-15-23-42-0p15: rgba(31,31,31,0.15);
+  --ui-color-rgba-15-23-42-0p42: rgba(31,31,31,0.42);
+  --ui-color-rgba-15-23-42-0p58: rgba(31,31,31,0.58);
+  --ui-color-rgba-15-23-42-0p6: rgba(31,31,31,0.6);
+  --ui-color-rgba-15-23-42-0p62: rgba(31,31,31,0.62);
+  --ui-color-rgba-15-23-42-0p76: rgba(31,31,31,0.76);
+  --ui-color-rgba-15-23-42-0p78: rgba(31,31,31,0.78);
+  --ui-color-rgba-15-23-42-0p82: rgba(31,31,31,0.82);
+  --ui-color-rgba-16-185-129-0p18: rgba(16,185,129,0.18);
+  --ui-color-rgba-2-6-23-0p16: rgba(17,17,17,0.16);
+  --ui-color-rgba-2-6-23-0p32: rgba(17,17,17,0.32);
+  --ui-color-rgba-2-6-23-0p48: rgba(17,17,17,0.48);
+  --ui-color-rgba-21-128-61-0p95: rgba(21,128,61,0.95);
+  --ui-color-rgba-22-163-74-0p95: rgba(22,163,74,0.95);
+  --ui-color-rgba-220-38-38-0p05: rgba(220,38,38,0.05);
+  --ui-color-rgba-220-38-38-0p06: rgba(220,38,38,0.06);
+  --ui-color-rgba-220-38-38-0p08: rgba(220,38,38,0.08);
+  --ui-color-rgba-220-38-38-0p12: rgba(220,38,38,0.12);
+  --ui-color-rgba-220-38-38-0p2: rgba(220,38,38,0.2);
+  --ui-color-rgba-220-38-38-0p24: rgba(220,38,38,0.24);
+  --ui-color-rgba-220-38-38-0p28: rgba(220,38,38,0.28);
+  --ui-color-rgba-220-38-38-0p9: rgba(220,38,38,0.9);
+  --ui-color-rgba-220-38-38-0p92: rgba(220,38,38,0.92);
+  --ui-color-rgba-220-38-38-0p95: rgba(220,38,38,0.95);
+  --ui-color-rgba-255-255-255-0p55: rgba(255,255,255,0.55);
+  --ui-color-rgba-255-255-255-0p92: rgba(255,255,255,0.92);
+  --ui-color-rgba-59-130-246-0p14: rgba(95,95,95,0.14);
+  /* AUTO_COLOR_TOKENS_END */
+
+  /* Compatibility aliases for alpha-token naming drift */
+  --ui-color-rgba-11-18-32-0p74: rgba(17,17,17,0.74);
+  --ui-color-rgba-11-18-32-0p95: rgba(17,17,17,0.95);
+
+  --ui-color-rgba-15-23-42-0p08: rgba(31,31,31,0.08);
+  --ui-color-rgba-15-23-42-0p12: rgba(31,31,31,0.12);
+  --ui-color-rgba-15-23-42-0p14: rgba(31,31,31,0.14);
+  --ui-color-rgba-15-23-42-0p16: rgba(31,31,31,0.16);
+  --ui-color-rgba-15-23-42-0p24: rgba(31,31,31,0.24);
+  --ui-color-rgba-15-23-42-0p48: rgba(31,31,31,0.48);
+  --ui-color-rgba-15-23-42-0p5: rgba(31,31,31,0.5);
+  --ui-color-rgba-15-23-42-0p56: rgba(31,31,31,0.56);
+  --ui-color-rgba-15-23-42-0p09: rgba(31,31,31,0.09);
+
+  --ui-color-rgba-22-163-74-0p2: rgba(22,163,74,0.2);
+  --ui-color-rgba-22-163-74-0p9: rgba(22,163,74,0.9);
+  --ui-color-rgba-22-163-74-0p98: rgba(22,163,74,0.98);
+  --ui-color-rgba-220-38-38-0p98: rgba(220,38,38,0.98);
+
+  --ui-color-rgba-255-255-255-0p7: rgba(255,255,255,0.7);
+  --ui-color-rgba-255-255-255-0p72: rgba(255,255,255,0.72);
+  --ui-color-rgba-255-255-255-0p86: rgba(255,255,255,0.86);
+}
+
+
+
+

@@ -1,0 +1,202 @@
+.rail {
+  --swatch-size: 1.95rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.48rem;
+  min-height: calc(var(--swatch-size) + 0.35rem);
+}
+
+.size_sm {
+  --swatch-size: 1.55rem;
+}
+
+.size_md {
+  --swatch-size: 1.95rem;
+}
+
+.size_lg {
+  --swatch-size: 2.15rem;
+}
+
+.swatchButton {
+  position: relative;
+  z-index: var(--z-base);
+  width: var(--swatch-size);
+  height: var(--swatch-size);
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.swatchButton::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface-soft);
+  box-shadow: 0 1px 2px var(--ui-border-soft);
+  transition: border-color 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out), background-color 160ms var(--ease-out);
+}
+
+.swatchButton:hover {
+  z-index: var(--z-sidebar);
+  transform: translate3d(0, -1px, 0);
+}
+
+.swatchButton:hover::before {
+  border-color: var(--ui-border-strong);
+}
+
+.swatchButton:focus-visible {
+  z-index: var(--z-sidebar);
+  outline: none;
+}
+
+.swatchButtonActive {
+  z-index: var(--z-content);
+}
+
+.swatchButton:focus-visible::before {
+  border-color: var(--ui-border-stronger);
+  box-shadow: 0 0 0 3px var(--ui-border-strong);
+}
+
+.swatchButtonActive::before {
+  border-color: var(--ui-border-stronger);
+  box-shadow: 0 5px 16px rgb(var(--ui-ink-rgb) / 0.15);
+}
+
+.dot {
+  position: relative;
+  z-index: var(--z-content);
+  width: calc(var(--swatch-size) - 0.45rem);
+  height: calc(var(--swatch-size) - 0.45rem);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--ui-border);
+  background: var(--swatch-fill, var(--swatch-fallback-bg));
+  box-shadow: inset 0 1px 0 var(--ui-border);
+}
+
+.dotLight {
+  border-color: var(--ui-border-strong);
+}
+
+.swatchButtonDisabled {
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.15);
+}
+
+.swatchButtonDisabled::before {
+  box-shadow: none;
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.46rem);
+  transform: translate(-50%, 0.35rem);
+  pointer-events: none;
+  visibility: hidden;
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--ui-border-stronger);
+  background: var(--ui-surface-popover);
+  color: var(--tone-info-fg-strong);
+  box-shadow: 0 10px 24px rgb(var(--ui-ink-rgb) / 0.18);
+  padding: 0.22rem 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 680;
+  letter-spacing: 0.01em;
+  transition: opacity 140ms var(--ease-out), transform 140ms var(--ease-out);
+  z-index: var(--z-dropdown);
+}
+
+.swatchButton:hover .tooltip,
+.swatchButton:focus-visible .tooltip {
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.appearance_detail {
+  --detail-dot-size: 1.72rem;
+  --detail-dot-scale-idle: 0.82;
+  --detail-dot-scale-hover: 0.9;
+  flex-wrap: nowrap;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  gap: 0.36rem;
+  padding: 0.3rem 0.66rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--primary);
+  background: var(--overlay-scrim-panel);
+  box-shadow: inset 0 0 0 1px var(--ui-border);
+  backdrop-filter: blur(5px);
+  scrollbar-width: thin;
+}
+
+.rail.appearance_detail {
+  padding: 0.3rem 0.66rem;
+}
+
+.appearance_detail .swatchButton {
+  width: var(--detail-dot-size);
+  height: var(--detail-dot-size);
+}
+
+.appearance_detail .swatchButton::before {
+  content: none;
+}
+
+.appearance_detail .dot {
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--ui-border-strong);
+  box-shadow: none;
+  transform: scale(var(--detail-dot-scale-idle));
+  transition: transform 140ms var(--ease-out), border-color 140ms var(--ease-out);
+}
+
+.appearance_detail .swatchButton:hover {
+  transform: none;
+}
+
+.appearance_detail .swatchButton:not(.swatchButtonActive):hover .dot {
+  transform: scale(var(--detail-dot-scale-hover));
+  border-color: var(--ui-border);
+}
+
+.appearance_detail .swatchButton:active .dot {
+  transform: scale(1);
+}
+
+.appearance_detail .swatchButton:focus-visible::before {
+  content: none;
+}
+
+.appearance_detail .swatchButton:focus-visible .dot {
+  border-color: var(--swatch-focus-border);
+}
+
+.appearance_detail .swatchButtonActive::before {
+  content: none;
+}
+
+.appearance_detail .swatchButtonActive .dot {
+  transform: scale(1);
+  border-color: var(--ui-border-stronger);
+}
+
+.appearance_detail .tooltip {
+  display: none;
+}

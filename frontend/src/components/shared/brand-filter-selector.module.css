@@ -1,0 +1,157 @@
+.root {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.previewList {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.linkAction,
+.alphaItem {
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.linkAction {
+  width: max-content;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.showMoreLink {
+  width: max-content;
+  font-size: 1rem;
+  line-height: 1.45;
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+  color: rgb(37 99 235 / 0.98);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 160ms var(--ease-out);
+}
+
+.showMoreLink:hover {
+  color: rgb(29 78 216 / 1);
+}
+
+.linkAction:focus-visible,
+.showMoreLink:focus-visible,
+.alphaItem:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.14em;
+}
+
+.linkActionSelected,
+.alphaItemSelected {
+  font-weight: 700;
+}
+
+.softText {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--muted-foreground);
+}
+
+.modalContent {
+  width: min(42rem, 100%);
+  max-height: min(84dvh, 46rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 0.2rem 0.2rem 0;
+  overflow: hidden;
+}
+
+.sheetTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding-left: 0.12rem;
+  padding-right: 2.8rem;
+}
+
+.modalContent :global(button[aria-label="Cerrar"]) {
+  right: 1.45rem;
+}
+
+.searchField {
+  width: 100%;
+}
+
+.alphaList {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.78rem;
+  padding-right: 0.2rem;
+}
+
+.alphaGroup {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.alphaGroup + .alphaGroup {
+  border-top: 1px solid var(--ui-border-soft);
+  padding-top: 0.78rem;
+}
+
+.alphaLetter {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.alphaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.46rem 0.92rem;
+}
+
+.alphaItem {
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (width >= 641px) {
+  .alphaGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

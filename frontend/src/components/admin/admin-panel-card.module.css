@@ -1,0 +1,65 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-radius: var(--admin-panel-surface-radius);
+  border-color: var(--admin-panel-surface-border-color);
+  background: var(--admin-panel-surface-background);
+  box-shadow: var(--admin-panel-surface-shadow);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  background: var(--admin-panel-surface-background);
+  padding: 0.86rem 1rem 0;
+}
+
+.headerMain {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.headerRight {
+  margin-left: auto;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 0.22rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.bodySurface {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0.52rem;
+  padding: 1.24rem 1rem 1rem;
+  display: grid;
+  align-content: start;
+  gap: 0.72rem;
+  background: var(--admin-panel-content-background);
+  border-radius: var(--admin-panel-surface-radius);
+  overflow: hidden;
+}

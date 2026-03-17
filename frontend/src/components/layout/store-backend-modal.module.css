@@ -1,0 +1,71 @@
+.dialog {
+  max-width: 30rem;
+  background: var(--ui-surface-elevated);
+}
+
+.header {
+  gap: 0.55rem;
+}
+
+.iconWrap {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  background: var(--ui-border-soft);
+  border: 1px solid var(--ui-border);
+  color: var(--foreground);
+}
+
+.footer {
+  margin-top: 0.9rem;
+}
+
+.retryButton {
+  min-width: 11.5rem;
+  transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out),
+    border-color 260ms var(--ease-out), box-shadow 320ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.retryButton.retryButtonSuccess {
+  background: var(--tone-success-solid-bg);
+  border-color: var(--tone-success-solid-border);
+  color: var(--tone-on-solid);
+  box-shadow: 0 0 0 3px var(--tone-success-bg);
+  animation: backendStatusPulse 440ms var(--ease-out) 1;
+}
+
+.retryButton.retryButtonError {
+  background: var(--tone-danger-solid-bg);
+  border-color: var(--tone-danger-solid-border);
+  color: var(--tone-on-solid);
+  box-shadow: 0 0 0 3px var(--tone-danger-bg);
+  animation: backendStatusPulse 440ms var(--ease-out) 1;
+}
+
+.spin {
+  animation: backendSpin 800ms linear infinite;
+}
+
+@keyframes backendSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes backendStatusPulse {
+  0% {
+    transform: translateY(0) scale(1);
+    filter: saturate(100%);
+  }
+  50% {
+    transform: translateY(-0.5px) scale(1.015);
+    filter: saturate(112%);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    filter: saturate(100%);
+  }
+}

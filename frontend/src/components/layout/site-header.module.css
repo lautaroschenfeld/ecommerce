@@ -1,0 +1,436 @@
+.header {
+  --header-logo-size: 5.25rem;
+  --header-logo-scale: 1.4;
+  --header-logo-offset-logo-only: calc(var(--header-logo-size) * -0.18);
+  --header-height: 3.7rem;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-overlay, 1000);
+  isolation: isolate;
+  overflow: visible;
+  background: var(--bg-header);
+  box-shadow: inset 0 -1px 0 var(--layout-shell-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.inner {
+  min-height: var(--header-height);
+  height: var(--header-height);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.innerAdminFrame {
+  --admin-sidebar-expanded-width: 13.75rem;
+  --admin-sidebar-collapsed-width: 5.75rem;
+  --admin-surface-offset: 0.75rem;
+  --admin-sidebar-collapsed-footprint: calc(
+    var(--admin-sidebar-collapsed-width) + var(--admin-surface-offset)
+  );
+  --admin-sidebar-expanded-footprint: calc(
+    var(--admin-sidebar-expanded-width) + var(--admin-surface-offset)
+  );
+  --admin-header-main-offset: var(--admin-sidebar-collapsed-footprint);
+  margin-left: var(--admin-header-main-offset);
+  width: calc(100% - var(--admin-header-main-offset));
+}
+
+.innerAdmin {
+  --admin-content-inline-padding: clamp(1rem, 3.8vw, 1.6rem);
+  grid-template-columns: minmax(0, 1fr) auto;
+  width: min(100%, var(--admin-content-max-width, var(--page-max-width)));
+  max-width: var(--admin-content-max-width, var(--page-max-width));
+  margin-inline: auto;
+  padding-inline: var(--admin-content-inline-padding);
+  box-sizing: border-box;
+  transform: none;
+}
+
+.innerLogoOnly {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.brand {
+  justify-self: start;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+}
+
+.brandNoName .logoImage {
+  width: var(--header-logo-size);
+  max-width: min(var(--header-logo-size), 56vw);
+  --header-logo-x-offset: var(--header-logo-offset-logo-only);
+}
+
+.logoImage {
+  --header-logo-x-offset: 0rem;
+  display: block;
+  width: var(--header-logo-size);
+  max-width: min(var(--header-logo-size), 48vw);
+  height: auto;
+  max-height: calc(var(--header-height) - 0.45rem);
+  object-fit: contain;
+  transform: translateX(var(--header-logo-x-offset))
+    scale(var(--header-logo-scale));
+  transform-origin: left center;
+  transition: transform 180ms var(--ease-out);
+}
+
+.brand:hover .logoImage {
+  transform: translate3d(var(--header-logo-x-offset), -1px, 0)
+    scale(var(--header-logo-scale));
+}
+
+.logoFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--muted-foreground);
+}
+
+.brandText {
+  line-height: 1.1;
+  display: grid;
+}
+
+.brandName {
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.centerNav {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.adminCenter {
+  justify-self: center;
+  display: grid;
+  gap: 0.05rem;
+  text-align: center;
+}
+
+.adminEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.adminTitle {
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--field-radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 180ms var(--ease-out),
+    color 180ms var(--ease-out);
+}
+
+.navLinkInactive {
+  color: rgb(var(--ui-ink-rgb) / 0.82);
+}
+
+.navLinkInactive:hover {
+  background: rgb(var(--brand-primary-rgb) / 0.16);
+  color: var(--foreground);
+}
+
+.navLinkActive {
+  background: rgb(var(--brand-primary-rgb) / 0.24);
+  color: var(--foreground);
+}
+
+.rightActions {
+  justify-self: end;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.52rem;
+  overflow: visible;
+}
+
+.adminMenuTrigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 2.2rem;
+  width: 2.2rem;
+  padding: 0;
+  border-radius: var(--field-radius);
+  border: 1px solid var(--ui-border-stronger);
+  background: var(--ui-surface-soft);
+  color: var(--foreground);
+  transition: transform 180ms var(--ease-out),
+    background-color 180ms var(--ease-out), border-color 180ms var(--ease-out);
+}
+
+.adminMenuTrigger:hover {
+  transform: translate3d(0, -1px, 0);
+  background: var(--ui-surface-strong);
+}
+
+.adminMenuTriggerOpen {
+  background: var(--ui-surface-strong);
+  border-color: var(--ui-border-strong);
+}
+
+.accountLoading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2rem;
+  width: 2.2rem;
+  padding: 0;
+  border-radius: var(--field-radius);
+  border: 1px solid var(--ui-border-stronger);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--shadow-sm);
+  color: var(--muted-foreground);
+}
+
+.accountLogin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2rem;
+  width: 2.2rem;
+  padding: 0;
+  border-radius: var(--field-radius);
+  border: 1px solid var(--ui-border-stronger);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: transform 180ms var(--ease-out),
+    background-color 180ms var(--ease-out);
+}
+
+.accountLogin:hover {
+  transform: translate3d(0, -1px, 0);
+  background: var(--ui-surface-strong);
+}
+
+.accountMenu {
+  position: relative;
+  z-index: var(--z-overlay-top, 1100);
+}
+
+.accountTrigger {
+  height: 2.2rem;
+  border-radius: var(--field-radius);
+  border: 1px solid var(--ui-border-stronger);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--shadow-sm);
+  padding: 0 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: transform 180ms var(--ease-out),
+    background-color 180ms var(--ease-out), border-color 180ms var(--ease-out);
+}
+
+.accountTrigger:hover {
+  transform: translate3d(0, -1px, 0);
+  background: var(--ui-surface-strong);
+}
+
+.accountTriggerLabel {
+  font-size: 0.84rem;
+  font-weight: 680;
+}
+
+.accountTriggerGreeting {
+  font-size: 0.84rem;
+  color: rgb(var(--ui-ink-rgb) / 0.86);
+}
+
+.accountTriggerChevron {
+  transition: transform 180ms var(--ease-out);
+}
+
+.accountTriggerChevronOpen {
+  transform: rotate(180deg);
+}
+
+.accountDropdown {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  width: max-content;
+  min-width: var(--account-dropdown-min-width, 0px);
+  max-width: calc(100vw - 1rem);
+  border-radius: calc((var(--radius-base) + 0.6rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface-popover);
+  box-shadow: var(--shadow-md);
+  padding: 0.55rem;
+  display: grid;
+  gap: 0.25rem;
+  z-index: var(--z-overlay-top, 1100);
+}
+
+.accountDropdownHeader {
+  padding: 0.5rem 0.55rem 0.55rem;
+  border-bottom: 1px solid var(--ui-border-soft);
+  margin-bottom: 0.2rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.accountDropdownHeader strong {
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.accountDropdownHeader span {
+  color: var(--muted-foreground);
+  font-size: 0.77rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.22;
+}
+
+.accountItem {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: calc((var(--radius-base) + 0.4rem) * var(--radius-scale));
+  background: transparent;
+  color: var(--ui-text-emphasis);
+  font-size: 0.86rem;
+  font-weight: 610;
+  text-decoration: none;
+  padding: 0.55rem 0.6rem;
+  transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out);
+  text-align: left;
+}
+
+.accountItem:hover {
+  background: var(--ui-surface-subtle);
+  color: var(--foreground);
+}
+
+.accountDivider {
+  height: 0;
+  border-top: 1px solid var(--ui-border-soft);
+  margin: 0.2rem 0;
+}
+
+@media (max-width: 1024px) {
+  .header {
+    --header-logo-scale: 1.29;
+  }
+
+  .centerNav {
+    gap: 0;
+  }
+
+  .navLink {
+    padding: 0.48rem 0.66rem;
+    font-size: 0.84rem;
+  }
+
+  .accountTriggerGreeting {
+    display: none;
+  }
+
+  .logoImage {
+    max-width: min(var(--header-logo-size), 45vw);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    --header-logo-scale: 1.22;
+    --header-logo-offset-logo-only: calc(var(--header-logo-size) * -0.2);
+  }
+
+  .innerAdminFrame {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .inner {
+    height: auto;
+    min-height: 3.45rem;
+    padding: 0.22rem 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand right"
+      "center center";
+    align-items: center;
+    row-gap: 0.4rem;
+  }
+
+  .innerAdmin {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand right";
+    width: 100%;
+    max-width: none;
+    padding-inline: clamp(1rem, 3.8vw, 1.6rem);
+    transform: none;
+    row-gap: 0;
+  }
+
+  .brand {
+    grid-area: brand;
+  }
+
+  .rightActions {
+    grid-area: right;
+  }
+
+  .centerNav {
+    grid-area: center;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .adminCenter {
+    grid-area: center;
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .accountDropdown {
+    left: auto;
+    right: 0;
+    max-width: calc(100vw - 1rem);
+  }
+
+  .logoImage {
+    max-width: min(var(--header-logo-size), 52vw);
+  }
+
+  .adminMenuTrigger {
+    display: inline-flex;
+  }
+}
+
+@media (hover: none) and (width >= 768px) {
+  .innerAdminFrame {
+    --admin-header-main-offset: var(--admin-sidebar-expanded-footprint);
+  }
+}

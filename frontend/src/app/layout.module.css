@@ -1,0 +1,160 @@
+.body {
+  overflow-x: hidden;
+}
+
+.frame {
+  position: relative;
+  min-height: 100dvh;
+  isolation: isolate;
+}
+
+.bgGradient {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-base);
+  background:
+    radial-gradient(
+      1200px circle at 12% -12%,
+      rgb(var(--ui-ink-rgb) / 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      760px circle at 92% 104%,
+      rgb(var(--ui-ink-rgb) / 0.06),
+      transparent 60%
+    ),
+    radial-gradient(
+      820px circle at 94% 124%,
+      rgb(var(--ui-ink-rgb) / 0.07),
+      transparent 60%
+    );
+}
+
+.bgGrid {
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--dynamic-grid-top, 0px);
+  bottom: 0;
+  z-index: var(--z-content);
+  background-image: linear-gradient(
+      to right,
+      var(--ui-border-soft) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      var(--ui-border-soft) 1px,
+      transparent 1px
+    );
+  background-size: var(--dynamic-grid-cell-x, 72px) var(--dynamic-grid-cell-y, 72px);
+  background-position: left top;
+}
+
+.bgBottomOverlay {
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50px;
+  z-index: calc(var(--z-footer) - 1);
+  background: transparent;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .bgBottomOverlay {
+    -webkit-backdrop-filter: blur(10px) saturate(90%) brightness(90%);
+    backdrop-filter: blur(10px) saturate(90%) brightness(90%);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0) 0%,
+      rgb(0 0 0 / 0.24) 74%,
+      rgb(0 0 0 / 1) 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0) 0%,
+      rgb(0 0 0 / 0.24) 74%,
+      rgb(0 0 0 / 1) 100%
+    );
+  }
+}
+
+.contentLayer {
+  position: relative;
+  z-index: var(--z-raised);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1 0 auto;
+  position: relative;
+  z-index: var(--z-content, 1);
+  isolation: isolate;
+  padding-block: 2.25rem;
+}
+
+.mainAdmin {
+  flex: 1 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: var(--z-content, 1);
+  isolation: isolate;
+  padding-block: 2.25rem;
+}
+
+.footer {
+  position: relative;
+  z-index: var(--z-footer);
+  margin-top: auto;
+  min-height: var(--dynamic-footer-row-height, var(--dynamic-grid-cell-y, 72px));
+  border-top: 1px solid var(--layout-shell-border);
+  background: var(--bg-footer);
+  backdrop-filter: blur(14px);
+}
+
+.footerInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: inherit;
+  padding-block: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.footerBrand {
+  margin: 0;
+  color: rgb(var(--ui-ink-rgb) / 0.74);
+}
+
+.footerNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.footerNav a {
+  color: rgb(var(--ui-ink-rgb) / 0.74);
+  text-decoration: none;
+  transition: color 160ms var(--ease-out);
+}
+
+.footerNav a:hover {
+  color: rgb(var(--ui-ink-rgb) / 0.92);
+}
+
+@media (min-width: 640px) {
+  .footerInner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 0.5rem;
+  }
+}

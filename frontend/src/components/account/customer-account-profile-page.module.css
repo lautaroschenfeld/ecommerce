@@ -1,0 +1,136 @@
+.layout {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.addresses {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.notifications {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.checkRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--foreground);
+}
+
+.checkRow span {
+  color: var(--foreground);
+  font-weight: 620;
+}
+
+.checkRow :global([data-ui-checkbox="true"]) {
+  flex-shrink: 0;
+  border-color: var(--ui-border-stronger);
+  background: var(--control-background-strong);
+}
+
+.message {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted-foreground);
+  line-height: 1.45;
+}
+
+.addressList {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.addressItem {
+  border-radius: calc((var(--radius-base) + 0.5rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface-strong);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+  color: var(--foreground);
+}
+
+.addressItem p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.addressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.defaultPill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  height: 1.4rem;
+  padding: 0 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--ui-border-stronger);
+  background: var(--ui-surface-subtle);
+  color: var(--foreground);
+}
+
+.addressActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.newAddress {
+  border-top: 1px solid var(--ui-border);
+  padding-top: 0.85rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.newAddress h2 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 768px) {
+  .grid2,
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
