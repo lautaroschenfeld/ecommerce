@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   History,
@@ -47,11 +47,9 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     useCustomerSession();
   const [runtimeStorefront, setRuntimeStorefront] = useState(storefront);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [accountDropdownMinWidth, setAccountDropdownMinWidth] = useState(0);
   const [adminSidebarOpen, setAdminSidebarOpen] = useState(false);
   const [resolvedLogoUrl, setResolvedLogoUrl] = useState("");
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
-  const rightActionsRef = useRef<HTMLDivElement | null>(null);
 
   const normalizePath = (value: string) =>
     value.length > 1 ? value.replace(/\/+$/, "") : value;
@@ -140,56 +138,6 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     };
   }, [accountMenuOpen]);
 
-  const syncAccountDropdownMinWidth = useCallback(() => {
-    const accountMenu = accountMenuRef.current;
-    if (!accountMenu) return;
-
-    const accountRect = accountMenu.getBoundingClientRect();
-    const cartTrigger = rightActionsRef.current?.querySelector<HTMLElement>(
-      "[data-cart-trigger='true']"
-    );
-    const cartAlignedWidth = cartTrigger
-      ? accountRect.right - cartTrigger.getBoundingClientRect().left
-      : accountRect.width;
-    const nextWidth = Math.max(accountRect.width, cartAlignedWidth);
-    const roundedWidth = Math.max(0, Math.ceil(nextWidth));
-
-    setAccountDropdownMinWidth((prevWidth) =>
-      prevWidth === roundedWidth ? prevWidth : roundedWidth
-    );
-  }, []);
-
-  useEffect(() => {
-    if (!accountMenuOpen) return;
-
-    let animationFrame = 0;
-    const sync = () => {
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-      animationFrame = window.requestAnimationFrame(syncAccountDropdownMinWidth);
-    };
-
-    sync();
-
-    const resizeObserver = new ResizeObserver(sync);
-    if (accountMenuRef.current) {
-      resizeObserver.observe(accountMenuRef.current);
-    }
-    if (rightActionsRef.current) {
-      resizeObserver.observe(rightActionsRef.current);
-    }
-
-    window.addEventListener("resize", sync);
-    return () => {
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", sync);
-    };
-  }, [accountMenuOpen, syncAccountDropdownMinWidth]);
-
   const greeting = customer?.firstName?.trim() || "Cliente";
   const isAdminRoute = pathname?.startsWith("/cuenta/administracion");
   const storeName = runtimeStorefront.storeName.trim();
@@ -205,13 +153,6 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     !isAdminRoute ? "container" : "",
     isAdminRoute ? styles.innerAdmin : "",
     logoOnly && !isAdminRoute ? styles.innerLogoOnly : ""
-  );
-  const accountMenuStyle = useMemo(
-    () =>
-      ({
-        "--account-dropdown-min-width": `${accountDropdownMinWidth}px`,
-      }) as CSSProperties,
-    [accountDropdownMinWidth]
   );
 
   useEffect(() => {
@@ -283,7 +224,7 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
           </nav>
         )}
 
-        <div className={styles.rightActions} ref={rightActionsRef}>
+        <div className={styles.rightActions}>
           {isAdminRoute ? null : <CartDrawer />}
 
           {!hydrated ? (
@@ -310,7 +251,7 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
               <UserRound size={16} />
             </Link>
           ) : (
-            <div className={styles.accountMenu} ref={accountMenuRef} style={accountMenuStyle}>
+            <div className={styles.accountMenu} ref={accountMenuRef}>
               <button
                 type="button"
                 className={styles.accountTrigger}

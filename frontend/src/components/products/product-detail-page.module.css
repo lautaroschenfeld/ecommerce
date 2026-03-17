@@ -243,9 +243,9 @@
   width: 2rem;
   height: 2rem;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--ui-border-strong);
+  border: 1px solid rgb(37 99 235 / 0.36);
   background: var(--ui-surface-elevated);
-  color: var(--muted-foreground);
+  color: rgb(37 99 235 / 0.98);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -255,21 +255,22 @@
 }
 
 .favoriteButton:hover {
-  border-color: rgb(var(--brand-primary-rgb) / 0.45);
-  color: rgb(var(--brand-primary-rgb) / 0.95);
+  border-color: rgb(29 78 216 / 0.62);
+  color: rgb(29 78 216 / 1);
+  background: rgb(37 99 235 / 0.08);
 }
 
 .favoriteButton:disabled {
-  cursor: not-allowed;
+  cursor: pointer;
   background: var(--control-background-disabled);
   border-color: var(--control-border-weak);
   color: var(--muted-foreground);
 }
 
 .favoriteButtonActive {
-  border-color: rgb(var(--brand-primary-rgb) / 0.45);
-  color: rgb(var(--brand-primary-rgb) / 0.95);
-  background: rgb(var(--brand-primary-rgb) / 0.08);
+  border-color: rgb(29 78 216 / 0.62);
+  color: rgb(29 78 216 / 1);
+  background: rgb(37 99 235 / 0.12);
 }
 
 .favoriteSpin {
@@ -433,14 +434,14 @@
   font-size: var(--pd-fs-body);
   line-height: 1.35;
   font-weight: 620;
-  color: rgb(var(--ui-status-blue-strong-rgb) / 0.88);
+  color: rgb(37 99 235 / 0.98);
   text-decoration: none;
   cursor: pointer;
   transition: color 160ms var(--ease-out);
 }
 
 .addToListLink:hover {
-  color: rgb(var(--ui-status-blue-strong-rgb) / 1);
+  color: rgb(29 78 216 / 1);
 }
 
 .addToListLink:disabled {
@@ -641,11 +642,14 @@
 
 .questionsInput {
   width: 100%;
+  height: 2.25rem;
 }
 
 .questionsSubmit {
   white-space: nowrap;
-  border-radius: var(--pd-radius-lg);
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border-radius: var(--field-radius);
   border-color: rgb(var(--brand-primary-rgb) / 0.88);
   background: var(--primary);
   color: var(--primary-foreground);
@@ -747,7 +751,7 @@
 }
 
 .addToListRow:disabled {
-  cursor: not-allowed;
+  cursor: pointer;
   color: var(--muted-foreground);
   background: var(--control-background-disabled);
 }
@@ -828,6 +832,10 @@
 .addToListCheckbox {
   flex: 0 0 auto;
   margin-top: 0.68rem;
+}
+
+.addToListCheckbox:disabled {
+  cursor: pointer !important;
 }
 
 .addToListError {
@@ -966,58 +974,6 @@
   margin: 0;
   font-size: var(--pd-fs-base);
   letter-spacing: -0.02em;
-}
-
-.relatedGrid {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 82%;
-  align-items: start;
-  gap: 0.95rem;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  padding-top: 0.2rem;
-  padding-bottom: 0.9rem;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scrollbar-gutter: stable;
-  scrollbar-width: auto;
-  scrollbar-color: var(--ui-border-stronger) var(--product-card-body-bg);
-}
-
-.relatedGrid::-webkit-scrollbar {
-  height: 12px;
-  background: transparent;
-}
-
-.relatedGrid::-webkit-scrollbar-thumb {
-  background: var(--ui-border-stronger);
-  border: 2px solid var(--product-card-body-bg);
-  border-radius: 9999px;
-  -webkit-border-radius: 9999px;
-  min-width: 2.75rem;
-}
-
-.relatedGrid::-webkit-scrollbar-track {
-  background: var(--product-card-body-bg);
-  border: 1px solid var(--ui-border);
-  border-radius: 9999px;
-  -webkit-border-radius: 9999px;
-}
-
-.relatedGrid::-webkit-scrollbar-track-piece {
-  background: var(--product-card-body-bg);
-  border-radius: 9999px;
-}
-
-.relatedGrid::-webkit-scrollbar-button {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-.relatedItem {
-  scroll-snap-align: start;
 }
 
 .muted {

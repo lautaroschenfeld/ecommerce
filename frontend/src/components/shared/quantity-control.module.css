@@ -5,7 +5,7 @@
   padding: 0.35rem 0.4rem;
   border-radius: var(--radius-pill);
   border: 1px solid var(--ui-border);
-  background: var(--ui-surface-glass);
+  background: transparent;
   box-shadow: var(--shadow-sm);
 }
 
@@ -14,7 +14,7 @@
   padding: 0.19rem 0.32rem;
   border-radius: var(--field-radius-sm);
   border-color: var(--ui-border-stronger);
-  background: var(--control-background);
+  background: transparent;
   box-shadow: var(--control-shadow);
 }
 

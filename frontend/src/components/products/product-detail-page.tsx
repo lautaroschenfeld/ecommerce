@@ -63,6 +63,7 @@ import {
 } from "@/lib/store-product-questions";
 
 import { ProductCard } from "@/components/products/product-card";
+import { HorizontalProductsRail } from "@/components/shared/horizontal-products-rail";
 import { QuantityControl } from "@/components/shared/quantity-control";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -1176,7 +1177,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                     <span className={styles.trustIcon}>
                       <CheckCircle2 size={16} />
                     </span>
-                    Garantía de fabricación.
+                    Garantía de fabricante.
                   </div>
                 </div>
 
@@ -1501,18 +1502,11 @@ export function ProductDetailPage({ productId }: { productId: string }) {
             <h2 className={styles.relatedTitle}>También te puede interesar</h2>
           </div>
 
-          <div
-            className={styles.relatedGrid}
-            role="region"
-            aria-label="Productos recomendados"
-            data-count={related.length}
-          >
+          <HorizontalProductsRail ariaLabel="Productos recomendados">
             {related.map((item) => (
-              <div key={item.id} className={styles.relatedItem}>
-                <ProductCard product={item} />
-              </div>
+              <ProductCard key={item.id} product={item} />
             ))}
-          </div>
+          </HorizontalProductsRail>
         </section>
       ) : null}
     </div>

@@ -3,6 +3,8 @@
   --header-logo-scale: 1.4;
   --header-logo-offset-logo-only: calc(var(--header-logo-size) * -0.18);
   --header-height: 3.7rem;
+  --header-actions-gap: 0.52rem;
+  --header-cart-slot-size: 2.25rem;
   position: sticky;
   top: 0;
   z-index: var(--z-overlay, 1000);
@@ -181,7 +183,7 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.52rem;
+  gap: var(--header-actions-gap);
   overflow: visible;
 }
 
@@ -292,7 +294,7 @@
   top: calc(100% + 0.45rem);
   right: 0;
   width: max-content;
-  min-width: var(--account-dropdown-min-width, 0px);
+  min-width: calc(100% + var(--header-actions-gap) + var(--header-cart-slot-size));
   max-width: calc(100vw - 1rem);
   border-radius: calc((var(--radius-base) + 0.6rem) * var(--radius-scale));
   border: 1px solid var(--ui-border-strong);
