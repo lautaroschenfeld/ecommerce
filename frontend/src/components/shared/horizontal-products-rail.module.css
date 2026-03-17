@@ -82,8 +82,8 @@
   position: relative;
   height: var(--rail-scrollbar-height);
   margin-top: var(--rail-scrollbar-gap);
-  margin-right: var(--rail-side-gutter);
-  margin-left: var(--rail-side-gutter);
+  margin-right: 0;
+  margin-left: 0;
   border-radius: 9999px;
   border: 1px solid var(--ui-border-stronger);
   background: rgb(var(--ui-ink-rgb) / 0.08);
