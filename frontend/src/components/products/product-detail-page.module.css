@@ -449,6 +449,7 @@
 }
 
 .fullButton {
+  --button-radius: var(--field-radius);
   width: 100%;
   justify-content: center;
 }
@@ -645,15 +646,22 @@
 .questionsSubmit {
   white-space: nowrap;
   border-radius: var(--pd-radius-lg);
-  border-color: rgb(var(--ui-status-blue-strong-rgb) / 0.88);
-  background: rgb(var(--ui-status-blue-strong-rgb) / 0.88);
-  color: var(--ui-color-hex-ffffff);
-  box-shadow: 0 1px 2px rgb(var(--ui-status-blue-strong-rgb) / 0.24);
+  border-color: rgb(var(--brand-primary-rgb) / 0.88);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--control-shadow);
 }
 
 .questionsSubmit:hover {
-  border-color: rgb(var(--ui-status-blue-strong-rgb) / 1);
-  background: rgb(var(--ui-status-blue-strong-rgb) / 1);
+  border-color: rgb(var(--brand-primary-rgb) / 1);
+  background: rgb(var(--brand-primary-rgb) / 0.88);
+}
+
+.questionsSubmit:disabled {
+  border-color: var(--control-border-weak);
+  background: var(--control-background-disabled);
+  color: var(--muted-foreground);
+  box-shadow: none;
 }
 
 .questionsAllRow {

@@ -108,6 +108,15 @@ type ProductSelectionState = {
   color: string | null;
   size: string | null;
 };
+
+function normalizeSearchText(input: string) {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 export function ProductDetailPage({ productId }: { productId: string }) {
   const reduceMotion = useReducedMotion();
   const router = useRouter();
@@ -625,6 +634,16 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   const deliveryEtaMessage = qualifiesForFreeShipping
     ? `Llega gratis entre el ${deliveryWindowLabel}`
     : `Llega entre el ${deliveryWindowLabel}`;
+  const normalizedName = currentProduct?.name
+    ? normalizeSearchText(currentProduct.name)
+    : "";
+  const normalizedBrand = currentProduct?.brand
+    ? normalizeSearchText(currentProduct.brand)
+    : "";
+  const showBrandLine = Boolean(
+    normalizedBrand &&
+      (!normalizedName || !normalizedName.includes(normalizedBrand))
+  );
 
   const addCurrentQty = () => {
     if (!currentProduct) return;
@@ -1032,7 +1051,9 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                     </button>
                   </div>
                   <h1 className={styles.title}>{currentProduct?.name}</h1>
-                  <p className={styles.brandLine}>Marca: {currentProduct?.brand}</p>
+                  {showBrandLine ? (
+                    <p className={styles.brandLine}>Marca: {currentProduct?.brand}</p>
+                  ) : null}
                   <p className={styles.price}>
                     {hasValidPrice && currentProduct ? (
                       <MoneyAmount
@@ -1185,11 +1206,6 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                   {characteristicSections.map((section) => (
                     <section key={section.key} className={styles.characteristicsSection}>
                       <h3 className={styles.characteristicsSectionTitle}>{section.label}</h3>
-                      {section.key === "compatibility" ? (
-                        <p className={styles.characteristicsSectionHint}>
-                          Verifica marca y modelo de tu moto antes de comprar.
-                        </p>
-                      ) : null}
                       <div className={styles.characteristicsTable}>
                         {section.items.map((item) => (
                           <div key={item.id} className={styles.characteristicsRow}>
