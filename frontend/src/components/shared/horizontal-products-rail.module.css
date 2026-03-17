@@ -59,12 +59,12 @@
   overflow-x: auto;
   overflow-y: hidden;
   padding-top: var(--rail-shadow-space);
-  padding-right: var(--rail-side-gutter);
+  padding-right: 0;
   padding-bottom: var(--rail-shadow-space);
-  padding-left: var(--rail-side-gutter);
+  padding-left: 0;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
-  scroll-padding-inline: var(--rail-side-gutter);
+  scroll-padding-inline: 0;
   width: 100%;
   max-width: 100%;
   min-width: 0;
