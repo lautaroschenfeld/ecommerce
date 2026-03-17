@@ -33,10 +33,18 @@ export function HomeBestSellers() {
         {loading
           ? range(6).map((idx) => (
               <div key={`skeleton-${idx}`} className={styles.skeletonCard} aria-hidden>
-                <Skeleton className={styles.skeletonMedia} />
+                <div className={styles.skeletonMedia}>
+                  <Skeleton className={styles.skeletonMediaInner} />
+                </div>
                 <div className={styles.skeletonBody}>
-                  <Skeleton className={styles.skeletonLine} />
-                  <Skeleton className={styles.skeletonLineShort} />
+                  <div className={styles.skeletonMeta}>
+                    <Skeleton className={styles.skeletonTitle} />
+                    <Skeleton className={styles.skeletonBrand} />
+                  </div>
+                  <div className={styles.skeletonBottomRow}>
+                    <Skeleton className={styles.skeletonPrice} />
+                    <Skeleton className={styles.skeletonCta} />
+                  </div>
                 </div>
               </div>
             ))
