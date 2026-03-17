@@ -542,7 +542,7 @@
   padding: 0.18rem 0.42rem;
   border-radius: var(--admin-radius-pill);
   border: 1px solid var(--summary-comparison-badge-border);
-  background: var(--summary-comparison-badge-bg);
+  background: transparent;
   color: var(--summary-comparison-badge-fg);
   font-size: var(--summary-fs-sm);
   font-weight: 700;

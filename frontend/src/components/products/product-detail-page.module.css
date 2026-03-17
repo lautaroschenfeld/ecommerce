@@ -966,26 +966,46 @@
   grid-auto-columns: 82%;
   align-items: start;
   gap: 0.95rem;
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: hidden;
   padding-top: 0.2rem;
   padding-bottom: 0.9rem;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: var(--ui-border-stronger) var(--product-card-body-bg);
 }
 
 .relatedGrid::-webkit-scrollbar {
-  height: 10px;
+  height: 12px;
+  background: transparent;
 }
 
 .relatedGrid::-webkit-scrollbar-thumb {
-  background: var(--ui-border-strong);
-  border-radius: var(--radius-pill);
+  background: var(--ui-border-stronger);
+  border: 2px solid var(--product-card-body-bg);
+  border-radius: 9999px;
+  -webkit-border-radius: 9999px;
+  min-width: 2.75rem;
 }
 
 .relatedGrid::-webkit-scrollbar-track {
-  background: var(--ui-surface-subtle);
-  border-radius: var(--radius-pill);
+  background: var(--product-card-body-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 9999px;
+  -webkit-border-radius: 9999px;
+}
+
+.relatedGrid::-webkit-scrollbar-track-piece {
+  background: var(--product-card-body-bg);
+  border-radius: 9999px;
+}
+
+.relatedGrid::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 .relatedItem {

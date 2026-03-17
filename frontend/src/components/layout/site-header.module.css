@@ -14,6 +14,21 @@
   -webkit-backdrop-filter: none;
 }
 
+.headerShadowLayer {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--dynamic-grid-top, 3.7rem);
+  z-index: var(--z-base, 0);
+  pointer-events: none;
+}
+
+.headerShadowLayer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 10px 64px rgb(var(--ui-ink-rgb, 23 23 23) / .15);
+}
+
 .inner {
   min-height: var(--header-height);
   height: var(--header-height);

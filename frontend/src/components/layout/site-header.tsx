@@ -447,8 +447,11 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   );
 
   return (
-    <header className={styles.header} data-site-header>
-      {headerInner}
-    </header>
+    <>
+      <div className={styles.headerShadowLayer} aria-hidden />
+      <header className={styles.header} data-site-header>
+        {headerInner}
+      </header>
+    </>
   );
 }

@@ -4,6 +4,8 @@
   border-radius: calc((var(--radius-base) + 1rem) * var(--radius-scale));
   border: 1px solid var(--ui-border);
   background: rgb(var(--brands-wrap-rgb) / var(--brands-wrap-alpha));
+  -webkit-backdrop-filter: blur(12px) saturate(110%);
+  backdrop-filter: blur(12px) saturate(110%);
   box-shadow: var(--shadow-sm);
 }
 
