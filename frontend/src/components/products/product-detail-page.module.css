@@ -260,8 +260,10 @@
 }
 
 .favoriteButton:disabled {
-  opacity: 0.68;
   cursor: not-allowed;
+  background: var(--control-background-disabled);
+  border-color: var(--control-border-weak);
+  color: var(--muted-foreground);
 }
 
 .favoriteButtonActive {
@@ -300,7 +302,6 @@
 .priceCurrency {
   line-height: 1;
   font-weight: 760;
-  opacity: 0.94;
 }
 
 .brandLine {
@@ -678,8 +679,8 @@
 }
 
 .questionsAllLink:disabled {
-  opacity: 0.55;
   cursor: default;
+  color: var(--muted-foreground);
 }
 
 .addToListDialog {
@@ -739,7 +740,8 @@
 
 .addToListRow:disabled {
   cursor: not-allowed;
-  opacity: 0.72;
+  color: var(--muted-foreground);
+  background: var(--control-background-disabled);
 }
 
 .addToListRowMain {

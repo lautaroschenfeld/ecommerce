@@ -54,6 +54,7 @@ export function CartDrawer() {
           className={styles.trigger}
           aria-label={`Carrito: ${itemsLabel}`}
           title="Carrito"
+          data-cart-trigger="true"
         >
           <span className={styles.triggerIcon}>
             <ShoppingCart size={18} />

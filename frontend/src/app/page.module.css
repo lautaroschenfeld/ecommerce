@@ -6,7 +6,7 @@
   min-height: calc(
     100dvh - var(--dynamic-grid-top, 0px) - var(--dynamic-footer-row-height, 0px) - 4.5rem
   );
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .heroBleed {
@@ -14,7 +14,7 @@
   margin-top: 0;
   border-radius: calc((var(--radius-base) + 0.65rem) * var(--radius-scale));
   border: 1px solid var(--ui-border);
-  background: var(--ui-surface-subtle);
+  background: var(--ui-surface-panel);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
 }

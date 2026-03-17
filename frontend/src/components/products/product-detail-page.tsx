@@ -965,8 +965,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
       <div className={styles.layout}>
         <motion.div
           className={styles.mediaWrap}
-          initial={reduceMotion ? undefined : { opacity: 0, y: 8 }}
-          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          initial={reduceMotion ? undefined : { y: 8 }}
+          animate={reduceMotion ? undefined : { y: 0 }}
           transition={reduceMotion ? undefined : { duration: 0.2 }}
         >
           <ProductMediaGallery
@@ -980,8 +980,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
         <motion.div
           className={styles.infoCol}
-          initial={reduceMotion ? undefined : { opacity: 0, y: 8 }}
-          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          initial={reduceMotion ? undefined : { y: 8 }}
+          animate={reduceMotion ? undefined : { y: 0 }}
           transition={reduceMotion ? undefined : { duration: 0.2, delay: 0.04 }}
         >
           <div className={styles.deliveryEtaBanner} aria-live="polite">

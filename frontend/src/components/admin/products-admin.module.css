@@ -125,13 +125,13 @@
 }
 
 .collapsibleToggle:hover {
-  border-color: var(--ui-color-rgba-15-23-42-0p3);
+  border-color: var(--ui-border-strong);
   background: var(--ui-surface-elevated);
 }
 
 .collapsibleToggle:focus-visible {
   outline: none;
-  border-color: var(--ui-color-rgba-15-23-42-0p3);
+  border-color: var(--ui-border-strong);
   box-shadow: 0 0 0 3px var(--ui-color-rgba-15-23-42-0p18);
 }
 
@@ -349,7 +349,7 @@
 .variantDividerLabel::after {
   content: "";
   flex: 1;
-  border-top: 1px solid var(--ui-color-rgba-15-23-42-0p2);
+  border-top: 1px solid var(--ui-border);
 }
 
 .variantRemoveIcon {
@@ -383,8 +383,9 @@
 }
 
 .variantRemoveIcon:disabled {
-  opacity: 0.6;
   cursor: not-allowed;
+  color: var(--muted-foreground);
+  background: var(--control-background-disabled);
 }
 
 .variantGrid {
@@ -433,7 +434,7 @@
 }
 
 .sizeBadgeButton {
-  border: 1px solid var(--ui-color-rgba-15-23-42-0p18);
+  border: 1px solid var(--ui-border);
   border-radius: var(--admin-radius-pill);
   background: var(--ui-surface-subtle);
   color: var(--muted-foreground);
@@ -450,19 +451,21 @@
 }
 
 .sizeBadgeButton:hover {
-  border-color: var(--ui-color-rgba-15-23-42-0p34);
+  border-color: var(--ui-border-strong);
   color: var(--foreground);
 }
 
 .sizeBadgeButton:focus-visible {
   outline: none;
-  border-color: var(--ui-color-rgba-15-23-42-0p34);
+  border-color: var(--ui-border-strong);
   box-shadow: 0 0 0 3px var(--ui-color-rgba-15-23-42-0p18);
 }
 
 .sizeBadgeButton:disabled {
-  opacity: 0.6;
   cursor: not-allowed;
+  color: var(--muted-foreground);
+  background: var(--control-background-disabled);
+  border-color: var(--control-border-weak);
 }
 
 .sizeBadgeButtonActive {
@@ -895,14 +898,15 @@
 .groupExpandPanelFrame {
   display: grid;
   grid-template-rows: 0fr;
-  opacity: 0;
-  transition: grid-template-rows 260ms var(--ease-out),
-    opacity 220ms var(--ease-out);
+  visibility: hidden;
+  pointer-events: none;
+  transition: grid-template-rows 260ms var(--ease-out);
 }
 
 .groupExpandPanelFrameOpen {
   grid-template-rows: 1fr;
-  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .groupExpandPanelInner {
@@ -1008,7 +1012,7 @@
 }
 
 .miniVisualButton:hover:not(:disabled) {
-  border-color: var(--ui-color-rgba-15-23-42-0p35);
+  border-color: var(--ui-border-strong);
 }
 
 .miniVisualButton:focus-visible {
@@ -1018,7 +1022,6 @@
 
 .miniVisualButton:disabled {
   cursor: not-allowed;
-  opacity: 0.9;
 }
 
 .miniVisualSelected {
@@ -1051,7 +1054,7 @@
   max-width: calc(100% - 0.44rem);
   height: 0.98rem;
   border-radius: var(--admin-radius-pill);
-  border: 1px solid var(--ui-color-rgba-255-255-255-0p25);
+  border: 1px solid var(--ui-border);
   background: var(--ui-color-rgba-0-0-0-0p62);
   display: inline-flex;
   align-items: center;
@@ -1072,7 +1075,7 @@
   height: 0.42rem;
   border-radius: var(--admin-radius-pill);
   background-color: var(--mini-color-swatch, transparent);
-  border: 1px solid var(--ui-surface-elevated);
+  border: 1px solid var(--ui-border);
   box-shadow: 0 0 0 1px var(--ui-color-rgba-0-0-0-0p32);
   flex: 0 0 auto;
 }
@@ -1091,13 +1094,13 @@
   display: grid;
   place-items: center;
   background: var(--ui-border-strong);
-  opacity: 0;
-  transition: opacity 160ms var(--ease-out), background-color 160ms var(--ease-out);
+  visibility: hidden;
+  transition: background-color 160ms var(--ease-out);
   pointer-events: none;
 }
 
 .miniVisualSelectionOverlayVisible {
-  opacity: 1;
+  visibility: visible;
   background: var(--ui-color-rgba-220-38-38-0p42);
 }
 
@@ -1202,24 +1205,25 @@
 }
 
 .actionsMenuTrigger:hover {
-  border-color: var(--ui-color-rgba-15-23-42-0p22);
+  border-color: var(--ui-border-strong);
   color: var(--ui-color-rgba-15-23-42-0p95);
 }
 
 .actionsMenuTrigger:focus-visible {
   outline: none;
-  border-color: var(--ui-color-rgba-15-23-42-0p22);
+  border-color: var(--ui-border-strong);
   box-shadow: 0 0 0 3px var(--ui-border-strong);
 }
 
 .actionsMenuTrigger:disabled {
-  opacity: 0.55;
   background: var(--control-background-disabled);
+  color: var(--muted-foreground);
+  border-color: var(--control-border-weak);
   cursor: not-allowed;
 }
 
 .actionsMenuTriggerOpen {
-  border-color: var(--ui-color-rgba-15-23-42-0p22);
+  border-color: var(--ui-border-strong);
   box-shadow: 0 0 0 3px var(--ui-border-strong);
 }
 
@@ -1230,13 +1234,11 @@
   background: var(--ui-surface-popover);
   box-shadow: var(--shadow-md);
   padding: 0.35rem;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.2rem;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-.actionsMenuScrollable {
   overscroll-behavior: contain;
 }
 
@@ -1324,9 +1326,9 @@
   width: 0.72rem;
   height: 0.72rem;
   border-radius: var(--admin-radius-pill);
-  border: 1px solid var(--ui-color-rgba-15-23-42-0p22);
+  border: 1px solid var(--ui-border);
   background-color: var(--variant-color-swatch, var(--ui-color-hex-94a3b8));
-  box-shadow: inset 0 1px 0 var(--ui-color-rgba-255-255-255-0p45);
+  box-shadow: inset 0 1px 0 var(--ui-border);
   flex: 0 0 auto;
 }
 
@@ -1448,7 +1450,7 @@
 }
 
 .imageRemoveButton {
-  border: 1px solid var(--ui-color-rgba-255-255-255-0p35);
+  border: 1px solid var(--ui-border);
   background: var(--ui-color-rgba-0-0-0-0p55);
   color: var(--ui-surface-elevated);
   border-radius: var(--admin-radius-pill);
@@ -1457,16 +1459,16 @@
   font-size: 0.85rem;
   font-weight: 700;
   line-height: 1;
-  opacity: 0;
-  transition: opacity 180ms var(--ease-out);
+  visibility: hidden;
+  transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out);
 }
 
 .imageTile:hover .imageRemoveButton {
-  opacity: 1;
+  visibility: visible;
 }
 
 .imageTile:focus-within .imageRemoveButton {
-  opacity: 1;
+  visibility: visible;
 }
 
 @keyframes imageTileShimmer {

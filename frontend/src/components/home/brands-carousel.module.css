@@ -82,7 +82,7 @@
 }
 
 .item:focus-visible {
-  outline: 2px solid var(--ui-color-rgba-255-255-255-0p22);
+  outline: 2px solid var(--ui-border);
   outline-offset: 4px;
 }
 

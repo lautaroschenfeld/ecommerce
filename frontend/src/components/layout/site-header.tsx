@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   ChevronDown,
   History,
@@ -12,7 +12,6 @@ import {
   Menu,
   Package,
   UserRound,
-  Wrench,
   X,
 } from "lucide-react";
 
@@ -48,9 +47,11 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     useCustomerSession();
   const [runtimeStorefront, setRuntimeStorefront] = useState(storefront);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountDropdownMinWidth, setAccountDropdownMinWidth] = useState(0);
   const [adminSidebarOpen, setAdminSidebarOpen] = useState(false);
-  const [logoLoadFailed, setLogoLoadFailed] = useState(false);
+  const [resolvedLogoUrl, setResolvedLogoUrl] = useState("");
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const rightActionsRef = useRef<HTMLDivElement | null>(null);
 
   const normalizePath = (value: string) =>
     value.length > 1 ? value.replace(/\/+$/, "") : value;
@@ -75,7 +76,28 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   }, [storefront]);
 
   useEffect(() => {
-    setLogoLoadFailed(false);
+    const logoInput = runtimeStorefront.logoUrl.trim();
+    const normalizedLogoUrl = logoInput ? toStoreMediaProxyUrl(logoInput) : "";
+    if (!normalizedLogoUrl) {
+      setResolvedLogoUrl("");
+      return;
+    }
+
+    let cancelled = false;
+    const image = new window.Image();
+    image.onload = () => {
+      if (cancelled) return;
+      setResolvedLogoUrl(normalizedLogoUrl);
+    };
+    image.onerror = () => {
+      if (cancelled) return;
+      setResolvedLogoUrl("");
+    };
+    image.src = normalizedLogoUrl;
+
+    return () => {
+      cancelled = true;
+    };
   }, [runtimeStorefront.logoUrl]);
 
   useEffect(() => {
@@ -118,12 +140,61 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     };
   }, [accountMenuOpen]);
 
+  const syncAccountDropdownMinWidth = useCallback(() => {
+    const accountMenu = accountMenuRef.current;
+    if (!accountMenu) return;
+
+    const accountRect = accountMenu.getBoundingClientRect();
+    const cartTrigger = rightActionsRef.current?.querySelector<HTMLElement>(
+      "[data-cart-trigger='true']"
+    );
+    const cartAlignedWidth = cartTrigger
+      ? accountRect.right - cartTrigger.getBoundingClientRect().left
+      : accountRect.width;
+    const nextWidth = Math.max(accountRect.width, cartAlignedWidth);
+    const roundedWidth = Math.max(0, Math.ceil(nextWidth));
+
+    setAccountDropdownMinWidth((prevWidth) =>
+      prevWidth === roundedWidth ? prevWidth : roundedWidth
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+
+    let animationFrame = 0;
+    const sync = () => {
+      if (animationFrame) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+      animationFrame = window.requestAnimationFrame(syncAccountDropdownMinWidth);
+    };
+
+    sync();
+
+    const resizeObserver = new ResizeObserver(sync);
+    if (accountMenuRef.current) {
+      resizeObserver.observe(accountMenuRef.current);
+    }
+    if (rightActionsRef.current) {
+      resizeObserver.observe(rightActionsRef.current);
+    }
+
+    window.addEventListener("resize", sync);
+    return () => {
+      if (animationFrame) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, [accountMenuOpen, syncAccountDropdownMinWidth]);
+
   const greeting = customer?.firstName?.trim() || "Cliente";
   const isAdminRoute = pathname?.startsWith("/cuenta/administracion");
   const storeName = runtimeStorefront.storeName.trim();
-  const logoUrl = toStoreMediaProxyUrl(runtimeStorefront.logoUrl.trim());
   const hasStoreName = Boolean(storeName);
-  const hasLogo = Boolean(logoUrl) && !logoLoadFailed;
+  const hasLogo = Boolean(resolvedLogoUrl);
   const logoOnly = hasLogo && !hasStoreName;
   const fallbackStoreName = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "FR Motos";
   const brandName = hasStoreName ? storeName : hasLogo ? "" : fallbackStoreName;
@@ -131,9 +202,16 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   const brandHref = "/";
   const innerClassName = cn(
     styles.inner,
-    "container",
+    !isAdminRoute ? "container" : "",
     isAdminRoute ? styles.innerAdmin : "",
     logoOnly && !isAdminRoute ? styles.innerLogoOnly : ""
+  );
+  const accountMenuStyle = useMemo(
+    () =>
+      ({
+        "--account-dropdown-min-width": `${accountDropdownMinWidth}px`,
+      }) as CSSProperties,
+    [accountDropdownMinWidth]
   );
 
   useEffect(() => {
@@ -154,7 +232,8 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   }, [isAdminRoute]);
 
   const headerInner = (
-    <div className={innerClassName}>
+    <div className={isAdminRoute ? styles.innerAdminFrame : undefined}>
+      <div className={innerClassName}>
         <Link
           href={brandHref}
           className={cn(styles.brand, logoOnly ? styles.brandNoName : "")}
@@ -163,7 +242,7 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
           {hasLogo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={logoUrl}
+              src={resolvedLogoUrl}
               alt={logoAlt}
               className={styles.logoImage}
               width={320}
@@ -171,13 +250,8 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
               loading="lazy"
               decoding="async"
               draggable={false}
-              onError={() => setLogoLoadFailed(true)}
             />
-          ) : (
-            <span className={styles.logoFallback} aria-hidden>
-              <Wrench size={16} />
-            </span>
-          )}
+          ) : null}
 
           {brandName ? (
             <div className={styles.brandText}>
@@ -209,7 +283,7 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
           </nav>
         )}
 
-        <div className={styles.rightActions}>
+        <div className={styles.rightActions} ref={rightActionsRef}>
           {isAdminRoute ? null : <CartDrawer />}
 
           {!hydrated ? (
@@ -236,7 +310,7 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
               <UserRound size={16} />
             </Link>
           ) : (
-            <div className={styles.accountMenu} ref={accountMenuRef}>
+            <div className={styles.accountMenu} ref={accountMenuRef} style={accountMenuStyle}>
               <button
                 type="button"
                 className={styles.accountTrigger}
@@ -368,6 +442,7 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
             </button>
           ) : null}
         </div>
+      </div>
     </div>
   );
 

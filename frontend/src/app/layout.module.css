@@ -39,15 +39,14 @@
   top: var(--dynamic-grid-top, 0px);
   bottom: 0;
   z-index: var(--z-content);
-  opacity: 0.46;
   background-image: linear-gradient(
       to right,
-      rgb(var(--ui-ink-rgb) / 0.14) 1px,
+      var(--ui-border-soft) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      rgb(var(--ui-ink-rgb) / 0.14) 1px,
+      var(--ui-border-soft) 1px,
       transparent 1px
     );
   background-size: var(--dynamic-grid-cell-x, 72px) var(--dynamic-grid-cell-y, 72px);
@@ -94,12 +93,18 @@
 
 .main {
   flex: 1 0 auto;
+  position: relative;
+  z-index: var(--z-content, 1);
+  isolation: isolate;
   padding-block: 2.25rem;
 }
 
 .mainAdmin {
   flex: 1 0 auto;
   width: 100%;
+  position: relative;
+  z-index: var(--z-content, 1);
+  isolation: isolate;
   padding-block: 2.25rem;
 }
 

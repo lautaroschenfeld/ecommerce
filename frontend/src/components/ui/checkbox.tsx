@@ -22,6 +22,7 @@ export function Checkbox({
     <input
       type="checkbox"
       className={cn(styles.checkbox, className)}
+      data-ui-checkbox="true"
       checked={checked}
       onChange={(e) => onCheckedChange?.(e.target.checked)}
       {...props}

@@ -286,9 +286,9 @@ export function ProductsAdmin({ mode = "list" }: ProductsAdminProps) {
                 {selectedVisibleCount > 0 ? (
                   <motion.div
                     className={styles.bulkCardMotion}
-                    initial={reduceMotion ? undefined : { opacity: 0, y: -8, height: 0 }}
-                    animate={reduceMotion ? undefined : { opacity: 1, y: 0, height: "auto" }}
-                    exit={reduceMotion ? undefined : { opacity: 0, y: -8, height: 0 }}
+                    initial={reduceMotion ? undefined : { y: -8, height: 0 }}
+                    animate={reduceMotion ? undefined : { y: 0, height: "auto" }}
+                    exit={reduceMotion ? undefined : { y: -8, height: 0 }}
                     transition={
                       reduceMotion
                         ? { duration: 0 }

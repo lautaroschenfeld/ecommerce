@@ -54,7 +54,6 @@ export function EntityActionsMenu({
     top: number;
     left: number;
     maxHeight: number;
-    scrollable: boolean;
     direction: "down" | "up";
   } | null>(null);
   const [menuInOverlay, setMenuInOverlay] = useState(false);
@@ -90,6 +89,18 @@ export function EntityActionsMenu({
   useEffect(() => {
     if (!open) return;
 
+    let positionFrameId = 0;
+    let connectObserverFrameId = 0;
+    let menuResizeFrameId = 0;
+    let resizeObserver: ResizeObserver | null = null;
+
+    const schedulePositionSync = () => {
+      if (positionFrameId) {
+        window.cancelAnimationFrame(positionFrameId);
+      }
+      positionFrameId = window.requestAnimationFrame(updateMenuPosition);
+    };
+
     const visibleActionsCount =
       2 +
       (showAddVariant && onAddVariant ? 1 : 0) +
@@ -121,11 +132,8 @@ export function EntityActionsMenu({
       const fallbackSpace = Math.max(spaceBelow, spaceAbove, 56);
       const maxHeight = Math.max(
         56,
-        Math.floor(
-          Math.min(naturalMenuHeight, availableSpace > 0 ? availableSpace : fallbackSpace)
-        )
+        Math.floor(availableSpace > 0 ? availableSpace : fallbackSpace)
       );
-      const scrollable = naturalMenuHeight > maxHeight + 1;
 
       let left = rect.right - menuWidth;
       if (left + menuWidth > viewportWidth - viewportPadding) {
@@ -137,22 +145,62 @@ export function EntityActionsMenu({
         ? Math.max(viewportPadding, rect.top - 6)
         : Math.min(viewportHeight - viewportPadding, rect.bottom + 6);
 
-      setMenuPosition({
+      const nextPosition = {
         top,
         left,
         maxHeight,
-        scrollable,
         direction: shouldOpenUp ? "up" : "down",
+      } as const;
+
+      setMenuPosition((prev) => {
+        if (
+          prev &&
+          prev.top === nextPosition.top &&
+          prev.left === nextPosition.left &&
+          prev.maxHeight === nextPosition.maxHeight &&
+          prev.direction === nextPosition.direction
+        ) {
+          return prev;
+        }
+        return nextPosition;
       });
-      setMenuInOverlay(inOverlay);
+      setMenuInOverlay((prev) => (prev === inOverlay ? prev : inOverlay));
     };
 
     updateMenuPosition();
-    window.addEventListener("resize", updateMenuPosition);
-    window.addEventListener("scroll", updateMenuPosition, true);
+
+    // Re-measure once after mount.
+    positionFrameId = window.requestAnimationFrame(() => {
+      updateMenuPosition();
+    });
+
+    connectObserverFrameId = window.requestAnimationFrame(() => {
+      const menu = menuRef.current;
+      if (!menu) return;
+      resizeObserver = new ResizeObserver(() => {
+        if (menuResizeFrameId) {
+          window.cancelAnimationFrame(menuResizeFrameId);
+        }
+        menuResizeFrameId = window.requestAnimationFrame(updateMenuPosition);
+      });
+      resizeObserver.observe(menu);
+    });
+
+    window.addEventListener("resize", schedulePositionSync);
+    window.addEventListener("scroll", schedulePositionSync, true);
     return () => {
-      window.removeEventListener("resize", updateMenuPosition);
-      window.removeEventListener("scroll", updateMenuPosition, true);
+      if (positionFrameId) {
+        window.cancelAnimationFrame(positionFrameId);
+      }
+      if (connectObserverFrameId) {
+        window.cancelAnimationFrame(connectObserverFrameId);
+      }
+      if (menuResizeFrameId) {
+        window.cancelAnimationFrame(menuResizeFrameId);
+      }
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", schedulePositionSync);
+      window.removeEventListener("scroll", schedulePositionSync, true);
       setMenuInOverlay(false);
     };
   }, [open, onAddVariant, onDuplicate, showAddVariant, showDuplicate]);
@@ -173,7 +221,6 @@ export function EntityActionsMenu({
     setActiveAction(action);
   }
 
-  const menuScrollable = Boolean(menuPosition?.scrollable);
   useEffect(() => {
     const menu = menuRef.current;
     if (!menu || !menuPosition) return;
@@ -186,11 +233,8 @@ export function EntityActionsMenu({
     (event: React.WheelEvent<HTMLDivElement>) => {
       // Keep wheel interaction local to the floating menu.
       event.stopPropagation();
-      if (!menuScrollable) {
-        event.preventDefault();
-      }
     },
-    [menuScrollable]
+    []
   );
 
   const handleTriggerKeyDown = useCallback(
@@ -289,8 +333,6 @@ export function EntityActionsMenu({
             <div
               ref={menuRef}
               className={`${styles.actionsMenu} ${styles.actionsMenuPortal} ${
-                menuScrollable ? styles.actionsMenuScrollable : ""
-              } ${
                 menuInOverlay ? styles.actionsMenuPortalInOverlay : ""
               } ${
                 menuPosition.direction === "up"

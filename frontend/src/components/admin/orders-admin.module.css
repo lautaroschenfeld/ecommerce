@@ -118,7 +118,7 @@
 }
 
 .dateField[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0.68;
+  color: var(--foreground);
 }
 
 .results {
@@ -292,7 +292,7 @@
   width: 0.9rem;
   height: 0.9rem;
   border-radius: var(--admin-radius-pill);
-  border: 2px solid rgb(var(--ui-ink-rgb) / 0.2);
+  border: 2px solid var(--ui-border-strong);
   background: var(--ui-surface-elevated);
   margin-top: 0.14rem;
 }
@@ -311,7 +311,7 @@
   transform: translateX(-50%);
   width: 2px;
   border-radius: var(--admin-radius-pill);
-  background: rgb(var(--ui-ink-rgb) / 0.14);
+  background: var(--ui-border-soft);
 }
 
 .stepText {
@@ -385,7 +385,7 @@
   gap: 0.15rem;
   padding: 0.55rem 0.65rem;
   border-radius: var(--admin-radius-sm);
-  border: 1px solid rgb(var(--ui-ink-rgb) / 0.1);
+  border: 1px solid var(--ui-border);
   background: var(--ui-surface-soft);
 }
 

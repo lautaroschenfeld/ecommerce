@@ -48,7 +48,7 @@
   font-weight: 620;
 }
 
-.checkRow input[type="checkbox"] {
+.checkRow :global([data-ui-checkbox="true"]) {
   flex-shrink: 0;
   border-color: var(--ui-border-stronger);
   background: var(--control-background-strong);

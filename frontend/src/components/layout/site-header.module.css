@@ -5,11 +5,12 @@
   --header-height: 3.7rem;
   position: sticky;
   top: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-overlay, 1000);
   isolation: isolate;
-  border-bottom: 1px solid var(--ui-border-strong);
-  background: var(--ui-surface-panel);
-  box-shadow: 0 10px 24px rgb(var(--ui-ink-rgb) / 0.08);
+  overflow: visible;
+  border-bottom: 1px solid var(--ui-border-strong, rgb(23 23 23 / 0.14));
+  background: var(--ui-surface-panel, #1a1a1a);
+  box-shadow: 0 10px 24px rgb(var(--ui-ink-rgb, 23 23 23) / 0.08);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -23,22 +24,30 @@
   gap: 0.75rem;
 }
 
-.innerAdmin {
+.innerAdminFrame {
+  --admin-sidebar-expanded-width: 13.75rem;
   --admin-sidebar-collapsed-width: 5.75rem;
   --admin-surface-offset: 0.75rem;
   --admin-sidebar-collapsed-footprint: calc(
     var(--admin-sidebar-collapsed-width) + var(--admin-surface-offset)
   );
+  --admin-sidebar-expanded-footprint: calc(
+    var(--admin-sidebar-expanded-width) + var(--admin-surface-offset)
+  );
+  --admin-header-main-offset: var(--admin-sidebar-collapsed-footprint);
+  margin-left: var(--admin-header-main-offset);
+  width: calc(100% - var(--admin-header-main-offset));
+}
+
+.innerAdmin {
+  --admin-content-inline-padding: clamp(1rem, 3.8vw, 1.6rem);
   grid-template-columns: minmax(0, 1fr) auto;
-  width: min(
-    var(--admin-content-max-width),
-    calc(100% - var(--admin-sidebar-collapsed-footprint))
-  );
-  max-width: min(
-    var(--admin-content-max-width),
-    calc(100% - var(--admin-sidebar-collapsed-footprint))
-  );
-  transform: translateX(calc(var(--admin-sidebar-collapsed-footprint) / 2));
+  width: min(100%, var(--admin-content-max-width));
+  max-width: var(--admin-content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--admin-content-inline-padding);
+  box-sizing: border-box;
+  transform: none;
 }
 
 .innerLogoOnly {
@@ -159,6 +168,7 @@
   display: flex;
   align-items: center;
   gap: 0.52rem;
+  overflow: visible;
 }
 
 .adminMenuTrigger {
@@ -223,7 +233,7 @@
 
 .accountMenu {
   position: relative;
-  z-index: var(--z-overlay-top);
+  z-index: var(--z-overlay-top, 1100);
 }
 
 .accountTrigger {
@@ -267,15 +277,17 @@
   position: absolute;
   top: calc(100% + 0.45rem);
   right: 0;
-  width: 16.5rem;
+  width: max-content;
+  min-width: var(--account-dropdown-min-width, 0px);
+  max-width: calc(100vw - 1rem);
   border-radius: calc((var(--radius-base) + 0.6rem) * var(--radius-scale));
-  border: 1px solid var(--ui-border-strong);
-  background: var(--ui-surface-popover);
+  border: 1px solid var(--ui-border-strong, rgb(23 23 23 / 0.14));
+  background: var(--ui-surface-popover, rgb(24 24 24 / 0.98));
   box-shadow: var(--shadow-md);
   padding: 0.55rem;
   display: grid;
   gap: 0.25rem;
-  z-index: var(--z-overlay-top);
+  z-index: var(--z-overlay-top, 1100);
 }
 
 .accountDropdownHeader {
@@ -294,9 +306,9 @@
 .accountDropdownHeader span {
   color: var(--muted-foreground);
   font-size: 0.77rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.22;
 }
 
 .accountItem {
@@ -356,6 +368,11 @@
     --header-logo-offset-logo-only: calc(var(--header-logo-size) * -0.2);
   }
 
+  .innerAdminFrame {
+    margin-left: 0;
+    width: 100%;
+  }
+
   .inner {
     height: auto;
     min-height: 3.45rem;
@@ -373,6 +390,7 @@
     grid-template-areas: "brand right";
     width: 100%;
     max-width: none;
+    padding-inline: clamp(1rem, 3.8vw, 1.6rem);
     transform: none;
     row-gap: 0;
   }
@@ -400,7 +418,7 @@
   .accountDropdown {
     left: auto;
     right: 0;
-    width: min(18rem, calc(100vw - 1rem));
+    max-width: calc(100vw - 1rem);
   }
 
   .logoImage {
@@ -409,5 +427,11 @@
 
   .adminMenuTrigger {
     display: inline-flex;
+  }
+}
+
+@media (hover: none) and (width >= 768px) {
+  .innerAdminFrame {
+    --admin-header-main-offset: var(--admin-sidebar-expanded-footprint);
   }
 }

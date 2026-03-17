@@ -104,7 +104,6 @@ select:active {
 }
 
 select:disabled {
-  opacity: 0.55;
   cursor: not-allowed;
   background: var(--control-background-disabled);
 }

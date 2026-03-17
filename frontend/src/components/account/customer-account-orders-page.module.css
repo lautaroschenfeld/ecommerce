@@ -79,7 +79,7 @@
 }
 
 .orderDetails {
-  border-top: 1px solid var(--ui-color-rgba-15-23-42-0p1);
+  border-top: 1px solid var(--ui-border);
   padding: 0.9rem 1rem 1rem;
   display: grid;
   gap: 0.95rem;
@@ -157,7 +157,7 @@
   left: 50%;
   transform: translateX(-50%);
   height: 0.74rem;
-  border-left: 1px dashed var(--ui-color-rgba-15-23-42-0p26);
+  border-left: 1px dashed var(--ui-border-soft);
 }
 
 .progressNodePill {
@@ -179,7 +179,7 @@
   height: 1.45rem;
   flex-shrink: 0;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--ui-color-rgba-15-23-42-0p26);
+  border: 1px solid var(--ui-border);
   background: var(--ui-surface-subtle);
   color: var(--ui-color-rgba-15-23-42-0p82);
   display: grid;
@@ -191,10 +191,10 @@
   font-size: 0.85rem;
   font-weight: 650;
   color: var(--ui-color-rgba-15-23-42-0p9);
-  opacity: 0;
+  visibility: hidden;
   max-width: 0;
   transform: translateX(-3px);
-  transition: opacity 180ms var(--ease-out), max-width 180ms var(--ease-out),
+  transition: max-width 180ms var(--ease-out),
     transform 180ms var(--ease-out);
 }
 
@@ -212,7 +212,7 @@
 }
 
 .progressNodeCurrent .progressNodeText {
-  opacity: 1;
+  visibility: visible;
   max-width: 10rem;
   transform: translateX(0);
 }
@@ -234,12 +234,12 @@
 }
 
 .progressNodePending .progressNodePill {
-  border-color: var(--ui-color-rgba-15-23-42-0p14);
+  border-color: var(--ui-border-soft);
   background: var(--ui-surface-subtle);
 }
 
 .progressNodePending .progressNodeCircle {
-  border-color: var(--ui-color-rgba-15-23-42-0p24);
+  border-color: var(--ui-border);
   background: var(--ui-surface-subtle);
 }
 
@@ -251,7 +251,7 @@
 
 .progressNode:hover .progressNodeText,
 .progressNode:focus-within .progressNodeText {
-  opacity: 1;
+  visibility: visible;
   max-width: 10rem;
   transform: translateX(0);
 }
@@ -294,7 +294,7 @@
 
 .itemRow {
   border-radius: calc((var(--radius-base) + 0.3rem) * var(--radius-scale));
-  border: 1px solid var(--ui-color-rgba-15-23-42-0p1);
+  border: 1px solid var(--ui-border);
   background: var(--ui-surface-subtle);
   padding: 0.58rem 0.65rem;
   display: grid;

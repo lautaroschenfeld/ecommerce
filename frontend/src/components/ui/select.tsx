@@ -189,7 +189,6 @@ export function Select({
     left: number;
     width: number;
     maxHeight: number;
-    scrollable: boolean;
     direction: "down" | "up";
   } | null>(null);
   const [menuInOverlay, setMenuInOverlay] = React.useState(false);
@@ -239,71 +238,145 @@ export function Select({
     };
   }, [open]);
 
-  React.useEffect(() => {
-    if (!open) return;
+  const updateMenuPosition = React.useCallback(() => {
+    const trigger = triggerRef.current;
+    const menu = menuRef.current;
+    if (!trigger || !menu) return;
 
-    const updateMenuPosition = () => {
-      const trigger = triggerRef.current;
-      if (!trigger) return;
-      const inOverlay = Boolean(trigger.closest("[data-ui-overlay-root='true']"));
+    const inOverlay = Boolean(trigger.closest("[data-ui-overlay-root='true']"));
+    const rect = trigger.getBoundingClientRect();
+    const viewportPadding = 8;
+    const menuGap = 6;
 
-      const rect = trigger.getBoundingClientRect();
-      const viewportPadding = 8;
-      const menuGap = 6;
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      const width = Math.min(Math.max(rect.width, 160), viewportWidth - viewportPadding * 2);
-      const optionApproxHeight = 38;
-      const menuVerticalChrome = 14;
-      const estimatedHeightFromOptions = options.length * optionApproxHeight + menuVerticalChrome;
-      const measuredMenuHeight = menuRef.current?.scrollHeight ?? 0;
-      const naturalMenuHeight = Math.min(
-        viewportHeight - viewportPadding * 2,
-        measuredMenuHeight > 0 ? measuredMenuHeight : estimatedHeightFromOptions
-      );
-      const spaceBelow = viewportHeight - (rect.bottom + menuGap) - viewportPadding;
-      const spaceAbove = rect.top - menuGap - viewportPadding;
-      const shouldOpenUp = spaceBelow < naturalMenuHeight && spaceAbove > spaceBelow;
-      const availableSpace = shouldOpenUp ? spaceAbove : spaceBelow;
-      const fallbackSpace = Math.max(spaceBelow, spaceAbove, 56);
-      const maxHeight = Math.max(
-        56,
-        Math.floor(Math.min(naturalMenuHeight, availableSpace > 0 ? availableSpace : fallbackSpace))
-      );
-      const scrollable = naturalMenuHeight > maxHeight + 1;
+    const visualViewport = window.visualViewport;
+    const viewportLeft = visualViewport?.offsetLeft ?? 0;
+    const viewportTop = visualViewport?.offsetTop ?? 0;
+    const viewportWidth = visualViewport?.width ?? window.innerWidth;
+    const viewportHeight = visualViewport?.height ?? window.innerHeight;
+    const viewportRight = viewportLeft + viewportWidth;
+    const viewportBottom = viewportTop + viewportHeight;
 
-      let left = rect.left;
-      if (left + width > viewportWidth - viewportPadding) {
-        left = viewportWidth - width - viewportPadding;
+    const width = Math.min(Math.max(rect.width, 160), viewportWidth - viewportPadding * 2);
+    const measuredMenuHeight = menu.scrollHeight;
+    const naturalMenuHeight = Math.max(
+      56,
+      Math.min(viewportHeight - viewportPadding * 2, measuredMenuHeight)
+    );
+
+    const spaceBelow = viewportBottom - (rect.bottom + menuGap) - viewportPadding;
+    const spaceAbove = rect.top - viewportTop - menuGap - viewportPadding;
+    const shouldOpenUp = spaceBelow < naturalMenuHeight && spaceAbove > spaceBelow;
+    const availableSpace = shouldOpenUp ? spaceAbove : spaceBelow;
+    const fallbackSpace = Math.max(spaceBelow, spaceAbove, 56);
+    const maxHeight = Math.max(
+      56,
+      Math.ceil(availableSpace > 0 ? availableSpace : fallbackSpace)
+    );
+
+    let left = rect.left;
+    if (left + width > viewportRight - viewportPadding) {
+      left = viewportRight - width - viewportPadding;
+    }
+    left = Math.max(viewportLeft + viewportPadding, left);
+
+    const top = shouldOpenUp
+      ? Math.max(viewportTop + viewportPadding, rect.top - menuGap)
+      : Math.min(viewportBottom - viewportPadding, rect.bottom + menuGap);
+
+    const nextPosition = {
+      top,
+      left,
+      width,
+      maxHeight,
+      direction: shouldOpenUp ? "up" : "down",
+    } as const;
+
+    setMenuPosition((prev) => {
+      if (
+        prev &&
+        prev.top === nextPosition.top &&
+        prev.left === nextPosition.left &&
+        prev.width === nextPosition.width &&
+        prev.maxHeight === nextPosition.maxHeight &&
+        prev.direction === nextPosition.direction
+      ) {
+        return prev;
       }
-      left = Math.max(viewportPadding, left);
+      return nextPosition;
+    });
+    setMenuInOverlay((prev) => (prev === inOverlay ? prev : inOverlay));
+  }, []);
 
-      const top = shouldOpenUp
-        ? Math.max(viewportPadding, rect.top - menuGap)
-        : Math.min(viewportHeight - viewportPadding, rect.bottom + menuGap);
-
-      setMenuPosition({
-        top,
-        left,
-        width,
-        maxHeight,
-        scrollable,
-        direction: shouldOpenUp ? "up" : "down",
-      });
-      setMenuInOverlay(inOverlay);
-    };
-
-    updateMenuPosition();
-    const frameId = window.requestAnimationFrame(updateMenuPosition);
-    window.addEventListener("resize", updateMenuPosition);
-    window.addEventListener("scroll", updateMenuPosition, true);
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", updateMenuPosition);
-      window.removeEventListener("scroll", updateMenuPosition, true);
+  React.useLayoutEffect(() => {
+    if (!open) {
+      setMenuPosition(null);
       setMenuInOverlay(false);
+      return;
+    }
+
+    let frameId = 0;
+    let menuResizeFrameId = 0;
+    let triggerResizeFrameId = 0;
+    let menuResizeObserver: ResizeObserver | null = null;
+    let triggerResizeObserver: ResizeObserver | null = null;
+
+    const schedulePositionSync = () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      frameId = window.requestAnimationFrame(updateMenuPosition);
     };
-  }, [open, options.length]);
+
+    schedulePositionSync();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const menu = menuRef.current;
+      if (menu) {
+        menuResizeObserver = new ResizeObserver(() => {
+          if (menuResizeFrameId) {
+            window.cancelAnimationFrame(menuResizeFrameId);
+          }
+          menuResizeFrameId = window.requestAnimationFrame(updateMenuPosition);
+        });
+        menuResizeObserver.observe(menu);
+      }
+
+      const trigger = triggerRef.current;
+      if (trigger) {
+        triggerResizeObserver = new ResizeObserver(() => {
+          if (triggerResizeFrameId) {
+            window.cancelAnimationFrame(triggerResizeFrameId);
+          }
+          triggerResizeFrameId = window.requestAnimationFrame(updateMenuPosition);
+        });
+        triggerResizeObserver.observe(trigger);
+      }
+    }
+
+    const visualViewport = window.visualViewport;
+    window.addEventListener("resize", schedulePositionSync);
+    window.addEventListener("scroll", schedulePositionSync, true);
+    visualViewport?.addEventListener("resize", schedulePositionSync);
+    visualViewport?.addEventListener("scroll", schedulePositionSync);
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      if (menuResizeFrameId) {
+        window.cancelAnimationFrame(menuResizeFrameId);
+      }
+      if (triggerResizeFrameId) {
+        window.cancelAnimationFrame(triggerResizeFrameId);
+      }
+      menuResizeObserver?.disconnect();
+      triggerResizeObserver?.disconnect();
+      window.removeEventListener("resize", schedulePositionSync);
+      window.removeEventListener("scroll", schedulePositionSync, true);
+      visualViewport?.removeEventListener("resize", schedulePositionSync);
+      visualViewport?.removeEventListener("scroll", schedulePositionSync);
+    };
+  }, [open, updateMenuPosition]);
 
   const selectedValue = normalizedControlledValue ?? internalValue;
   const selectedIndex = options.findIndex((option) => option.value === selectedValue);
@@ -330,6 +403,8 @@ export function Select({
   const closeMenu = React.useCallback((options?: { focusTrigger?: boolean }) => {
     setOpen(false);
     setHighlightedIndex(-1);
+    setMenuPosition(null);
+    setMenuInOverlay(false);
     if (options?.focusTrigger === false) return;
     triggerRef.current?.focus();
     window.requestAnimationFrame(() => {
@@ -365,6 +440,8 @@ export function Select({
           : fallbackIndex;
 
       setHighlightedIndex(nextIndex);
+      setMenuPosition(null);
+      setMenuInOverlay(false);
       setOpen(true);
     },
     [canOpen, firstEnabledIndex, options, selectedIndex]
@@ -385,7 +462,6 @@ export function Select({
     : undefined;
   const selectedBadgeStyle = withBadgeCssVars(selectedOptionAppearance?.badgeStyle);
   const SelectedIcon = selectedOptionAppearance?.icon;
-  const menuScrollable = Boolean(menuPosition?.scrollable);
 
   const handleTriggerWheel = React.useCallback(
     (event: React.WheelEvent<HTMLButtonElement>) => {
@@ -400,11 +476,8 @@ export function Select({
     (event: React.WheelEvent<HTMLDivElement>) => {
       // Keep wheel interaction local to the dropdown menu.
       event.stopPropagation();
-      if (!menuScrollable) {
-        event.preventDefault();
-      }
     },
-    [menuScrollable]
+    []
   );
 
   const moveHighlight = React.useCallback(
@@ -583,17 +656,17 @@ export function Select({
         </span>
       </button>
 
-      {open && menuPosition
+      {open
         ? createPortal(
             <div
               ref={menuRef}
               id={menuId}
               className={cn(
                 styles.menu,
-                menuPosition.scrollable ? styles.menuScrollable : "",
                 styles.menuPortal,
                 menuInOverlay ? styles.menuPortalInOverlay : "",
-                menuPosition.direction === "up" ? styles.menuPortalUp : styles.menuPortalDown
+                menuPosition?.direction === "up" ? styles.menuPortalUp : styles.menuPortalDown,
+                !menuPosition ? styles.menuUnpositioned : ""
               )}
               style={menuStyle}
               role="listbox"

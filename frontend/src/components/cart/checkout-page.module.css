@@ -104,8 +104,10 @@
 }
 
 .stepBtn:disabled {
-  opacity: 0.6;
   transform: none;
+  background: var(--control-background-disabled);
+  border-color: var(--control-border-weak);
+  color: var(--muted-foreground);
 }
 
 .stepDot {

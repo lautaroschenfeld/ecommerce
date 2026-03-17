@@ -12,6 +12,8 @@
   --admin-content-inline-padding: clamp(1rem, 3.8vw, 1.6rem);
   --admin-surface-offset: 0.75rem;
   --site-main-block-padding: 2.25rem;
+  --admin-sidebar-backdrop-z: 1240;
+  --admin-sidebar-z: 1250;
   display: flex;
   min-height: 100%;
   background: transparent;
@@ -25,7 +27,7 @@
   top: calc(var(--admin-header-offset) + var(--admin-surface-offset));
   left: 0;
   bottom: var(--admin-surface-offset);
-  z-index: var(--z-drawer);
+  z-index: var(--admin-sidebar-z);
   transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -135,18 +137,16 @@
 
 .navLabel {
   max-width: 0;
-  opacity: 0;
   overflow: hidden;
   white-space: nowrap;
   transform: translateX(-4px);
   transition: max-width 240ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 170ms ease-out, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .sidebar:hover .navLabel,
 .sidebar:focus-within .navLabel {
   max-width: 12rem;
-  opacity: 1;
   transform: translateX(0);
 }
 
@@ -241,18 +241,16 @@
   min-width: 0;
   max-width: 0;
   flex: 0 1 auto;
-  opacity: 0;
   transform: translateX(-6px);
   pointer-events: none;
   transition: max-width 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+    transform 220ms var(--ease-out);
 }
 
 .topbarCustomRangeOpen {
   margin-left: 0.6rem;
   width: min(21rem, 100%);
   max-width: 21rem;
-  opacity: 1;
   transform: translateX(0);
   pointer-events: auto;
 }
@@ -284,12 +282,11 @@
     left: auto;
     bottom: var(--admin-surface-offset);
     padding: 0;
-    z-index: var(--z-drawer-overlay);
+    z-index: var(--admin-sidebar-z);
     transform: translateX(calc(100% + 1.25rem));
-    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 220ms var(--ease-out);
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .sidebar:hover,
@@ -299,7 +296,7 @@
 
   .sidebarOpen {
     transform: translateX(0);
-    opacity: 1;
+    visibility: visible;
     pointer-events: auto;
   }
 
@@ -334,7 +331,6 @@
 
   .navLabel {
     max-width: none;
-    opacity: 1;
     overflow: visible;
     transform: none;
   }
@@ -346,7 +342,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: var(--z-drawer);
+    z-index: var(--admin-sidebar-backdrop-z);
     border: 0;
     background: var(--ui-backdrop);
     backdrop-filter: blur(1.5px);
@@ -421,7 +417,6 @@
 
   .navLabel {
     max-width: none;
-    opacity: 1;
     overflow: visible;
     transform: none;
   }

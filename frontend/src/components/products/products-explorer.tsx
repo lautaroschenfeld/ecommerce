@@ -359,9 +359,9 @@ function FiltersPanel({
           {showClear ? (
             <motion.div
               key="clear-filters"
-              initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+              initial={reduceMotion ? { y: 0 } : { y: -4 }}
+              animate={{ y: 0 }}
+              exit={reduceMotion ? { y: 0 } : { y: -4 }}
               transition={reduceMotion ? undefined : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             >
               <Button
@@ -870,9 +870,9 @@ export function ProductsExplorer({
                    {hasFilters ? (
                      <motion.div
                        key="clear-filters-mobile"
-                       initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -4 }}
-                       animate={{ opacity: 1, y: 0 }}
-                       exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                       initial={reduceMotion ? { y: 0 } : { y: -4 }}
+                       animate={{ y: 0 }}
+                       exit={reduceMotion ? { y: 0 } : { y: -4 }}
                        transition={reduceMotion ? undefined : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                      >
                        <Button
@@ -987,13 +987,12 @@ export function ProductsExplorer({
                       initial={
                         reduceMotion
                           ? undefined
-                          : { opacity: 0, y: 14, scale: 0.98 }
+                          : { y: 14, scale: 0.98 }
                       }
                       animate={
                         reduceMotion
                           ? undefined
                           : {
-                              opacity: 1,
                               y: 0,
                               scale: 1,
                               transition: {
@@ -1008,7 +1007,6 @@ export function ProductsExplorer({
                         reduceMotion
                           ? undefined
                           : {
-                              opacity: 0,
                               y: 10,
                               scale: 0.98,
                               transition: { duration: 0.15 },

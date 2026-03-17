@@ -235,9 +235,9 @@ export function SheetContent({
             if (!dismissible) return;
             setOpen(false);
           }}
-          initial={reduceMotion ? undefined : { opacity: 0 }}
-          animate={reduceMotion ? undefined : { opacity: 1 }}
-          exit={reduceMotion ? undefined : { opacity: 0 }}
+          initial={reduceMotion ? undefined : {}}
+          animate={reduceMotion ? undefined : {}}
+          exit={reduceMotion ? undefined : {}}
           transition={{ duration: 0.18 }}
         >
           <motion.div
@@ -250,14 +250,13 @@ export function SheetContent({
             data-ui-overlay-surface="true"
             onMouseDown={(e) => e.stopPropagation()}
             initial={
-              reduceMotion ? undefined : { x: 28, opacity: 0, scale: 0.98 }
+              reduceMotion ? undefined : { x: 28, scale: 0.98 }
             }
             animate={
               reduceMotion
                 ? undefined
                 : {
                     x: 0,
-                    opacity: 1,
                     scale: 1,
                     transition: { type: "spring", stiffness: 380, damping: 34 },
                   }
@@ -267,7 +266,6 @@ export function SheetContent({
                 ? undefined
                 : {
                     x: 28,
-                    opacity: 0,
                     scale: 0.98,
                     transition: { duration: 0.16 },
                   }

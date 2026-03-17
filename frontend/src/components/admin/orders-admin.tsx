@@ -117,9 +117,9 @@ export function OrdersAdmin() {
             <AnimatePresence initial={false}>
               {filtersApplied ? (
                 <motion.div
-                  initial={reduceMotion ? undefined : { opacity: 0, y: -4 }}
-                  animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                  exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
+                  initial={reduceMotion ? undefined : { y: -4 }}
+                  animate={reduceMotion ? undefined : { y: 0 }}
+                  exit={reduceMotion ? undefined : { y: -4 }}
                   transition={{ duration: 0.16 }}
                 >
                   <Button

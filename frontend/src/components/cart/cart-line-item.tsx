@@ -35,9 +35,9 @@ export function CartLineItem({
   return (
     <motion.div
       layout
-      initial={reduceMotion ? undefined : { opacity: 0, y: 10 }}
-      animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      exit={reduceMotion ? undefined : { opacity: 0, y: 10 }}
+      initial={reduceMotion ? undefined : { y: 10 }}
+      animate={reduceMotion ? undefined : { y: 0 }}
+      exit={reduceMotion ? undefined : { y: 10 }}
       transition={
         reduceMotion
           ? undefined

@@ -172,7 +172,6 @@ export async function GET(request: NextRequest) {
             bottom: labelBottom,
             fontSize: labelSize,
             color: palette.text,
-            opacity: 0.84,
             letterSpacing: "0.02em",
             textTransform: "uppercase",
           }}

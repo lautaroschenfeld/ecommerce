@@ -86,7 +86,7 @@
   max-width: calc(100% - 1rem);
   height: 1.2rem;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--ui-color-rgba-255-255-255-0p24);
+  border: 1px solid var(--ui-border);
   background: var(--ui-color-rgba-0-0-0-0p62);
   display: inline-flex;
   align-items: center;
@@ -107,7 +107,7 @@
   height: 0.54rem;
   border-radius: var(--radius-pill);
   background-color: var(--color-dot-swatch, transparent);
-  border: 1px solid var(--ui-color-rgba-255-255-255-0p92);
+  border: 1px solid var(--ui-border);
   box-shadow: 0 0 0 1px var(--ui-color-rgba-0-0-0-0p28);
   flex: 0 0 auto;
 }

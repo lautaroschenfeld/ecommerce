@@ -22,9 +22,11 @@
 }
 
 .button:disabled {
-  opacity: 0.55;
   pointer-events: none;
   transform: none;
+  background: var(--control-background-disabled);
+  border-color: var(--control-border-weak);
+  color: var(--muted-foreground);
 }
 
 .button:focus-visible {

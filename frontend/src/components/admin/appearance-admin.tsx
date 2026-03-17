@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Crop, Trash2 } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { bannerFocusVars } from "@/lib/banner-focus-style";
 import {
   DEFAULT_STOREFRONT_SETTINGS,
   getAdminStorefrontSettings,
+  radiusScaleCssVars,
   updateAdminStorefrontSettings,
 } from "@/lib/storefront-settings";
 
@@ -52,15 +53,32 @@ function normalizeOptionalMediaPatchValue(value: string) {
   return trimmed;
 }
 
+function applyRadiusVars(scaleRaw: number) {
+  if (typeof document === "undefined") return;
+  const vars = radiusScaleCssVars(scaleRaw);
+  const rootStyle = document.documentElement.style;
+  const bodyStyle = document.body.style;
+  for (const [name, value] of Object.entries(vars)) {
+    rootStyle.setProperty(name, value);
+    bodyStyle.setProperty(name, value);
+  }
+}
+
 export function AppearanceAdmin() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [radiusSyncState, setRadiusSyncState] = useState<"idle" | "saving" | "saved" | "error">(
+    "idle"
+  );
   const [logoUploading, setLogoUploading] = useState(false);
   const [faviconUploading, setFaviconUploading] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerEditorOpen, setBannerEditorOpen] = useState(false);
   const [maintenancePasswordConfigured, setMaintenancePasswordConfigured] =
     useState(false);
+  const [committedRadiusScale, setCommittedRadiusScale] = useState(
+    DEFAULT_STOREFRONT_SETTINGS.radiusScale
+  );
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState<StorefrontFormState>({
@@ -78,6 +96,52 @@ export function AppearanceAdmin() {
     maintenanceMode: false,
     maintenancePassword: "",
   });
+  const committedRadiusScaleRef = useRef(committedRadiusScale);
+
+  useEffect(() => {
+    committedRadiusScaleRef.current = committedRadiusScale;
+  }, [committedRadiusScale]);
+
+  useEffect(() => {
+    applyRadiusVars(parseRadiusScale(form.radiusScale));
+  }, [form.radiusScale]);
+
+  useEffect(() => {
+    return () => {
+      applyRadiusVars(committedRadiusScaleRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (loading || saving) return;
+    const nextScale = parseRadiusScale(form.radiusScale);
+    if (Math.abs(nextScale - committedRadiusScale) < 0.0001) {
+      setRadiusSyncState((prev) =>
+        prev === "idle" || prev === "saved" ? prev : "idle"
+      );
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          setRadiusSyncState("saving");
+          const updated = await updateAdminStorefrontSettings({ radiusScale: nextScale });
+          const normalized = clampRadiusScale(updated.radiusScale);
+          setCommittedRadiusScale(normalized);
+          setForm((prev) => ({ ...prev, radiusScale: formatRadiusScale(normalized) }));
+          applyRadiusVars(normalized);
+          setRadiusSyncState("saved");
+        } catch {
+          setRadiusSyncState("error");
+        }
+      })();
+    }, 420);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [committedRadiusScale, form.radiusScale, loading, saving]);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,6 +166,7 @@ export function AppearanceAdmin() {
           maintenanceMode: settings.maintenanceMode,
           maintenancePassword: "",
         });
+        setCommittedRadiusScale(settings.radiusScale);
         setMaintenancePasswordConfigured(settings.maintenancePasswordConfigured);
       })
       .catch((err) => {
@@ -320,6 +385,7 @@ export function AppearanceAdmin() {
         maintenanceMode: updated.maintenanceMode,
         maintenancePassword: "",
       });
+      setCommittedRadiusScale(updated.radiusScale);
       setMaintenancePasswordConfigured(updated.maintenancePasswordConfigured);
       syncRuntimeStorefront(updated);
       setMessage("Configuracion guardada.");
@@ -334,6 +400,18 @@ export function AppearanceAdmin() {
   const previewBannerFocusX = clampPercent(form.bannerFocusX);
   const previewBannerFocusY = clampPercent(form.bannerFocusY);
   const previewBannerZoom = clampZoom(form.bannerZoom);
+  const parsedRadiusScale = parseRadiusScale(form.radiusScale);
+  const radiusDirty = Math.abs(parsedRadiusScale - committedRadiusScale) > 0.0001;
+  const radiusSyncText =
+    radiusSyncState === "saving"
+      ? "Aplicando redondeo global..."
+      : radiusSyncState === "saved"
+        ? "Redondeo global aplicado."
+        : radiusSyncState === "error"
+          ? "No se pudo aplicar el redondeo global. Reintenta guardar."
+          : radiusDirty
+            ? "Cambio pendiente de aplicar."
+            : "Sin cambios pendientes.";
 
   return (
     <div className={styles.page}>
@@ -479,6 +557,7 @@ export function AppearanceAdmin() {
                 disabled={loading || saving}
                 placeholder="1"
               />
+              <p className={styles.fieldHint}>{radiusSyncText}</p>
             </div>
           </div>
 

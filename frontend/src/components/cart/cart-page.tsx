@@ -264,8 +264,8 @@ export function CartPage() {
           <div className={styles.summaryCol}>
             <motion.div
               className={styles.summarySticky}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 10 }}
-              animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              initial={reduceMotion ? undefined : { y: 10 }}
+              animate={reduceMotion ? undefined : { y: 0 }}
               transition={reduceMotion ? undefined : { duration: 0.2 }}
             >
               <Card>

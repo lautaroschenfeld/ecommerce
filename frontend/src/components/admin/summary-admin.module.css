@@ -17,7 +17,6 @@
   --summary-comparison-badge-fg: var(--ui-color-hex-475569);
   --summary-comparison-badge-border: var(--ui-color-rgba-100-116-139-0p26);
   --summary-comparison-badge-bg: var(--ui-color-rgba-148-163-184-0p15);
-  --summary-tone-label-opacity: 0.92;
   display: grid;
   gap: 1.25rem;
   padding-bottom: 2rem;
@@ -28,9 +27,8 @@
   --summary-tone-down-fg: rgb(var(--ui-status-danger-rgb) / 0.98);
   --summary-tone-neutral-fg: rgb(var(--ui-ink-rgb) / 0.94);
   --summary-comparison-badge-fg: rgb(var(--ui-ink-rgb) / 0.82);
-  --summary-comparison-badge-border: var(--ui-color-rgba-255-255-255-0p16);
+  --summary-comparison-badge-border: var(--ui-border-strong);
   --summary-comparison-badge-bg: var(--ui-color-rgba-0-0-0-0p32);
-  --summary-tone-label-opacity: 1;
 }
 
 .fetchWarning {
@@ -250,7 +248,7 @@
   padding: var(--summary-metric-card-padding-top) var(--summary-metric-card-padding-x)
     var(--summary-metric-card-padding-bottom);
   background: transparent;
-  border-radius: 0;
+  border-radius: var(--admin-panel-content-radius);
 }
 
 .metricCard .metricBody {
@@ -368,7 +366,6 @@
 .metricDeltaLabel {
   font-size: var(--summary-fs-sm);
   font-weight: 700;
-  opacity: var(--summary-tone-label-opacity);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

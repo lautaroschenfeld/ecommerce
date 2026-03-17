@@ -178,7 +178,7 @@
 }
 
 .clientRowSelected {
-  border-color: var(--ui-color-rgba-15-23-42-0p32);
+  border-color: var(--ui-border-strong);
   box-shadow: 0 0 0 2px var(--ui-color-rgba-15-23-42-0p1);
 }
 

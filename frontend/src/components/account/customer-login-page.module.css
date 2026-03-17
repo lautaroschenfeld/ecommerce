@@ -96,9 +96,9 @@
 }
 
 .textLink:disabled {
-  opacity: 0.62;
   cursor: not-allowed;
   text-decoration: none;
+  color: var(--muted-foreground);
 }
 
 .textLink:focus-visible {
@@ -146,7 +146,9 @@
 
 .oauthButton[aria-disabled="true"] {
   pointer-events: none;
-  opacity: 0.62;
+  background: var(--control-background-disabled);
+  border-color: var(--control-border-weak);
+  color: var(--muted-foreground);
 }
 
 .oauthIconWrapper {

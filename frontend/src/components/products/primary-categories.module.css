@@ -60,7 +60,6 @@
   background-size: auto 96%;
   background-position: right -1.25rem center;
   filter: saturate(1.05) contrast(1.06);
-  opacity: 0.96;
   transition: filter 260ms var(--ease-out);
 }
 
@@ -111,9 +110,8 @@
 }
 
 .arrow {
-  opacity: 0.7;
   background: transparent;
-  border-radius: 0;
+  border-radius: var(--radius-pill);
   transition: transform 220ms var(--ease-out);
 }
 

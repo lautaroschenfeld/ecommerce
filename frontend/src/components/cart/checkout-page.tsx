@@ -1747,9 +1747,9 @@ export function CheckoutPage() {
         {summaryOpen ? (
           <motion.div
             id="checkout-summary-mobile"
-            initial={reduceMotion ? undefined : { height: 0, opacity: 0 }}
-            animate={reduceMotion ? undefined : { height: "auto", opacity: 1 }}
-            exit={reduceMotion ? undefined : { height: 0, opacity: 0 }}
+            initial={reduceMotion ? undefined : { height: 0 }}
+            animate={reduceMotion ? undefined : { height: "auto" }}
+            exit={reduceMotion ? undefined : { height: 0 }}
             transition={reduceMotion ? undefined : { duration: 0.2 }}
             className={styles.summaryCollapse}
           >
@@ -1797,9 +1797,9 @@ export function CheckoutPage() {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={step}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 10 }}
-              animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              exit={reduceMotion ? undefined : { opacity: 0, y: 6 }}
+              initial={reduceMotion ? undefined : { y: 10 }}
+              animate={reduceMotion ? undefined : { y: 0 }}
+              exit={reduceMotion ? undefined : { y: 6 }}
               transition={reduceMotion ? undefined : { duration: 0.18 }}
             >
               <Card>
@@ -2265,17 +2265,17 @@ export function CheckoutPage() {
                               initial={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 0, x: 10, filter: "blur(2px)" }
+                                  : { x: 10, filter: "blur(2px)" }
                               }
                               animate={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 1, x: 0, filter: "blur(0px)" }
+                                  : { x: 0, filter: "blur(0px)" }
                               }
                               exit={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 0, x: -10, filter: "blur(2px)" }
+                                  : { x: -10, filter: "blur(2px)" }
                               }
                               transition={{ duration: 0.18 }}
                             >
@@ -2367,17 +2367,17 @@ export function CheckoutPage() {
                               initial={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 0, x: 10, filter: "blur(2px)" }
+                                  : { x: 10, filter: "blur(2px)" }
                               }
                               animate={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 1, x: 0, filter: "blur(0px)" }
+                                  : { x: 0, filter: "blur(0px)" }
                               }
                               exit={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 0, x: -10, filter: "blur(2px)" }
+                                  : { x: -10, filter: "blur(2px)" }
                               }
                               transition={{ duration: 0.18 }}
                             >
@@ -2399,17 +2399,17 @@ export function CheckoutPage() {
                               initial={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 0, x: 10, filter: "blur(2px)" }
+                                  : { x: 10, filter: "blur(2px)" }
                               }
                               animate={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 1, x: 0, filter: "blur(0px)" }
+                                  : { x: 0, filter: "blur(0px)" }
                               }
                               exit={
                                 reduceMotion
                                   ? undefined
-                                  : { opacity: 0, x: -10, filter: "blur(2px)" }
+                                  : { x: -10, filter: "blur(2px)" }
                               }
                               transition={{ duration: 0.18 }}
                             >

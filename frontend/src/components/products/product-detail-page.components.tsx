@@ -237,8 +237,8 @@ export function ProductMediaGallery({
               decoding="async"
               draggable={false}
               onError={() => markUrlAsFailed(activeImageUrl)}
-              initial={reduceMotion ? undefined : { opacity: 0.6, x: 8 }}
-              animate={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+              initial={reduceMotion ? undefined : { x: 8 }}
+              animate={reduceMotion ? undefined : { x: 0 }}
               transition={reduceMotion ? undefined : { duration: 0.22 }}
             />
             <div aria-hidden className={styles.mediaGlow} />

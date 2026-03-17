@@ -95,11 +95,11 @@
 }
 
 .remove {
-  opacity: 0.75;
+  color: var(--muted-foreground);
 }
 
 .remove:hover {
-  opacity: 1;
+  color: var(--foreground);
 }
 
 @media (max-width: 640px) {

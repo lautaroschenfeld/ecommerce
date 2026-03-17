@@ -379,15 +379,15 @@ export function AdminToastsProvider({ children }: { children: React.ReactNode })
 
   const motionProps = reduceMotion
     ? {
-        initial: { opacity: 1, y: 0, scale: 1 },
-        animate: { opacity: 1, y: 0, scale: 1 },
-        exit: { opacity: 0, y: 0, scale: 1 },
+        initial: { y: 0, scale: 1 },
+        animate: { y: 0, scale: 1 },
+        exit: { y: 0, scale: 1 },
         transition: { duration: 0.12 },
       }
     : {
-        initial: { opacity: 0, y: -10, scale: 0.98 },
-        animate: { opacity: 1, y: 0, scale: 1 },
-        exit: { opacity: 0, y: -10, scale: 0.98 },
+        initial: { y: -10, scale: 0.98 },
+        animate: { y: 0, scale: 1 },
+        exit: { y: -10, scale: 0.98 },
         transition: { type: "spring" as const, stiffness: 520, damping: 38, mass: 0.7 },
       };
 

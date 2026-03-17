@@ -56,7 +56,8 @@
 .uploadPicker {
   flex: 1 1 auto;
   min-width: 0;
-  --file-picker-padding-inline-start: 0;
+  --file-picker-padding-inline-start: 0.3rem;
+  --file-picker-padding-inline-end: 0.3rem;
 }
 
 .uploadActions {

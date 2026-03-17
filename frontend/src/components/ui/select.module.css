@@ -38,9 +38,10 @@
 }
 
 .trigger:disabled {
-  opacity: 0.55;
   background: var(--control-background-disabled);
   cursor: not-allowed;
+  color: var(--muted-foreground);
+  border-color: var(--control-border-weak);
 }
 
 .triggerOpen {
@@ -110,15 +111,12 @@
   background: var(--control-background-strong);
   box-shadow: var(--shadow-md);
   padding: 0.35rem;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.2rem;
   max-height: min(18rem, 45vh);
-  overflow-y: hidden;
-  overflow-x: hidden;
-}
-
-.menuScrollable {
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
 }
 
@@ -141,6 +139,11 @@
 
 .menuPortalUp {
   transform: translateY(calc(-100% - 0.2rem));
+}
+
+.menuUnpositioned {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .option {
@@ -218,6 +221,7 @@
 }
 
 .optionDisabled {
-  opacity: 0.5;
   cursor: not-allowed;
+  color: var(--muted-foreground);
+  background: var(--control-background-disabled);
 }

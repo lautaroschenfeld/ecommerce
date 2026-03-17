@@ -149,6 +149,40 @@ function normalizeRadiusScale(input: unknown, fallback: number) {
   return fallback;
 }
 
+function roundRadiusMetric(value: number) {
+  return Math.round(value * 1000) / 1000;
+}
+
+function scaledRem(baseRem: number, scale: number) {
+  return `${roundRadiusMetric(baseRem * scale)}rem`;
+}
+
+function scaledPx(basePx: number, scale: number) {
+  return `${roundRadiusMetric(basePx * scale)}px`;
+}
+
+export function radiusScaleCssVars(rawScale: number) {
+  const scale = normalizeRadiusScale(rawScale, DEFAULT_STOREFRONT_SETTINGS.radiusScale);
+
+  return {
+    "--radius-scale": String(scale),
+    "--radius": scaledRem(0.75, scale),
+    "--radius-pill": scaledPx(999, scale),
+    "--field-radius": scaledRem(0.85, scale),
+    "--field-radius-sm": scaledRem(0.75, scale),
+    "--field-radius-xs": scaledRem(0.65, scale),
+    "--native-select-radius": scaledRem(0.95, scale),
+    "--admin-panel-surface-radius": scaledRem(1.6, scale),
+    "--admin-panel-content-radius": scaledRem(1.6, scale),
+    "--admin-radius-xs": scaledRem(0.95, scale),
+    "--admin-radius-sm": scaledRem(1.05, scale),
+    "--admin-radius-md": scaledRem(1.15, scale),
+    "--admin-radius-lg": scaledRem(1.25, scale),
+    "--admin-radius-xl": scaledRem(1.35, scale),
+    "--admin-radius-pill": scaledPx(999, scale),
+  } as Record<string, string>;
+}
+
 function normalizeBoolean(input: unknown, fallback: boolean) {
   if (typeof input === "boolean") return input;
   if (typeof input === "number") return input !== 0;
@@ -393,11 +427,7 @@ export async function updateAdminStorefrontSettings(
 }
 
 export function storefrontCssVars(settings: StorefrontSettings) {
-  const vars = {
-    "--radius-scale": String(
-      normalizeRadiusScale(settings.radiusScale, DEFAULT_STOREFRONT_SETTINGS.radiusScale)
-    ),
-  } as Record<string, string>;
+  const vars = radiusScaleCssVars(settings.radiusScale);
 
   if (settings.font?.family) {
     // Keep the default `--font-sans` stack as fallback (Next/font sets it).

@@ -88,7 +88,7 @@
 .event {
   padding: 0.65rem 0.75rem;
   border-radius: var(--admin-radius-sm);
-  border: 1px solid var(--ui-color-rgba-15-23-42-0p1);
+  border: 1px solid var(--ui-border);
   background: var(--ui-surface-soft);
   display: flex;
   flex-direction: column;
