@@ -4,6 +4,7 @@ import {
   getMercadoPagoPaymentById,
   getMercadoPagoWebhookSecret,
 } from "../../../../lib/mercadopago-checkout-pro"
+import crypto from "crypto"
 import { getCustomerAuthService } from "../../../store/catalog/_shared/customer-auth"
 import { POST } from "../route"
 
@@ -173,5 +174,95 @@ describe("webhooks/mercadopago POST", () => {
     } finally {
       process.env.NODE_ENV = previousNodeEnv
     }
+  })
+
+  test("rejects webhook when signature is invalid", async () => {
+    ;(getMercadoPagoWebhookSecret as jest.Mock).mockReturnValue("test-secret")
+
+    const req = reqMock({
+      query: {
+        type: "payment",
+        id: "12345",
+      },
+      headers: {
+        "x-request-id": "req-test-invalid-1",
+        "x-signature": "ts=1731600000,v1=deadbeef",
+      },
+    })
+    const res = resMock()
+
+    await POST(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Invalid Mercado Pago webhook signature.",
+    })
+    expect(getMercadoPagoPaymentById).not.toHaveBeenCalled()
+  })
+
+  test("accepts signed payment webhooks and updates payment status", async () => {
+    ;(getMercadoPagoWebhookSecret as jest.Mock).mockReturnValue("test-secret")
+    const service = {
+      listCustomerOrders: jest
+        .fn()
+        .mockResolvedValueOnce([
+          {
+            id: "cord_test_002",
+            order_number: "O-2001",
+            status: "processing",
+            payment_status: "pending",
+            metadata: {},
+          },
+        ]),
+      updateCustomerOrders: jest.fn().mockResolvedValue(undefined),
+    }
+    ;(getCustomerAuthService as jest.Mock).mockReturnValue(service)
+
+    ;(getMercadoPagoPaymentById as jest.Mock).mockResolvedValue({
+      id: "pay_approved_1",
+      status: "approved",
+      statusDetail: "accredited",
+      externalReference: "cord_test_002",
+      merchantOrderId: "mo_2",
+      amount: 50000,
+      currencyId: "ARS",
+      metadata: {},
+    })
+
+    const dataId = "pay_approved_1"
+    const requestId = "req-test-valid-1"
+    const ts = "1731600000"
+    const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
+    const digest = crypto.createHmac("sha256", "test-secret").update(manifest).digest("hex")
+
+    const req = reqMock({
+      query: {
+        type: "payment",
+        id: dataId,
+      },
+      headers: {
+        "x-request-id": requestId,
+        "x-signature": `ts=${ts},v1=${digest}`,
+      },
+    })
+    const res = resMock()
+
+    await POST(req, res)
+
+    expect(getMercadoPagoPaymentById).toHaveBeenCalledWith(dataId)
+    expect(service.updateCustomerOrders).toHaveBeenCalledWith({
+      selector: { id: "cord_test_002" },
+      data: expect.objectContaining({
+        payment_status: "paid",
+        status: "preparing",
+      }),
+    })
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith({
+      ok: true,
+      order_id: "cord_test_002",
+      payment_status: "paid",
+      provider: "mercadopago",
+    })
   })
 })

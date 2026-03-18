@@ -369,9 +369,12 @@ type SessionApiResponse = {
   addresses?: unknown[];
 };
 
+const BACKEND_UNAVAILABLE_MESSAGE =
+  "Servicio temporalmente no disponible. Intenta nuevamente en unos minutos.";
+
 function getSessionUnavailableMessage(error: unknown) {
   if (error instanceof ApiHttpError && error.status >= 500) {
-    return "No pudimos validar tu sesión. Intenta nuevamente en unos minutos.";
+    return BACKEND_UNAVAILABLE_MESSAGE;
   }
 
   if (error instanceof Error) {
@@ -386,11 +389,11 @@ function getSessionUnavailableMessage(error: unknown) {
       normalized.includes("timeout") ||
       normalized.includes("timed out")
     ) {
-      return "No pudimos validar tu sesión. Intenta nuevamente en unos minutos.";
+      return BACKEND_UNAVAILABLE_MESSAGE;
     }
   }
 
-  return "No pudimos validar tu sesión en este momento.";
+  return "No pudimos cargar el estado de tu cuenta en este momento.";
 }
 
 export function createUnavailableSessionSnapshot(
@@ -469,8 +472,7 @@ async function ensureBootstrapped() {
 }
 
 function mapApiError(error: unknown, fallback: string): CustomerAuthResult {
-  const backendUnavailableMessage =
-    "Servicio temporalmente no disponible. Intenta nuevamente en unos minutos.";
+  const backendUnavailableMessage = BACKEND_UNAVAILABLE_MESSAGE;
 
   const runtimeMessage =
     error instanceof Error ? error.message.trim().toLowerCase() : "";
@@ -1112,7 +1114,3 @@ export async function trackStoreTelemetry(
 ) {
   await trackStoreTelemetryEvent(event, metadata);
 }
-
-
-
-

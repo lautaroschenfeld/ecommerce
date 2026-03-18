@@ -669,7 +669,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   };
 
   const accountUnavailableMessage =
-    sessionError || "No pudimos validar tu sesión. Intenta nuevamente en unos minutos.";
+    sessionError || FRIENDLY_ERROR_MESSAGES.serviceUnavailable;
 
   const resolveAccountRedirectPath = () => {
     if (pathname && pathname.startsWith("/")) return pathname;

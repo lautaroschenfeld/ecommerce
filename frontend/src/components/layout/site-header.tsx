@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   ChevronDown,
@@ -19,6 +19,7 @@ import {
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { useCustomerSession } from "@/lib/customer-auth";
 import { canAccessAdminPanel } from "@/lib/account-roles";
+import { getDropdownMotionDurations } from "@/lib/dropdown-motion";
 import { cn } from "@/lib/utils";
 import {
   STOREFRONT_RUNTIME_UPDATED_EVENT,
@@ -37,9 +38,6 @@ const navItems = [
   { href: "/nosotros", label: "Nosotros" },
   { href: "/contacto", label: "Contacto" },
 ] as const;
-
-const ACCOUNT_DROPDOWN_OPEN_DURATION_MS = 1760;
-const ACCOUNT_DROPDOWN_CLOSE_DURATION_MS = 720;
 
 type SiteHeaderProps = {
   storefront: StorefrontSettings;
@@ -60,6 +58,16 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   const accountDropdownContentRef = useRef<HTMLDivElement | null>(null);
   const [accountDropdownMotionHeight, setAccountDropdownMotionHeight] = useState<number | null>(
     null
+  );
+  const accountDropdownMotionDurations = useMemo(
+    () => {
+      const base = getDropdownMotionDurations(accountDropdownMotionHeight);
+      return {
+        openMs: base.openMs * 5,
+        closeMs: base.closeMs * 5,
+      };
+    },
+    [accountDropdownMotionHeight]
   );
 
   const normalizePath = (value: string) =>
@@ -151,18 +159,11 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
 
   useEffect(() => {
     if (accountMenuOpen) {
-      let timeoutId = 0;
       const frameId = window.requestAnimationFrame(() => {
         setAccountMenuPhase("opening");
-        timeoutId = window.setTimeout(() => {
-          setAccountMenuPhase("open");
-        }, ACCOUNT_DROPDOWN_OPEN_DURATION_MS);
       });
       return () => {
         window.cancelAnimationFrame(frameId);
-        if (timeoutId) {
-          window.clearTimeout(timeoutId);
-        }
       };
     }
 
@@ -178,11 +179,11 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     if (accountMenuPhase !== "closing") return;
     const timeoutId = window.setTimeout(() => {
       setAccountMenuPhase("closed");
-    }, ACCOUNT_DROPDOWN_CLOSE_DURATION_MS);
+    }, accountDropdownMotionDurations.closeMs);
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [accountMenuPhase]);
+  }, [accountDropdownMotionDurations.closeMs, accountMenuPhase]);
 
   const greeting = customer?.firstName?.trim() || "Cliente";
   const isAdminRoute = pathname?.startsWith("/cuenta/administracion");
@@ -219,25 +220,27 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
   }, [isAdminRoute]);
 
   const showAccountDropdown = accountMenuOpen || accountMenuPhase !== "closed";
-  const accountDropdownPhase = accountMenuOpen
-    ? accountMenuPhase === "open"
-      ? "open"
-      : "opening"
-    : "closing";
+  const accountDropdownPhase = accountMenuOpen ? "opening" : "closing";
   const accountDropdownStyle: CSSProperties | undefined =
-    accountDropdownMotionHeight !== null
+    showAccountDropdown
       ? ({
-          ["--account-dropdown-motion-height" as never]: `${accountDropdownMotionHeight}px`,
+          ...(accountDropdownMotionHeight !== null
+            ? ({
+                ["--account-dropdown-motion-height" as never]:
+                  `${accountDropdownMotionHeight}px`,
+              } as CSSProperties)
+            : {}),
+          ["--dropdown-motion-open-duration" as never]: `${accountDropdownMotionDurations.openMs}ms`,
+          ["--dropdown-motion-close-duration" as never]: `${accountDropdownMotionDurations.closeMs}ms`,
         } as CSSProperties)
       : undefined;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!showAccountDropdown) {
       setAccountDropdownMotionHeight(null);
       return;
     }
 
-    let frameId = 0;
     const measure = () => {
       const content = accountDropdownContentRef.current;
       if (!content) return;
@@ -252,12 +255,9 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
       );
     };
 
-    frameId = window.requestAnimationFrame(measure);
+    measure();
     window.addEventListener("resize", measure);
     return () => {
-      if (frameId) {
-        window.cancelAnimationFrame(frameId);
-      }
       window.removeEventListener("resize", measure);
     };
   }, [showAccountDropdown, customer?.email, customer?.role, greeting]);

@@ -17,8 +17,8 @@
 }
 
 :root {
-  --dropdown-motion-open-duration: 1760ms;
-  --dropdown-motion-close-duration: 720ms;
+  --dropdown-motion-open-duration: 240ms;
+  --dropdown-motion-close-duration: 170ms;
 }
 
 .uiDropdownMotionPanel {
@@ -65,10 +65,12 @@
 }
 
 .uiDropdownMotionPanel[data-dropdown-phase="opening"] .uiDropdownMotionViewport {
+  overflow: hidden;
   animation: uiDropdownViewportOpen var(--dropdown-motion-open-duration) var(--ease-out, ease) both;
 }
 
 .uiDropdownMotionPanel[data-dropdown-phase="closing"] .uiDropdownMotionViewport {
+  overflow: hidden;
   animation: uiDropdownViewportClose var(--dropdown-motion-close-duration) var(--ease-out, ease)
     both;
 }

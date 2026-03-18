@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { canAccessAdminPanel, normalizeCustomerRole } from "@/lib/account-roles";
 import { useCustomerSession } from "@/lib/customer-auth";
-import { Button } from "@/components/ui/button";
 import styles from "./auth-gates.module.css";
 
 function GateSkeleton() {
@@ -17,36 +16,14 @@ function GateSkeleton() {
   );
 }
 
-function GateUnavailable({ message }: { message?: string | null }) {
-  return (
-    <div className={styles.gateUnavailable}>
-      <strong>No pudimos validar tu sesión.</strong>
-      <p>{message || "Intenta nuevamente en unos minutos."}</p>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => window.location.reload()}
-      >
-        Reintentar
-      </Button>
-    </div>
-  );
-}
-
-function buildRequestedPath(
-  pathname: string | null,
-  fallbackPath: string
-) {
+function buildRequestedPath(pathname: string | null, fallbackPath: string) {
   if (!pathname) return fallbackPath;
   if (typeof window === "undefined") return pathname;
   const query = window.location.search || "";
   return `${pathname}${query}`;
 }
 
-function buildLoginRedirect(
-  pathname: string | null,
-  fallbackPath: string
-) {
+function buildLoginRedirect(pathname: string | null, fallbackPath: string) {
   const requestedPath = buildRequestedPath(pathname, fallbackPath);
   return `/ingresar?redirect=${encodeURIComponent(requestedPath)}`;
 }
@@ -58,21 +35,33 @@ export function CustomerGate({
   redirectTo?: string;
   children: React.ReactNode;
 }) {
-  const { hydrated, isLoggedIn, sessionUnavailable, sessionError } = useCustomerSession();
+  const [mounted, setMounted] = useState(false);
+  const { hydrated, isLoggedIn, sessionUnavailable } = useCustomerSession();
   const router = useRouter();
   const pathname = usePathname();
   const resolvedRedirectTo = redirectTo ?? buildLoginRedirect(pathname, "/cuenta");
 
   useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (!hydrated) return;
     if (sessionUnavailable) return;
     if (!isLoggedIn) {
       router.replace(resolvedRedirectTo);
     }
-  }, [hydrated, isLoggedIn, resolvedRedirectTo, router, sessionUnavailable]);
+  }, [hydrated, isLoggedIn, mounted, resolvedRedirectTo, router, sessionUnavailable]);
 
+  if (!mounted) return <GateSkeleton />;
   if (!hydrated) return <GateSkeleton />;
-  if (sessionUnavailable) return <GateUnavailable message={sessionError} />;
+  if (sessionUnavailable) return null;
   if (!isLoggedIn) return null;
   return <>{children}</>;
 }
@@ -86,7 +75,8 @@ export function AdminGate({
   fallback?: string;
   children: React.ReactNode;
 }) {
-  const { hydrated, customer, sessionUnavailable, sessionError } = useCustomerSession();
+  const [mounted, setMounted] = useState(false);
+  const { hydrated, customer, sessionUnavailable } = useCustomerSession();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -97,6 +87,16 @@ export function AdminGate({
     buildLoginRedirect(pathname, "/cuenta/administracion/resumen");
 
   useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (!hydrated) return;
     if (sessionUnavailable) return;
     if (!customer) {
@@ -106,10 +106,11 @@ export function AdminGate({
     if (!allowed) {
       router.replace(fallback);
     }
-  }, [hydrated, customer, allowed, resolvedRedirectTo, fallback, router, sessionUnavailable]);
+  }, [hydrated, customer, allowed, mounted, resolvedRedirectTo, fallback, router, sessionUnavailable]);
 
+  if (!mounted) return <GateSkeleton />;
   if (!hydrated) return <GateSkeleton />;
-  if (sessionUnavailable) return <GateUnavailable message={sessionError} />;
+  if (sessionUnavailable) return null;
   if (!customer || !allowed) return null;
   return <>{children}</>;
 }

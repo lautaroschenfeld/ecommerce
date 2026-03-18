@@ -655,12 +655,14 @@ test("account pages degrade explicitly when customer session sync is unavailable
   await page.goto("/cuenta");
 
   await expect(page).toHaveURL(/\/cuenta$/);
-  await expect(page.locator("strong").filter({ hasText: "No pudimos validar tu sesión." })).toBeVisible();
+  await expect(
+    page.getByRole("dialog", { name: /Servicio temporalmente no disponible/i })
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "Reintentar" })).toBeVisible();
   await expect(page).not.toHaveURL(/\/ingresar/);
 });
 
-test("lists account page keeps the unavailable-session fallback and header state", async ({
+test("lists account page keeps the unavailable-service modal and header state", async ({
   page,
 }) => {
   await mockUnavailableCustomerSession(page);
@@ -669,10 +671,12 @@ test("lists account page keeps the unavailable-session fallback and header state
 
   await expect(page).toHaveURL(/\/cuenta\/listas\?tab=listas$/);
   await expect(
-    page.locator("strong").filter({ hasText: /No pudimos validar tu sesi/i })
+    page.getByRole("dialog", { name: /Servicio temporalmente no disponible/i })
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Ingresar" })).toHaveCount(0);
-  await expect(page.locator("[aria-label*='No pudimos validar tu sesi']")).toBeVisible();
+  await expect(
+    page.locator("[aria-label*='Servicio temporalmente no disponible']")
+  ).toBeVisible();
 });
 
 test("product detail keeps degraded session flows out of login redirects", async ({
@@ -691,5 +695,5 @@ test("product detail keeps degraded session flows out of login redirects", async
   await expect(
     page.getByRole("dialog", { name: "Agregar a una lista" })
   ).toHaveCount(0);
-  await expect(page.getByText(/No pudimos validar tu sesi/i)).toBeVisible();
+  await expect(page.getByText(/Servicio temporalmente no disponible/i)).toBeVisible();
 });

@@ -102,6 +102,110 @@
   grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
 }
 
+.productList {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+.productRow {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 9.5rem) minmax(0, 1fr);
+  gap: 1rem;
+  width: 100%;
+  border: 1px solid var(--ui-border);
+  border-radius: calc((var(--radius-base) + 0.55rem) * var(--radius-scale));
+  background: var(--ui-surface-panel);
+  padding: 0.85rem 1rem;
+}
+
+.productRowMedia {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: calc((var(--radius-base) + 0.4rem) * var(--radius-scale));
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-soft);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.productRowImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productRowPlaceholder {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  color: var(--ui-icon-muted, rgb(var(--ui-ink-rgb, 15 23 42) / 0.58));
+  background: var(--ui-surface-subtle);
+  border: 1px solid var(--ui-border);
+}
+
+.productRowPlaceholder :global(svg) {
+  width: 1.45rem;
+  height: 1.45rem;
+  stroke-width: 1.9;
+}
+
+.productRowInfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.34rem;
+  height: 100%;
+  position: relative;
+  padding-right: 2.55rem;
+}
+
+.productRowTitle {
+  text-decoration: none;
+  color: var(--foreground);
+  font-size: calc(var(--lists-fs-strong) * var(--font-scale, 1));
+  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.productRowTitle:hover {
+  text-decoration: underline;
+}
+
+.productRowMeta {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
+}
+
+.productRowPrice {
+  margin: 0;
+  margin-top: auto;
+  color: var(--foreground);
+  font-size: calc(var(--lists-fs-title) * var(--font-scale, 1));
+  line-height: 1.1;
+  font-weight: 760;
+}
+
+.productRowActions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  min-height: 2rem;
+}
+
+.productRowKebabTrigger {
+  border-radius: var(--field-radius-sm);
+}
+
 .productItem {
   display: grid;
   gap: 0.6rem;
@@ -131,7 +235,20 @@
 .listCardsGrid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .listCardsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .listCardsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .listCard {
@@ -237,6 +354,163 @@
   width: min(26rem, 100%);
 }
 
+.addToListDialog {
+  width: min(32rem, 100%);
+  padding: 1.5rem 1.15rem 1.15rem;
+}
+
+.addToListDialog :global(button[aria-label="Cerrar"]) {
+  top: 1rem;
+  right: 1rem;
+}
+
+.addToListDialogBody {
+  display: grid;
+  gap: 0.94rem;
+  margin-top: 0.12rem;
+}
+
+.addToListCreateModePanel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border-radius: var(--field-radius);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-soft);
+}
+
+.addToListRows {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--field-radius);
+  max-height: 17.8rem;
+  overflow: auto;
+  display: grid;
+  background: var(--ui-surface-panel);
+}
+
+.addToListRow {
+  border: 0;
+  border-bottom: 1px solid var(--ui-border-soft);
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  min-height: 3.55rem;
+  padding: 0.72rem 0.85rem;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease-out),
+    box-shadow 150ms var(--ease-out);
+}
+
+.addToListRow:last-child {
+  border-bottom: 0;
+}
+
+.addToListRow:hover {
+  background: var(--ui-surface-soft);
+}
+
+.addToListRow:disabled {
+  cursor: not-allowed;
+  color: var(--muted-foreground);
+  background: var(--control-background-disabled);
+}
+
+.addToListRow:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgb(var(--brand-primary-rgb) / 0.26);
+}
+
+.addToListRowMain {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+}
+
+.addToListMedia {
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: var(--field-radius-sm);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-soft);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex: 0 0 auto;
+  color: var(--muted-foreground);
+}
+
+.addToListMediaPlus {
+  color: rgb(var(--ui-status-blue-strong-rgb) / 0.92);
+  border-color: rgb(var(--ui-status-blue-strong-rgb) / 0.36);
+  background: rgb(var(--ui-status-blue-strong-rgb) / 0.08);
+}
+
+.addToListMediaHeart {
+  color: rgb(var(--ui-status-blue-strong-rgb) / 0.95);
+  border-color: rgb(var(--ui-status-blue-strong-rgb) / 0.3);
+  background: rgb(var(--ui-status-blue-strong-rgb) / 0.12);
+}
+
+.addToListMediaImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.addToListMediaPlaceholder {
+  color: var(--muted-foreground);
+}
+
+.addToListText {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+.addToListRowLabel {
+  font-size: calc(var(--lists-fs-body) * var(--font-scale, 1));
+  color: var(--foreground);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addToListRowHint {
+  font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
+  color: var(--muted-foreground);
+  line-height: 1.2;
+}
+
+.addToListCreateItem .addToListRowLabel {
+  color: rgb(var(--brand-primary-rgb) / 0.96);
+}
+
+.addToListCreateItem {
+  background: var(--ui-surface-soft);
+}
+
+.addToListCreateItem:disabled .addToListRowLabel {
+  color: var(--muted-foreground);
+}
+
+.addToListCheckbox {
+  flex: 0 0 auto;
+  margin-top: 0;
+  align-self: center;
+}
+
+.addToListCheckbox:disabled {
+  cursor: not-allowed !important;
+}
+
 .createDialogBody {
   display: grid;
   gap: 0.75rem;
@@ -267,8 +541,26 @@
     font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
   }
 
-  .listCardsGrid {
+  .productRow {
     grid-template-columns: 1fr;
+  }
+
+  .productRowMedia {
+    max-width: 10.5rem;
+    justify-self: start;
+  }
+
+  .addToListDialog {
+    width: min(100%, 31rem);
+  }
+
+  .dialogActions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .dialogActions :global(button) {
+    flex: 1 1 0;
   }
 }
 

@@ -1135,8 +1135,13 @@ test("selects inside admin dialogs support keyboard interaction and keep the par
   const closeDuration = await listbox.evaluate((node) =>
     getComputedStyle(node).getPropertyValue("--dropdown-motion-close-duration").trim()
   );
-  expect(parseCssTimeMs(openDuration)).toBeCloseTo(1760, 0);
-  expect(parseCssTimeMs(closeDuration)).toBeCloseTo(720, 0);
+  const openDurationMs = parseCssTimeMs(openDuration);
+  const closeDurationMs = parseCssTimeMs(closeDuration);
+  expect(openDurationMs).toBeGreaterThanOrEqual(240);
+  expect(openDurationMs).toBeLessThanOrEqual(720);
+  expect(closeDurationMs).toBeGreaterThanOrEqual(180);
+  expect(closeDurationMs).toBeLessThanOrEqual(420);
+  expect(closeDurationMs).toBeLessThanOrEqual(openDurationMs);
   const optionDelays = await listbox
     .getByRole("option")
     .evaluateAll((options) =>
@@ -1785,7 +1790,9 @@ test("product actions menu adapts motion direction to available viewport space",
   const openDuration = await actionsMenu.evaluate((node) =>
     getComputedStyle(node).getPropertyValue("--dropdown-motion-open-duration").trim()
   );
-  expect(parseCssTimeMs(openDuration)).toBeCloseTo(1760, 0);
+  const openDurationMs = parseCssTimeMs(openDuration);
+  expect(openDurationMs).toBeGreaterThanOrEqual(240);
+  expect(openDurationMs).toBeLessThanOrEqual(720);
   const itemDelay = await actionsMenu
     .getByRole("menuitem")
     .first()

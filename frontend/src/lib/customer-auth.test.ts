@@ -16,7 +16,7 @@ describe("createUnavailableSessionSnapshot", () => {
       hydrated: true,
       updatedAt: 1234,
       status: "unavailable",
-      error: "No pudimos validar tu sesión. Intenta nuevamente en unos minutos.",
+      error: "Servicio temporalmente no disponible. Intenta nuevamente en unos minutos.",
     });
   });
 });

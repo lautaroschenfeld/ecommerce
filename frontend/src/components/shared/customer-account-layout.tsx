@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -68,19 +67,6 @@ export function CustomerAccountLayout({
   const pathname = usePathname();
   const router = useRouter();
   const session = useCustomerSession();
-  const [retrying, setRetrying] = useState(false);
-
-  const unavailableMessage =
-    session.sessionError || "No pudimos validar tu sesión. Intenta nuevamente en unos minutos.";
-
-  const handleRetry = async () => {
-    setRetrying(true);
-    try {
-      await session.syncSession();
-    } finally {
-      setRetrying(false);
-    }
-  };
 
   if (!session.hydrated) {
     return (
@@ -94,25 +80,7 @@ export function CustomerAccountLayout({
   }
 
   if (session.sessionUnavailable) {
-    return (
-      <Card className={styles.stateCard}>
-        <CardHeader>
-          <CardTitle>No pudimos validar tu sesión.</CardTitle>
-        </CardHeader>
-        <CardContent className={styles.missingSession}>
-          <p>{unavailableMessage}</p>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => void handleRetry()}
-            disabled={retrying}
-          >
-            {retrying ? <LoaderCircle size={16} className={styles.spin} /> : null}
-            {retrying ? "Reintentando..." : "Reintentar"}
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   if (!session.customer) {

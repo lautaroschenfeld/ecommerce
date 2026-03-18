@@ -34,7 +34,8 @@ function isStorefrontCriticalPath(pathname: string | null) {
     pathname.startsWith("/productos") ||
     pathname.startsWith("/carrito") ||
     pathname.startsWith("/checkout") ||
-    pathname.startsWith("/ingresar")
+    pathname.startsWith("/ingresar") ||
+    pathname.startsWith("/cuenta")
   );
 }
 

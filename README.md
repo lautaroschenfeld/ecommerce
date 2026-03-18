@@ -100,11 +100,24 @@ MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
 MERCADOPAGO_WEBHOOK_SECRET=...
 STOREFRONT_URL=http://localhost:3000
 BACKEND_PUBLIC_URL=http://localhost:9000
+# Produccion con proxy en /api:
+# BACKEND_PUBLIC_URL=https://tu-dominio.com/api
 ```
 
 Notas:
 - En `production`, no usar secretos debiles.
 - Si faltan secretos criticos en produccion, el backend puede fallar en startup por validaciones de seguridad.
+
+### Mercado Pago Webhooks (Checkout Pro)
+Configurar en Mercado Pago (prueba y productivo):
+- URL de Webhook: `https://tu-dominio.com/api/webhooks/mercadopago` (ajustar dominio real).
+- Eventos activos: `Pagos` y `Ordenes comerciales`.
+- Eventos inactivos: resto de eventos no vinculados a Checkout Pro.
+
+Backend:
+- Guardar la clave secreta de Mercado Pago en `MERCADOPAGO_WEBHOOK_SECRET`.
+- Mantener `MERCADOPAGO_ALLOW_UNSIGNED_WEBHOOKS=false` en produccion.
+- Si se expone el backend en `/api`, asegurar `BACKEND_PUBLIC_URL=https://tu-dominio.com/api`.
 
 ### 2) Frontend
 Crear `frontend/.env.local`:
@@ -128,6 +141,10 @@ Copy-Item .env.example .env
 Importante:
 - En produccion, el seed no crea productos/cupones demo por defecto.
 - Si queres forzarlos, definir `SEED_DEMO_PRODUCTS=true` y/o `SEED_DEMO_COUPONS=true`.
+- Para Checkout Pro en VPS, completar en `.env` raiz:
+  - `MERCADOPAGO_ACCESS_TOKEN`
+  - `MERCADOPAGO_WEBHOOK_SECRET`
+  - `MERCADOPAGO_ALLOW_UNSIGNED_WEBHOOKS=false`
 
 ## Docker Compose (stack completa)
 

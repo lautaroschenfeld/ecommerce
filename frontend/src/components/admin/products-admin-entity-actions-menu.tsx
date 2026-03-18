@@ -10,6 +10,7 @@ import {
 import { createPortal } from "react-dom";
 import { MoreVertical } from "lucide-react";
 
+import { getDropdownMotionDurations } from "@/lib/dropdown-motion";
 import styles from "./products-admin.module.css";
 
 type ActionsMenuAction = "edit" | "add_variant" | "duplicate" | "delete";
@@ -18,7 +19,9 @@ type EntityActionsMenuProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   busy: boolean;
+  triggerClassName?: string;
   onEdit: () => void;
+  editLabel?: string;
   onAddVariant?: () => void;
   onDuplicate?: () => void;
   onDelete: () => void;
@@ -27,14 +30,13 @@ type EntityActionsMenuProps = {
   showDuplicate?: boolean;
 };
 
-const DROPDOWN_OPEN_DURATION_MS = 1760;
-const DROPDOWN_CLOSE_DURATION_MS = 720;
-
 export function EntityActionsMenu({
   open,
   onOpenChange,
   busy,
+  triggerClassName,
   onEdit,
+  editLabel = "Editar",
   onAddVariant,
   onDuplicate,
   onDelete,
@@ -63,6 +65,10 @@ export function EntityActionsMenu({
   const [menuInOverlay, setMenuInOverlay] = useState(false);
   const [menuPhase, setMenuPhase] = useState<"closed" | "opening" | "open" | "closing">(
     "closed"
+  );
+  const menuMotionDurations = useMemo(
+    () => getDropdownMotionDurations(menuPosition?.motionHeight),
+    [menuPosition?.motionHeight]
   );
   const resolvedActiveAction = availableActions.includes(activeAction)
     ? activeAction
@@ -229,7 +235,7 @@ export function EntityActionsMenu({
         setMenuPhase("opening");
         timeoutId = window.setTimeout(() => {
           setMenuPhase("open");
-        }, DROPDOWN_OPEN_DURATION_MS);
+        }, menuMotionDurations.openMs);
       });
       return () => {
         window.cancelAnimationFrame(frameId);
@@ -245,7 +251,7 @@ export function EntityActionsMenu({
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [open]);
+  }, [menuMotionDurations.openMs, open]);
 
   useEffect(() => {
     if (menuPhase !== "closing") return;
@@ -253,11 +259,11 @@ export function EntityActionsMenu({
       setMenuPhase("closed");
       setMenuPosition(null);
       setMenuInOverlay(false);
-    }, DROPDOWN_CLOSE_DURATION_MS);
+    }, menuMotionDurations.closeMs);
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [menuPhase]);
+  }, [menuMotionDurations.closeMs, menuPhase]);
 
   const focusAction = useCallback((action: ActionsMenuAction) => {
     const menu = menuRef.current;
@@ -282,7 +288,9 @@ export function EntityActionsMenu({
     menu.style.setProperty("--actions-menu-left", `${menuPosition.left}px`);
     menu.style.setProperty("--actions-menu-max-height", `${menuPosition.maxHeight}px`);
     menu.style.setProperty("--actions-menu-motion-height", `${menuPosition.motionHeight}px`);
-  }, [menuPosition]);
+    menu.style.setProperty("--dropdown-motion-open-duration", `${menuMotionDurations.openMs}ms`);
+    menu.style.setProperty("--dropdown-motion-close-duration", `${menuMotionDurations.closeMs}ms`);
+  }, [menuMotionDurations.closeMs, menuMotionDurations.openMs, menuPosition]);
 
   const handleMenuWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
@@ -365,13 +373,16 @@ export function EntityActionsMenu({
   const shouldRenderMenu = (open || menuPhase !== "closed") && Boolean(menuPosition);
   const dropdownPhase = open ? (menuPhase === "open" ? "open" : "opening") : "closing";
   const dropdownDirection = menuPosition?.direction ?? "down";
+  const menuFullyOpen = menuPhase === "open";
 
   return (
     <div ref={rootRef} className={styles.actionsMenuWrap}>
       <button
         ref={triggerRef}
         type="button"
-        className={`${styles.actionsMenuTrigger} ${open ? styles.actionsMenuTriggerOpen : ""}`}
+        className={`${styles.actionsMenuTrigger} ${
+          open ? styles.actionsMenuTriggerOpen : ""
+        } ${triggerClassName ?? ""}`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={open ? "Cerrar acciones" : "Abrir acciones"}
@@ -408,11 +419,14 @@ export function EntityActionsMenu({
                   className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${
                     resolvedActiveAction === "edit" ? styles.actionsMenuOptionActive : ""
                   }`}
-                  onMouseEnter={() => activate("edit")}
+                  onMouseEnter={() => {
+                    if (!menuFullyOpen) return;
+                    activate("edit");
+                  }}
                   onFocus={() => activate("edit")}
                   onClick={() => run("edit")}
                 >
-                  Editar
+                  {editLabel}
                 </button>
                 {showAddVariant && onAddVariant ? (
                   <button
@@ -422,7 +436,10 @@ export function EntityActionsMenu({
                     className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${
                       resolvedActiveAction === "add_variant" ? styles.actionsMenuOptionActive : ""
                     }`}
-                    onMouseEnter={() => activate("add_variant")}
+                    onMouseEnter={() => {
+                      if (!menuFullyOpen) return;
+                      activate("add_variant");
+                    }}
                     onFocus={() => activate("add_variant")}
                     onClick={() => run("add_variant")}
                   >
@@ -437,7 +454,10 @@ export function EntityActionsMenu({
                     className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${
                       resolvedActiveAction === "duplicate" ? styles.actionsMenuOptionActive : ""
                     }`}
-                    onMouseEnter={() => activate("duplicate")}
+                    onMouseEnter={() => {
+                      if (!menuFullyOpen) return;
+                      activate("duplicate");
+                    }}
                     onFocus={() => activate("duplicate")}
                     onClick={() => run("duplicate")}
                   >
@@ -451,7 +471,10 @@ export function EntityActionsMenu({
                   className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${styles.actionsMenuOptionDanger} ${
                     resolvedActiveAction === "delete" ? styles.actionsMenuOptionActive : ""
                   }`}
-                  onMouseEnter={() => activate("delete")}
+                  onMouseEnter={() => {
+                    if (!menuFullyOpen) return;
+                    activate("delete");
+                  }}
                   onFocus={() => activate("delete")}
                   onClick={() => run("delete")}
                 >

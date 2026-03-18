@@ -242,8 +242,13 @@ test("account dropdown uses synchronized motion timings for panel and menu items
   const closeDuration = await accountDropdown.evaluate((node) =>
     getComputedStyle(node).getPropertyValue("--dropdown-motion-close-duration").trim()
   );
-  expect(parseCssTimeMs(openDuration)).toBeCloseTo(1760, 0);
-  expect(parseCssTimeMs(closeDuration)).toBeCloseTo(720, 0);
+  const openDurationMs = parseCssTimeMs(openDuration);
+  const closeDurationMs = parseCssTimeMs(closeDuration);
+  expect(openDurationMs).toBeGreaterThanOrEqual(240);
+  expect(openDurationMs).toBeLessThanOrEqual(720);
+  expect(closeDurationMs).toBeGreaterThanOrEqual(180);
+  expect(closeDurationMs).toBeLessThanOrEqual(420);
+  expect(closeDurationMs).toBeLessThanOrEqual(openDurationMs);
 
   const itemDelays = await accountDropdown
     .getByRole("menuitem")

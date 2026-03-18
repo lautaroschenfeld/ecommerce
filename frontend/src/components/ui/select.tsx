@@ -2,6 +2,7 @@ import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 
+import { getDropdownMotionDurations } from "@/lib/dropdown-motion";
 import { cn } from "@/lib/utils";
 import styles from "./select.module.css";
 
@@ -34,9 +35,6 @@ export type SelectOptionAppearance = {
 type SelectProps = React.ComponentProps<"select"> & {
   optionAppearance?: Record<string, SelectOptionAppearance | undefined>;
 };
-
-const DROPDOWN_OPEN_DURATION_MS = 1760;
-const DROPDOWN_CLOSE_DURATION_MS = 720;
 
 function findNextEnabledOptionIndex(
   options: OptionItem[],
@@ -75,13 +73,15 @@ function withMenuPositionCssVars(position: {
   width: number;
   maxHeight: number;
   motionHeight: number;
-}): React.CSSProperties {
+}, durations: { openMs: number; closeMs: number }): React.CSSProperties {
   return {
     ["--select-menu-top" as never]: `${position.top}px`,
     ["--select-menu-left" as never]: `${position.left}px`,
     ["--select-menu-width" as never]: `${position.width}px`,
     ["--select-menu-max-height" as never]: `${position.maxHeight}px`,
     ["--select-menu-motion-height" as never]: `${position.motionHeight}px`,
+    ["--dropdown-motion-open-duration" as never]: `${durations.openMs}ms`,
+    ["--dropdown-motion-close-duration" as never]: `${durations.closeMs}ms`,
   };
 }
 
@@ -200,6 +200,10 @@ export function Select({
   const [menuInOverlay, setMenuInOverlay] = React.useState(false);
   const [menuPhase, setMenuPhase] = React.useState<"closed" | "opening" | "open" | "closing">(
     "closed"
+  );
+  const menuMotionDurations = React.useMemo(
+    () => getDropdownMotionDurations(menuPosition?.motionHeight),
+    [menuPosition?.motionHeight]
   );
 
   React.useEffect(() => {
@@ -399,7 +403,7 @@ export function Select({
         setMenuPhase("opening");
         timeoutId = window.setTimeout(() => {
           setMenuPhase("open");
-        }, DROPDOWN_OPEN_DURATION_MS);
+        }, menuMotionDurations.openMs);
       });
       return () => {
         window.cancelAnimationFrame(frameId);
@@ -415,7 +419,7 @@ export function Select({
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [open]);
+  }, [open, menuMotionDurations.openMs]);
 
   React.useEffect(() => {
     if (menuPhase !== "closing") return;
@@ -423,11 +427,11 @@ export function Select({
       setMenuPhase("closed");
       setMenuPosition(null);
       setMenuInOverlay(false);
-    }, DROPDOWN_CLOSE_DURATION_MS);
+    }, menuMotionDurations.closeMs);
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [menuPhase]);
+  }, [menuMotionDurations.closeMs, menuPhase]);
 
   const selectedValue = normalizedControlledValue ?? internalValue;
   const selectedIndex = options.findIndex((option) => option.value === selectedValue);
@@ -505,10 +509,13 @@ export function Select({
     [closeMenu, controlled, emitChange]
   );
 
-  const menuStyle = menuPosition ? withMenuPositionCssVars(menuPosition) : undefined;
+  const menuStyle = menuPosition
+    ? withMenuPositionCssVars(menuPosition, menuMotionDurations)
+    : undefined;
   const shouldRenderMenu = open || menuPhase !== "closed";
   const dropdownPhase = open ? (menuPhase === "open" ? "open" : "opening") : "closing";
   const dropdownDirection = menuPosition?.direction ?? "down";
+  const menuFullyOpen = menuPhase === "open";
   const selectedOptionAppearance = selectedOption
     ? optionAppearance?.[selectedOption.value]
     : undefined;
@@ -637,6 +644,7 @@ export function Select({
 
   React.useEffect(() => {
     if (!open) return;
+    if (menuPhase !== "open") return;
     if (activeOptionId === undefined) return;
 
     const frameId = window.requestAnimationFrame(() => {
@@ -648,7 +656,7 @@ export function Select({
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [activeOptionId, open]);
+  }, [activeOptionId, menuPhase, open]);
 
   return (
     <div ref={rootRef} className={cn(styles.wrap, className)}>
@@ -752,6 +760,7 @@ export function Select({
                       disabled={option.disabled}
                       onMouseEnter={() => {
                         if (option.disabled) return;
+                        if (!menuFullyOpen) return;
                         setHighlightedIndex(index);
                       }}
                       onClick={() => {
