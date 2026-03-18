@@ -105,6 +105,7 @@ function readQueryString(req: HttpRequest, key: string, max = 80) {
 export async function POST(req: HttpRequest, res: HttpResponse) {
   await requireCustomerAdmin(req, res)
   const uploadVariant = readQueryString(req, "variant", 40).toLowerCase()
+  const logoVariant = uploadVariant === "logo"
   const faviconVariant = uploadVariant === "favicon"
 
   const input = (req as any).files as unknown as
@@ -174,9 +175,13 @@ export async function POST(req: HttpRequest, res: HttpResponse) {
             .resize(256, 256)
             .png({ compressionLevel: 9 })
             .toBuffer()
+        : logoVariant
+          ? await sharp(transformed.buffer).png({ compressionLevel: 9 }).toBuffer()
         : transformed.buffer
       const filename = `${Date.now()}-${randomSuffix()}-${
-        faviconVariant ? toPngFilename(file.originalname) : toWebpFilename(file.originalname)
+        faviconVariant || logoVariant
+          ? toPngFilename(file.originalname)
+          : toWebpFilename(file.originalname)
       }`
       const target = path.join(STATIC_DIR, filename)
       await fs.writeFile(target, outputBuffer)

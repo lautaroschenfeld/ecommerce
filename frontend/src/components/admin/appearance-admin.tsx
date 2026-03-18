@@ -206,7 +206,7 @@ export function AppearanceAdmin() {
       body.append("files", file);
 
       const data = await fetchJson<{ files?: Array<{ url?: unknown }> }>(
-        "/store/catalog/account/admin/uploads",
+        "/store/catalog/account/admin/uploads?variant=logo",
         {
           method: "POST",
           credentials: "include",
@@ -220,8 +220,12 @@ export function AppearanceAdmin() {
         throw new Error("upload-missing-url");
       }
 
+      await updateAdminStorefrontSettings({
+        logoUrl: uploadedUrl,
+      });
+
       setForm((prev) => ({ ...prev, logoUrl: uploadedUrl }));
-      notify("Logo cargado.", undefined, "success");
+      notify("Logo cargado.", "Aplicado al instante para SEO.", "success");
     } catch (err) {
       const message = mapPanelError(err, "No se pudo subir el logo.");
       notify("Error al subir el logo", message, "error");
@@ -261,8 +265,12 @@ export function AppearanceAdmin() {
         throw new Error("upload-missing-url");
       }
 
+      await updateAdminStorefrontSettings({
+        faviconUrl: uploadedUrl,
+      });
+
       setForm((prev) => ({ ...prev, faviconUrl: uploadedUrl }));
-      notify("Favicon cargado.", "Guarda configuracion para aplicarlo.", "success");
+      notify("Favicon cargado.", "Aplicado al instante para SEO.", "success");
     } catch (err) {
       const message = mapPanelError(err, "No se pudo subir el favicon.");
       notify("Error al subir el favicon", message, "error");
