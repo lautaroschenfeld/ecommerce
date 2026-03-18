@@ -30,6 +30,7 @@ export type CustomerCartItem = {
   category: string
   priceArs: number
   imageUrl?: string
+  imageUrls?: string[]
   qty: number
 }
 
@@ -563,6 +564,30 @@ function toNumber(value: unknown) {
   return Number.isFinite(parsed) ? parsed : undefined
 }
 
+function normalizeImageUrls(...sources: unknown[]) {
+  const out: string[] = []
+  const seen = new Set<string>()
+
+  const push = (value: unknown) => {
+    const normalized = normalizeText(value, 500)
+    if (!normalized || seen.has(normalized)) return
+    seen.add(normalized)
+    out.push(normalized)
+  }
+
+  for (const source of sources) {
+    if (Array.isArray(source)) {
+      for (const entry of source) {
+        push(entry)
+      }
+      continue
+    }
+    push(source)
+  }
+
+  return out.length ? out : undefined
+}
+
 export function sanitizeCartItems(raw: unknown): CustomerCartItem[] {
   if (!Array.isArray(raw)) return []
 
@@ -580,7 +605,13 @@ export function sanitizeCartItems(raw: unknown): CustomerCartItem[] {
     const category = normalizeText(rec.category, 120)
     const priceArs = toNumber(rec.priceArs)
     const qty = toNumber(rec.qty)
-    const imageUrl = normalizeText(rec.imageUrl, 500) || undefined
+    const imageUrls = normalizeImageUrls(
+      rec.imageUrls,
+      rec.image_urls,
+      rec.image_url,
+      rec.imageUrl
+    )
+    const imageUrl = imageUrls?.[0]
 
     if (!id || !name || !brand || !category) continue
     if (!priceArs || priceArs <= 0) continue
@@ -593,6 +624,7 @@ export function sanitizeCartItems(raw: unknown): CustomerCartItem[] {
       category,
       priceArs: Math.trunc(priceArs),
       imageUrl,
+      imageUrls,
       qty: Math.max(1, Math.min(99, Math.trunc(qty))),
     })
   }
@@ -755,12 +787,16 @@ export function normalizeAddressInput(raw: unknown) {
   }
 
   const line1 = normalizeText(rec.line1, 200)
+  const streetNumber = normalizeText(
+    rec.street_number ?? rec.streetNumber ?? rec.address_number ?? rec.addressNumber,
+    40
+  )
   const city = normalizeText(rec.city, 120)
   const province = normalizeText(rec.province, 120)
-  if (!line1 || !city || !province) {
+  if (!line1 || !streetNumber || !city || !province) {
     throw new HttpError(
       HttpError.Types.INVALID_DATA,
-      "line1, city and province are required."
+      "line1, street_number, city and province are required."
     )
   }
 
@@ -769,6 +805,7 @@ export function normalizeAddressInput(raw: unknown) {
     recipient: normalizeText(rec.recipient, 120) || null,
     phone: normalizePhone(rec.phone) || null,
     line1,
+    street_number: streetNumber,
     line2: normalizeText(rec.line2, 120) || null,
     city,
     province,

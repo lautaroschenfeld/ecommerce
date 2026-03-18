@@ -261,32 +261,37 @@ export function Select({
     const viewportPadding = 8;
     const menuGap = 6;
 
-    const visualViewport = window.visualViewport;
-    const viewportLeft = visualViewport?.offsetLeft ?? 0;
-    const viewportTop = visualViewport?.offsetTop ?? 0;
-    const viewportWidth = visualViewport?.width ?? window.innerWidth;
-    const viewportHeight = visualViewport?.height ?? window.innerHeight;
-    const viewportRight = viewportLeft + viewportWidth;
-    const viewportBottom = viewportTop + viewportHeight;
-
-    const width = Math.min(Math.max(rect.width, 160), viewportWidth - viewportPadding * 2);
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const maxViewportMenuHeight = Math.max(56, viewportHeight - viewportPadding * 2);
+    const width = Math.min(
+      Math.max(rect.width, 160),
+      Math.max(160, viewportWidth - viewportPadding * 2)
+    );
     const viewport = menu.querySelector<HTMLElement>(".uiDropdownMotionViewport");
-    const measuredMenuHeight = viewport?.scrollHeight ?? menu.scrollHeight;
+    const measuredMenuHeight = Math.max(
+      56,
+      viewport?.scrollHeight ?? 0,
+      menu.scrollHeight ?? 0
+    );
     const naturalMenuHeight = Math.max(
       56,
-      Math.min(viewportHeight - viewportPadding * 2, measuredMenuHeight)
+      Math.min(maxViewportMenuHeight, measuredMenuHeight)
     );
 
-    const spaceBelow = viewportBottom - (rect.bottom + menuGap) - viewportPadding;
-    const spaceAbove = rect.top - viewportTop - menuGap - viewportPadding;
+    const spaceBelow = viewportHeight - (rect.bottom + menuGap) - viewportPadding;
+    const spaceAbove = rect.top - menuGap - viewportPadding;
     const shouldOpenUp = spaceBelow < naturalMenuHeight && spaceAbove > spaceBelow;
     const availableSpace = shouldOpenUp ? spaceAbove : spaceBelow;
     const fallbackSpace = Math.max(spaceBelow, spaceAbove, 56);
     const maxHeight = Math.max(
       56,
-      Math.ceil(availableSpace > 0 ? availableSpace : fallbackSpace)
+      Math.min(
+        maxViewportMenuHeight,
+        Math.ceil(availableSpace > 0 ? availableSpace : fallbackSpace)
+      )
     );
-    const motionHeight = Math.max(
+    const resolvedHeight = Math.max(
       1,
       Math.ceil(
         Math.min(measuredMenuHeight > 0 ? measuredMenuHeight : naturalMenuHeight, maxHeight)
@@ -294,21 +299,28 @@ export function Select({
     );
 
     let left = rect.left;
-    if (left + width > viewportRight - viewportPadding) {
-      left = viewportRight - width - viewportPadding;
+    if (left + width > viewportWidth - viewportPadding) {
+      left = viewportWidth - width - viewportPadding;
     }
-    left = Math.max(viewportLeft + viewportPadding, left);
+    left = Math.max(viewportPadding, left);
 
-    const top = shouldOpenUp
-      ? Math.max(viewportTop + viewportPadding, rect.top - menuGap)
-      : Math.min(viewportBottom - viewportPadding, rect.bottom + menuGap);
+    let top = shouldOpenUp
+      ? rect.top - menuGap - resolvedHeight
+      : rect.bottom + menuGap;
+    const minTop = viewportPadding;
+    const maxTop = viewportHeight - viewportPadding - resolvedHeight;
+    if (maxTop >= minTop) {
+      top = Math.min(Math.max(top, minTop), maxTop);
+    } else {
+      top = minTop;
+    }
 
     const nextPosition = {
-      top,
-      left,
-      width,
+      top: Math.round(top),
+      left: Math.round(left),
+      width: Math.round(width),
       maxHeight,
-      motionHeight,
+      motionHeight: resolvedHeight,
       direction: shouldOpenUp ? "up" : "down",
     } as const;
 

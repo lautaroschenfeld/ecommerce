@@ -1,4 +1,4 @@
-import { toStoreMediaProxyUrl } from "@/lib/store-media-url";
+import { normalizeStoreMediaUrlList } from "@/lib/store-media-url";
 import {
   EXPRESS_DISCOUNTED_SHIPPING_AMOUNT,
   EXPRESS_SHIPPING_AMOUNT,
@@ -24,6 +24,7 @@ export type CheckoutDraft = {
 
   dni: string;
   address1: string;
+  addressNumber: string;
   address2: string;
   city: string;
   province: string;
@@ -55,6 +56,7 @@ export const DEFAULT_DRAFT: CheckoutDraft = {
 
   dni: "",
   address1: "",
+  addressNumber: "",
   address2: "",
   city: "",
   province: "CABA",
@@ -193,10 +195,14 @@ export function sanitizeIntentItems(value: unknown): CartItem[] {
     const priceArs =
       typeof rec.priceArs === "number" ? rec.priceArs : Number(rec.priceArs);
     const qtyRaw = typeof rec.qty === "number" ? rec.qty : Number(rec.qty);
-    const imageUrl =
-      toStoreMediaProxyUrl(
-        typeof rec.imageUrl === "string" ? rec.imageUrl : undefined
-      ) || undefined;
+    const imageUrls = normalizeStoreMediaUrlList([
+      ...(Array.isArray(rec.imageUrls)
+        ? rec.imageUrls.filter((entry): entry is string => typeof entry === "string")
+        : []),
+      ...(typeof rec.image_url === "string" ? [rec.image_url] : []),
+      ...(typeof rec.imageUrl === "string" ? [rec.imageUrl] : []),
+    ]);
+    const imageUrl = imageUrls[0] || undefined;
 
     if (!id || !name || !brand) continue;
     if (!Number.isFinite(priceArs) || priceArs <= 0) continue;
@@ -209,6 +215,7 @@ export function sanitizeIntentItems(value: unknown): CartItem[] {
       category,
       priceArs,
       imageUrl,
+      imageUrls: imageUrls.length ? imageUrls : undefined,
       qty: clampQty(qtyRaw),
     });
   }
@@ -259,6 +266,7 @@ export function safeReadDraft(): {
 
         dni: pickString("dni"),
         address1: pickString("address1"),
+        addressNumber: pickString("addressNumber"),
         address2: pickString("address2"),
         city: pickString("city"),
         province: isProvince(province) ? province : undefined,

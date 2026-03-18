@@ -29,6 +29,7 @@ describe("customer auth shared utils", () => {
         name: "Filtro premium",
         brand: "Honda",
         category: "Filtros",
+        imageUrls: ["/static/filtro-1.png", "/static/filtro-1.png"],
         priceArs: 10500.8,
         qty: 120,
       },
@@ -48,8 +49,9 @@ describe("customer auth shared utils", () => {
       brand: "Honda",
       category: "Filtros",
       priceArs: 10500,
+      imageUrls: ["/static/filtro-1.png"],
+      imageUrl: "/static/filtro-1.png",
       qty: 99,
-      imageUrl: undefined,
     })
   })
 
@@ -101,6 +103,7 @@ describe("customer auth shared utils", () => {
   test("normalizes address payload and requires key fields", () => {
     const address = normalizeAddressInput({
       line1: "  Av. Siempre Viva 123 ",
+      address_number: " 742B ",
       city: " Buenos Aires ",
       province: " CABA ",
       postalCode: "C1000",
@@ -111,6 +114,7 @@ describe("customer auth shared utils", () => {
       recipient: null,
       phone: null,
       line1: "Av. Siempre Viva 123",
+      street_number: "742B",
       line2: null,
       city: "Buenos Aires",
       province: "CABA",
@@ -121,6 +125,7 @@ describe("customer auth shared utils", () => {
     expect(() =>
       normalizeAddressInput({
         line1: "",
+        street_number: "",
         city: "X",
         province: "Y",
       })

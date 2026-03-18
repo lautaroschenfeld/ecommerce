@@ -29,6 +29,13 @@ const APP_MIGRATIONS: readonly AppMigration[] = [
       await ensureAppSchema()
     },
   },
+  {
+    id: "20260318_004_customer_address_street_number",
+    description: "Add street_number support to customer addresses.",
+    up: async () => {
+      await ensureAppSchema()
+    },
+  },
 ]
 
 let runAppMigrationsPromise: Promise<void> | null = null

@@ -271,6 +271,7 @@ describe("Auth + checkout e2e (real DB)", () => {
       {
         label: "Casa",
         line1: "Av. Corrientes 1234",
+        street_number: "1234",
         city: "Buenos Aires",
         province: "CABA",
         postal_code: "C1043",
@@ -307,6 +308,7 @@ describe("Auth + checkout e2e (real DB)", () => {
         last_name: "Prueba",
         document_number: "12345678",
         address_line1: "Av. Corrientes 1234",
+        address_number: "1234",
         city: "Buenos Aires",
         province: "CABA",
         postal_code: "C1043",
@@ -334,6 +336,17 @@ describe("Auth + checkout e2e (real DB)", () => {
     expect(createdOrderId).toBeTruthy()
     expect(checkoutJson.order?.account_id).toBeTruthy()
     expect(checkoutJson.order?.currency_code).toBe("ars")
+    expect(checkoutJson.order?.metadata?.shipping_address?.street_number).toBe("1234")
+
+    const addressesRes = await getJson("/store/catalog/account/addresses", { auth: true })
+    expect(addressesRes.status).toBe(200)
+    const addressesJson = await addressesRes.json()
+    expect(Array.isArray(addressesJson.addresses)).toBe(true)
+    expect(
+      addressesJson.addresses.some(
+        (address: { street_number?: string }) => String(address.street_number || "").trim() === "1234"
+      )
+    ).toBe(true)
 
     const ordersRes = await getJson("/store/catalog/account/orders", { auth: true })
     expect(ordersRes.status).toBe(200)
@@ -441,6 +454,7 @@ describe("Auth + checkout e2e (real DB)", () => {
       last_name: "Checkout",
       document_number: "23456789",
       address_line1: "Calle Falsa 123",
+      address_number: "123",
       city: "Buenos Aires",
       province: "CABA",
       postal_code: "C1043",
@@ -465,6 +479,40 @@ describe("Auth + checkout e2e (real DB)", () => {
     expect(json.order?.account_id).toBeNull()
     expect(json.order?.email).toBe(guestEmail)
     expect(json.order?.metadata?.coupon?.code).toBe("MOTO15")
+  })
+
+  test("rejects checkout when address number is missing", async () => {
+    const item = catalogItem
+    if (!item) throw new Error("Missing catalog item for test.")
+
+    const guestEmail = `guest.missing-number.${Math.random().toString(36).slice(2, 8)}@store.test`
+    const res = await postJson("/store/catalog/checkout/orders", {
+      email: guestEmail,
+      first_name: "Invitado",
+      last_name: "Checkout",
+      document_number: "23456789",
+      address_line1: "Calle Falsa",
+      city: "Buenos Aires",
+      province: "CABA",
+      postal_code: "C1043",
+      items: [
+        {
+          id: item.id,
+          name: item.name,
+          brand: item.brand,
+          category: item.category,
+          priceArs: item.priceArs,
+          qty: 1,
+        },
+      ],
+      shipping_ars: 0,
+      payment_method: "efectivo",
+      shipping_method: "retiro",
+    })
+
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(String(json.message || "").toLowerCase()).toContain("address number")
   })
 
   test("replays checkout response with idempotency key and avoids duplicate orders", async () => {
@@ -498,6 +546,7 @@ describe("Auth + checkout e2e (real DB)", () => {
       last_name: "Retry",
       document_number: "33444555",
       address_line1: "Calle Idempotencia 42",
+      address_number: "42",
       city: "Buenos Aires",
       province: "CABA",
       postal_code: "C1043",

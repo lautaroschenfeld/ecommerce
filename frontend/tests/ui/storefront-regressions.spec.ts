@@ -11,6 +11,8 @@ type CheckoutSeedItem = {
   brand: string;
   category: string;
   priceArs: number;
+  imageUrl?: string;
+  imageUrls?: string[];
   qty: number;
 };
 
@@ -190,6 +192,7 @@ async function mockAuthenticatedCheckout(page: Page) {
             recipient: "Carla Gomez",
             phone: "1144556677",
             line1: "Av. Cabildo 123",
+            street_number: "123",
             line2: "Piso 4",
             city: "Belgrano",
             province: "CABA",
@@ -479,7 +482,8 @@ async function completeTransferCheckout(page: Page) {
 
   await page.locator("#checkout_dni").fill("30123456");
   await page.locator("#checkout_postal").fill("1428");
-  await page.locator("#checkout_address1").fill("Av. Siempre Viva 742");
+  await page.locator("#checkout_address1").fill("Av. Siempre Viva");
+  await page.locator("#checkout_address_number").fill("742");
   await page.locator("#checkout_city").fill("Palermo");
   await page.getByRole("button", { name: /^Continuar/i }).click();
 
@@ -585,6 +589,7 @@ test("authenticated checkout replaces stale guest draft data", async ({ page }) 
 
   await expect(page.locator("#checkout_dni")).toHaveValue("28444555");
   await expect(page.locator("#checkout_address1")).toHaveValue("Av. Cabildo 123");
+  await expect(page.locator("#checkout_address_number")).toHaveValue("123");
   await expect(page.locator("#checkout_address2")).toHaveValue("Piso 4");
   await expect(page.locator("#checkout_city")).toHaveValue("Belgrano");
   await expect(page.locator("#checkout_postal")).toHaveValue("1428");
@@ -601,6 +606,8 @@ test("authenticated checkout replaces stale guest draft data", async ({ page }) 
           email: typeof data.email === "string" ? data.email : null,
           dni: typeof data.dni === "string" ? data.dni : null,
           address1: typeof data.address1 === "string" ? data.address1 : null,
+          addressNumber:
+            typeof data.addressNumber === "string" ? data.addressNumber : null,
           billingSameAsShipping:
             typeof data.billingSameAsShipping === "boolean"
               ? data.billingSameAsShipping
@@ -621,10 +628,103 @@ test("authenticated checkout replaces stale guest draft data", async ({ page }) 
     email: "carla.gomez@example.com",
     dni: "28444555",
     address1: "Av. Cabildo 123",
+    addressNumber: "123",
     billingSameAsShipping: true,
     invoiceType: "consumidor_final",
     acceptTerms: false,
   });
+});
+
+test("checkout delivery step blocks progress without address number", async ({ page }) => {
+  await mockCheckoutSuccess(page);
+  await seedCart(page, CHECKOUT_ITEM);
+
+  await page.goto("/checkout");
+
+  await page.locator("#checkout_firstName").fill("Juan");
+  await page.locator("#checkout_lastName").fill("Perez");
+  await page.locator("#checkout_email").fill("juan.perez@example.com");
+  await page.locator("#checkout_phone").fill("1112345678");
+  await page.getByRole("button", { name: /^Continuar/i }).click();
+
+  await page.locator("#checkout_dni").fill("30123456");
+  await page.locator("#checkout_postal").fill("1428");
+  await page.locator("#checkout_address1").fill("Av. Siempre Viva");
+  await page.locator("#checkout_city").fill("Palermo");
+
+  await page.getByRole("button", { name: /^Continuar/i }).click();
+
+  await expect(page.locator("#checkout_address_number")).toBeVisible();
+  await expect(page.getByText("Ingresá el número.")).toBeVisible();
+  await expect(page.locator("#checkout_city")).toBeVisible();
+});
+
+test("checkout province select stays contained and scrollable", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  await mockCheckoutSuccess(page);
+  await seedCart(page, CHECKOUT_ITEM);
+
+  await page.goto("/checkout");
+
+  await page.locator("#checkout_firstName").fill("Juan");
+  await page.locator("#checkout_lastName").fill("Perez");
+  await page.locator("#checkout_email").fill("juan.perez@example.com");
+  await page.locator("#checkout_phone").fill("1112345678");
+  await page.getByRole("button", { name: /^Continuar/i }).click();
+
+  await page.locator("#checkout_province").click();
+  const menu = page.getByRole("listbox");
+  await expect(menu).toHaveCount(1);
+  await expect(menu).toBeVisible();
+
+  const menuMetrics = await menu.evaluate((element) => {
+    const panel = element as HTMLElement;
+    const panelRect = panel.getBoundingClientRect();
+    const panelStyle = window.getComputedStyle(panel);
+    const viewport = panel.querySelector<HTMLElement>(".uiDropdownMotionViewport");
+
+    return {
+      fitsViewport:
+        panelRect.left >= 0 &&
+        panelRect.top >= 0 &&
+        panelRect.right <= window.innerWidth &&
+        panelRect.bottom <= window.innerHeight,
+      panelClipsOverflow:
+        panelStyle.overflowY !== "visible" && panelStyle.overflowX !== "visible",
+      contentOverflowsPanel: Boolean(
+        viewport && viewport.scrollHeight > viewport.clientHeight
+      ),
+      viewportHeightBounded: Boolean(
+        viewport && viewport.clientHeight <= window.innerHeight - 16
+      ),
+    };
+  });
+
+  expect(menuMetrics.fitsViewport).toBe(true);
+  expect(menuMetrics.panelClipsOverflow).toBe(true);
+  expect(menuMetrics.contentOverflowsPanel).toBe(true);
+  expect(menuMetrics.viewportHeightBounded).toBe(true);
+});
+
+test("checkout item image falls back to the next valid candidate url", async ({ page }) => {
+  await mockCheckoutSuccess(page);
+  await seedCart(page, {
+    ...CHECKOUT_ITEM,
+    imageUrl: "/static/does-not-exist.png",
+    imageUrls: [
+      "/static/does-not-exist.png",
+      "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+    ],
+  });
+
+  await page.goto("/checkout");
+
+  const itemImage = page.locator("img[alt='Auriculares Pro']").first();
+  await expect(itemImage).toBeVisible();
+
+  await expect.poll(async () => {
+    return (await itemImage.getAttribute("src")) || "";
+  }).toContain("data:image/gif;base64");
 });
 
 test("catalog keeps the latest search results when older responses arrive late", async ({

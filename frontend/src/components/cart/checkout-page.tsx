@@ -437,6 +437,9 @@ export function CheckoutPage() {
         address1: keepExistingAddressDraft
           ? prev.address1 || defaultAddress?.line1 || ""
           : defaultAddress?.line1 || "",
+        addressNumber: keepExistingAddressDraft
+          ? prev.addressNumber || defaultAddress?.streetNumber || ""
+          : defaultAddress?.streetNumber || "",
         address2: keepExistingAddressDraft
           ? prev.address2 || defaultAddress?.line2 || ""
           : defaultAddress?.line2 || "",
@@ -495,6 +498,7 @@ export function CheckoutPage() {
         phone: DEFAULT_DRAFT.phone,
         dni: DEFAULT_DRAFT.dni,
         address1: DEFAULT_DRAFT.address1,
+        addressNumber: DEFAULT_DRAFT.addressNumber,
         address2: DEFAULT_DRAFT.address2,
         city: DEFAULT_DRAFT.city,
         province: DEFAULT_DRAFT.province,
@@ -557,7 +561,8 @@ export function CheckoutPage() {
       }
     }
 
-    if (!draft.address1.trim()) out.address1 = "Ingresá calle y número.";
+    if (!draft.address1.trim()) out.address1 = "Ingresá la calle.";
+    if (!draft.addressNumber.trim()) out.addressNumber = "Ingresá el número.";
     if (!draft.city.trim()) out.city = "Ingresá la localidad.";
     if (!draft.province.trim()) out.province = "Elegí la provincia.";
     if (!draft.postalCode.trim()) out.postalCode = "Ingresá el código postal.";
@@ -605,6 +610,7 @@ export function CheckoutPage() {
 
     const entregaOk =
       !errors.address1 &&
+      !errors.addressNumber &&
       !errors.city &&
       !errors.province &&
       !errors.postalCode &&
@@ -639,7 +645,7 @@ export function CheckoutPage() {
   const markStepTouched = (idx: number) => {
     const keysByStep: Record<number, string[]> = {
       0: ["firstName", "lastName", "email", "phone"],
-      1: ["dni", "address1", "city", "province", "postalCode"],
+      1: ["dni", "address1", "addressNumber", "city", "province", "postalCode"],
       2: [],
       3: [
         "billingAddress1",
@@ -781,6 +787,7 @@ export function CheckoutPage() {
         recipient: `${draft.firstName} ${draft.lastName}`.trim(),
         phone: draft.phone,
         line1: draft.address1,
+        streetNumber: draft.addressNumber,
         line2: draft.address2,
         city: draft.city,
         province: draft.province,
@@ -893,6 +900,7 @@ export function CheckoutPage() {
             cuit: draft.cuit,
             phone: draft.phone,
             address1: draft.address1,
+            address_number: draft.addressNumber,
             address2: draft.address2,
             city: draft.city,
             province: draft.province,
@@ -1957,24 +1965,46 @@ export function CheckoutPage() {
                         ) : null}
                       </div>
 
-                      <div className={`${styles.field} ${styles.fieldFullSpan}`}>
-                        <div className={styles.fieldLabelRow}>
-                          <Label htmlFor="checkout_address1">Dirección</Label>
-                          <span className={styles.help}>Obligatorio</span>
+                      <div className={styles.addressInlineRow}>
+                        <div className={styles.field}>
+                          <div className={styles.fieldLabelRow}>
+                            <Label htmlFor="checkout_address1">Dirección</Label>
+                            <span className={styles.help}>Obligatorio</span>
+                          </div>
+                          <Input
+                            id="checkout_address1"
+                            value={draft.address1}
+                            onChange={(e) =>
+                              setDraft((d) => ({ ...d, address1: e.target.value }))
+                            }
+                            onBlur={() => touch("address1")}
+                            placeholder="Av. Siempre Viva"
+                            autoComplete="street-address"
+                          />
+                          {isTouched("address1") && errors.address1 ? (
+                            <div className={styles.error}>{errors.address1}</div>
+                          ) : null}
                         </div>
-                        <Input
-                          id="checkout_address1"
-                          value={draft.address1}
-                          onChange={(e) =>
-                            setDraft((d) => ({ ...d, address1: e.target.value }))
-                          }
-                          onBlur={() => touch("address1")}
-                          placeholder="Av. Siempre Viva 742"
-                          autoComplete="street-address"
-                        />
-                        {isTouched("address1") && errors.address1 ? (
-                          <div className={styles.error}>{errors.address1}</div>
-                        ) : null}
+
+                        <div className={styles.field}>
+                          <div className={styles.fieldLabelRow}>
+                            <Label htmlFor="checkout_address_number">Número</Label>
+                            <span className={styles.help}>Obligatorio</span>
+                          </div>
+                          <Input
+                            id="checkout_address_number"
+                            value={draft.addressNumber}
+                            onChange={(e) =>
+                              setDraft((d) => ({ ...d, addressNumber: e.target.value }))
+                            }
+                            onBlur={() => touch("addressNumber")}
+                            placeholder="742"
+                            autoComplete="address-line2"
+                          />
+                          {isTouched("addressNumber") && errors.addressNumber ? (
+                            <div className={styles.error}>{errors.addressNumber}</div>
+                          ) : null}
+                        </div>
                       </div>
 
                       <div className={`${styles.field} ${styles.fieldFullSpan}`}>

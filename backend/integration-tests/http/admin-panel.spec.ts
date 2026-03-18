@@ -400,6 +400,7 @@ describe("Admin panel endpoints (real DB)", () => {
         last_name: "AdminSpec",
         document_number: "22334455",
         address_line1: "Av. Siempre Viva 742",
+        address_number: "742",
         city: "Buenos Aires",
         province: "CABA",
         postal_code: "C1043",

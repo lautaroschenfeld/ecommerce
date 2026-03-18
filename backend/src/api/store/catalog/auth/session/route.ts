@@ -14,6 +14,7 @@ export async function GET(req: HttpRequest, res: HttpResponse) {
     return res.status(401).json({
       account: null,
       cart: { items: [], merge_rule: CART_MERGE_RULE },
+      addresses: [],
       authenticated: false,
     })
   }
@@ -23,6 +24,10 @@ export async function GET(req: HttpRequest, res: HttpResponse) {
     { account_id: ctx.account.id },
     { take: 1 }
   )
+  const addresses = await service.listCustomerAddresses(
+    { account_id: ctx.account.id },
+    { take: 500 }
+  )
 
   return res.status(200).json({
     authenticated: true,
@@ -31,5 +36,6 @@ export async function GET(req: HttpRequest, res: HttpResponse) {
       items: sanitizeCartItems(cart[0]?.items ?? []),
       merge_rule: CART_MERGE_RULE,
     },
+    addresses,
   })
 }

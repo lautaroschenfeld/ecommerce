@@ -26,6 +26,7 @@ type AddressDraft = {
   recipient: string;
   phone: string;
   line1: string;
+  streetNumber: string;
   line2: string;
   city: string;
   province: string;
@@ -38,6 +39,7 @@ const EMPTY_ADDRESS: AddressDraft = {
   recipient: "",
   phone: "",
   line1: "",
+  streetNumber: "",
   line2: "",
   city: "",
   province: "",
@@ -111,8 +113,13 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
   async function addAddress() {
     setAddressMessage(null);
 
-    if (!addressDraft.line1.trim() || !addressDraft.city.trim() || !addressDraft.province.trim()) {
-      setAddressMessage("Dirección, ciudad y provincia son obligatorias.");
+    if (
+      !addressDraft.line1.trim() ||
+      !addressDraft.streetNumber.trim() ||
+      !addressDraft.city.trim() ||
+      !addressDraft.province.trim()
+    ) {
+      setAddressMessage("Dirección, número, ciudad y provincia son obligatorias.");
       return;
     }
 
@@ -242,6 +249,7 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
                   </div>
                   <p>
                     {address.line1}
+                    {address.streetNumber ? ` ${address.streetNumber}` : ""}
                     {address.line2 ? `, ${address.line2}` : ""}
                   </p>
                   <p>
@@ -303,15 +311,30 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
               </div>
             </div>
 
-            <div className={styles.field}>
-              <Label htmlFor="address_line1">Dirección</Label>
-              <Input
-                id="address_line1"
-                value={addressDraft.line1}
-                onChange={(event) =>
-                  setAddressDraft((prev) => ({ ...prev, line1: event.target.value }))
-                }
-              />
+            <div className={styles.grid2}>
+              <div className={styles.field}>
+                <Label htmlFor="address_line1">Dirección</Label>
+                <Input
+                  id="address_line1"
+                  value={addressDraft.line1}
+                  onChange={(event) =>
+                    setAddressDraft((prev) => ({ ...prev, line1: event.target.value }))
+                  }
+                />
+              </div>
+              <div className={styles.field}>
+                <Label htmlFor="address_street_number">Número</Label>
+                <Input
+                  id="address_street_number"
+                  value={addressDraft.streetNumber}
+                  onChange={(event) =>
+                    setAddressDraft((prev) => ({
+                      ...prev,
+                      streetNumber: event.target.value,
+                    }))
+                  }
+                />
+              </div>
             </div>
 
             <div className={styles.field}>

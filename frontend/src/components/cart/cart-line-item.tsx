@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import type { CartItem } from "@/lib/store-cart";
 
@@ -26,14 +26,44 @@ export function CartLineItem({
   onRemove: () => void;
 }) {
   const reduceMotion = useReducedMotion();
-  const imageUrl = typeof item.imageUrl === "string" ? item.imageUrl.trim() : "";
-  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageCandidates = useMemo(() => {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    const push = (value: unknown) => {
+      if (typeof value !== "string") return;
+      const normalized = value.trim();
+      if (!normalized || seen.has(normalized)) return;
+      seen.add(normalized);
+      out.push(normalized);
+    };
+
+    if (Array.isArray(item.imageUrls)) {
+      for (const value of item.imageUrls) {
+        push(value);
+      }
+    }
+    push(item.imageUrl);
+    return out;
+  }, [item.imageUrl, item.imageUrls]);
+  const imageCandidatesKey = imageCandidates.join("|");
+  const [failedState, setFailedState] = useState<{ key: string; urls: string[] }>({
+    key: imageCandidatesKey,
+    urls: [],
+  });
+  const failedImageSet = useMemo(() => {
+    const urls =
+      failedState.key === imageCandidatesKey ? failedState.urls : [];
+    return new Set(urls);
+  }, [failedState, imageCandidatesKey]);
+  const imageUrl = useMemo(() => {
+    return imageCandidates.find((candidate) => !failedImageSet.has(candidate)) || "";
+  }, [failedImageSet, imageCandidates]);
   const total = item.qty * item.priceArs;
   const maxQty =
     typeof item.stockAvailable === "number" && Number.isFinite(item.stockAvailable)
       ? Math.min(99, Math.max(1, Math.trunc(item.stockAvailable)))
       : 99;
-  const canRenderImage = Boolean(imageUrl) && failedImageUrl !== imageUrl;
+  const canRenderImage = Boolean(imageUrl);
 
   return (
     <motion.div
@@ -61,7 +91,21 @@ export function CartLineItem({
               loading="lazy"
               decoding="async"
               draggable={false}
-              onError={() => setFailedImageUrl(imageUrl || null)}
+              onError={() => {
+                if (!imageUrl) return;
+                setFailedState((current) => {
+                  const base = current.key === imageCandidatesKey ? current.urls : [];
+                  if (base.includes(imageUrl)) {
+                    return current.key === imageCandidatesKey
+                      ? current
+                      : { key: imageCandidatesKey, urls: base };
+                  }
+                  return {
+                    key: imageCandidatesKey,
+                    urls: [...base, imageUrl],
+                  };
+                });
+              }}
             />
           ) : (
             <div className={styles.thumbFallback} aria-hidden />

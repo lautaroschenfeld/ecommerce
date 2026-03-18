@@ -116,6 +116,10 @@ export function buildOpenApiDocument(req: HttpRequest) {
             category: { type: "string" },
             priceArs: { type: "number" },
             imageUrl: { type: "string" },
+            imageUrls: {
+              type: "array",
+              items: { type: "string" },
+            },
             qty: { type: "integer", minimum: 1 },
           },
         },
@@ -407,6 +411,7 @@ export function buildOpenApiDocument(req: HttpRequest) {
                     "last_name",
                     "document_number",
                     "address1",
+                    "address_number",
                     "city",
                     "province",
                     "postal_code",
@@ -421,6 +426,7 @@ export function buildOpenApiDocument(req: HttpRequest) {
                     cuit: { type: "string" },
                     phone: { type: "string" },
                     address1: { type: "string" },
+                    address_number: { type: "string" },
                     address2: { type: "string" },
                     city: { type: "string" },
                     province: { type: "string" },
@@ -860,12 +866,14 @@ export function buildOpenApiDocument(req: HttpRequest) {
               "application/json": {
                 schema: {
                   type: "object",
-                  required: ["line1", "city", "province"],
+                  required: ["line1", "street_number", "city", "province"],
                   properties: {
                     label: { type: "string" },
                     recipient: { type: "string" },
                     phone: { type: "string" },
                     line1: { type: "string" },
+                    street_number: { type: "string" },
+                    address_number: { type: "string" },
                     line2: { type: "string" },
                     city: { type: "string" },
                     province: { type: "string" },

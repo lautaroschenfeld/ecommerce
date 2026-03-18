@@ -11,6 +11,7 @@ import {
 import { ApiHttpError, fetchJson } from "@/lib/store-client";
 import { normalizeCustomerRole, type CustomerRole } from "@/lib/account-roles";
 import { CUSTOMER_AUTH_LOST_EVENT } from "@/lib/customer-auth-events";
+import { toStoreMediaProxyUrl } from "@/lib/store-media-url";
 import {
   markStoreBackendHealthy,
   markStoreBackendUnavailable,
@@ -35,6 +36,7 @@ export type CustomerAddress = {
   recipient: string;
   phone: string;
   line1: string;
+  streetNumber: string;
   line2: string;
   city: string;
   province: string;
@@ -192,6 +194,31 @@ function normalizeEmail(input: unknown) {
   return normalizeText(input, 180).toLowerCase();
 }
 
+function normalizeImageCandidates(...sources: unknown[]) {
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  const push = (value: unknown) => {
+    if (typeof value !== "string") return;
+    const normalized = toStoreMediaProxyUrl(value) || "";
+    if (!normalized || seen.has(normalized)) return;
+    seen.add(normalized);
+    out.push(normalized);
+  };
+
+  for (const source of sources) {
+    if (Array.isArray(source)) {
+      for (const entry of source) {
+        push(entry);
+      }
+      continue;
+    }
+    push(source);
+  }
+
+  return out.length ? out : undefined;
+}
+
 function normalizeNotifications(raw: unknown): CustomerNotifications {
   const rec =
     raw && typeof raw === "object" ? (raw as Record<string, unknown>) : null;
@@ -254,7 +281,13 @@ function mapCartItems(raw: unknown): CartItem[] {
     const name = normalizeText(rec.name, 180);
     const brand = normalizeText(rec.brand, 120);
     const category = normalizeText(rec.category, 120) as CartItem["category"];
-    const imageUrl = normalizeText(rec.imageUrl, 500) || undefined;
+    const imageUrls = normalizeImageCandidates(
+      rec.imageUrls,
+      rec.image_urls,
+      rec.image_url,
+      rec.imageUrl
+    );
+    const imageUrl = imageUrls?.[0];
     const priceArs =
       typeof rec.priceArs === "number" ? rec.priceArs : Number(rec.priceArs);
     const qty = typeof rec.qty === "number" ? rec.qty : Number(rec.qty);
@@ -269,6 +302,7 @@ function mapCartItems(raw: unknown): CartItem[] {
       brand,
       category,
       imageUrl,
+      imageUrls,
       priceArs: Math.trunc(priceArs),
       qty: Math.max(1, Math.min(99, Math.trunc(qty))),
     });
@@ -284,6 +318,10 @@ function mapAddress(raw: unknown): CustomerAddress | null {
 
   const id = normalizeText(rec.id, 120);
   const line1 = normalizeText(rec.line1, 200);
+  const streetNumber = normalizeText(
+    rec.street_number ?? rec.streetNumber ?? rec.address_number ?? rec.addressNumber,
+    40
+  );
   const city = normalizeText(rec.city, 120);
   const province = normalizeText(rec.province, 120);
   if (!id || !line1 || !city || !province) return null;
@@ -294,6 +332,7 @@ function mapAddress(raw: unknown): CustomerAddress | null {
     recipient: normalizeText(rec.recipient, 120),
     phone: normalizeText(rec.phone, 40),
     line1,
+    streetNumber,
     line2: normalizeText(rec.line2, 120),
     city,
     province,
@@ -832,6 +871,7 @@ export function useCustomerSession() {
         recipient: input.recipient,
         phone: input.phone,
         line1: input.line1,
+        street_number: input.streetNumber,
         line2: input.line2,
         city: input.city,
         province: input.province,
@@ -861,6 +901,7 @@ export function useCustomerSession() {
             recipient: patch.recipient,
             phone: patch.phone,
             line1: patch.line1,
+            street_number: patch.streetNumber,
             line2: patch.line2,
             city: patch.city,
             province: patch.province,

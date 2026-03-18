@@ -994,9 +994,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                 brand: currentProduct.brand,
                 category: currentProduct.category,
                 priceArs: currentProduct.priceArs,
-                imageUrl:
-                  toStoreMediaProxyUrl(galleryImages[0] || currentProduct.imageUrl) ||
-                  undefined,
+                imageUrl: galleryImages[0] || undefined,
+                imageUrls: galleryImages.length ? galleryImages : undefined,
                 qty: clampedQty,
               },
             ],

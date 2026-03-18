@@ -178,6 +178,7 @@ function buildCheckoutRequestHash(input: {
     paymentMethod: input.paymentMethod || null,
     shippingAddress: {
       line1: input.shippingAddress.line1,
+      streetNumber: input.shippingAddress.streetNumber,
       line2: input.shippingAddress.line2 || null,
       city: input.shippingAddress.city,
       province: input.shippingAddress.province,
@@ -241,6 +242,7 @@ function maybeCleanupCheckoutIdempotencyRows() {
 
 type CheckoutAddressInput = {
   line1: string
+  streetNumber: string
   line2: string | null
   city: string
   province: string
@@ -288,6 +290,11 @@ function resolveRequiredCheckoutAddress(body: Record<string, unknown>): Checkout
     200,
     "Address line is required."
   )
+  const streetNumber = validateRequiredText(
+    body.address_number ?? body.street_number ?? body.addressNumber ?? body.streetNumber,
+    40,
+    "Address number is required."
+  )
   const city = validateRequiredText(body.city, 120, "City is required.")
   const province = validateRequiredText(
     body.province,
@@ -302,6 +309,7 @@ function resolveRequiredCheckoutAddress(body: Record<string, unknown>): Checkout
 
   return {
     line1,
+    streetNumber,
     line2: normalizeText(body.address_line2 ?? body.address2, 120) || null,
     city,
     province,
@@ -330,11 +338,16 @@ async function upsertCheckoutAddressForAccount(input: {
   const normalizedPostal = normalizeText(shipping.postalCode, 30)
   const matchingAddress = addresses.find((address: Record<string, unknown>) => {
     const sameLine1 = normalizeText(address.line1, 200) === shipping.line1
+    const sameStreetNumber =
+      normalizeText(
+        address.street_number ?? address.streetNumber ?? address.address_number ?? address.addressNumber,
+        40
+      ) === shipping.streetNumber
     const sameCity = normalizeText(address.city, 120) === shipping.city
     const sameProvince = normalizeText(address.province, 120) === shipping.province
     const samePostal =
       normalizeText(address.postal_code ?? address.postalCode, 30) === normalizedPostal
-    return sameLine1 && sameCity && sameProvince && samePostal
+    return sameLine1 && sameStreetNumber && sameCity && sameProvince && samePostal
   })
 
   const defaultAddress =
@@ -351,6 +364,7 @@ async function upsertCheckoutAddressForAccount(input: {
         recipient: recipient || null,
         phone: input.phone || null,
         line1: shipping.line1,
+        street_number: shipping.streetNumber,
         line2: shipping.line2,
         city: shipping.city,
         province: shipping.province,
@@ -369,6 +383,7 @@ async function upsertCheckoutAddressForAccount(input: {
     recipient: recipient || null,
     phone: input.phone || null,
     line1: shipping.line1,
+    street_number: shipping.streetNumber,
     line2: shipping.line2,
     city: shipping.city,
     province: shipping.province,
@@ -932,6 +947,7 @@ export async function POST(req: HttpRequest, res: HttpResponse) {
         },
         shipping_address: {
           line1: shippingAddress.line1,
+          street_number: shippingAddress.streetNumber,
           line2: shippingAddress.line2,
           city: shippingAddress.city,
           province: shippingAddress.province,

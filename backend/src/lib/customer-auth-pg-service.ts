@@ -380,6 +380,7 @@ export class CustomerAuthPgService {
       input.recipient ?? null,
       input.phone ?? null,
       input.line1 ?? null,
+      input.street_number ?? null,
       input.line2 ?? null,
       input.city ?? null,
       input.province ?? null,
@@ -389,9 +390,9 @@ export class CustomerAuthPgService {
 
     const rows = await pgQuery(
       `insert into "mp_customer_address"
-        ("id","account_id","label","recipient","phone","line1","line2","city","province","postal_code","is_default","created_at","updated_at","deleted_at")
+        ("id","account_id","label","recipient","phone","line1","street_number","line2","city","province","postal_code","is_default","created_at","updated_at","deleted_at")
        values
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now(),now(),null)
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,now(),now(),null)
        returning *;`,
       params
     )
@@ -411,6 +412,7 @@ export class CustomerAuthPgService {
         "recipient",
         "phone",
         "line1",
+        "street_number",
         "line2",
         "city",
         "province",

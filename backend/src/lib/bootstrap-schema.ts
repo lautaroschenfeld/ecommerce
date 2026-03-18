@@ -252,6 +252,7 @@ const TABLE_STATEMENTS = [
     "recipient" text,
     "phone" text,
     "line1" text,
+    "street_number" text,
     "line2" text,
     "city" text,
     "province" text,
@@ -672,6 +673,8 @@ const OPTIONAL_INDEX_STATEMENTS = [
 const MIGRATION_STATEMENTS = [
   `alter table if exists "mp_customer_account"
    add column if not exists "admin_notes" text;`,
+  `alter table if exists "mp_customer_address"
+   add column if not exists "street_number" text;`,
   `alter table if exists "product_variant"
    add column if not exists "cost_ars" integer not null default 0;`,
   `update "product_variant"

@@ -88,6 +88,24 @@ function readString(obj: Record<string, unknown> | null, key: string) {
   return typeof raw === "string" ? raw : "";
 }
 
+function composeStreetLine(line1Raw: string, streetNumberRaw: string) {
+  const line1 = line1Raw.trim();
+  const streetNumber = streetNumberRaw.trim();
+  if (!line1) return streetNumber;
+  if (!streetNumber) return line1;
+
+  const normalizedLine1 = line1.toLowerCase();
+  const normalizedStreetNumber = streetNumber.toLowerCase();
+  if (
+    normalizedLine1 === normalizedStreetNumber ||
+    normalizedLine1.endsWith(` ${normalizedStreetNumber}`)
+  ) {
+    return line1;
+  }
+
+  return `${line1} ${streetNumber}`.trim();
+}
+
 function formatOrderDate(timestamp: string) {
   return new Intl.DateTimeFormat("es-AR", {
     day: "2-digit",
@@ -263,7 +281,13 @@ function readShippingAddress(order: AdminOrder) {
   const meta = asRecord(order.metadata);
   const address = asRecord(meta?.shipping_address) ?? asRecord(meta?.shippingAddress);
 
-  const line1 = readString(address, "line1") || readString(address, "address1");
+  const line1Base = readString(address, "line1") || readString(address, "address1");
+  const streetNumber =
+    readString(address, "street_number") ||
+    readString(address, "streetNumber") ||
+    readString(address, "address_number") ||
+    readString(address, "addressNumber");
+  const line1 = composeStreetLine(line1Base, streetNumber);
   const line2 = readString(address, "line2") || readString(address, "address2");
   const city = readString(address, "city");
   const province = readString(address, "province") || readString(address, "state");

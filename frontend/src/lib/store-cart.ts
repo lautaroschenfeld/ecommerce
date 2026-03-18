@@ -16,6 +16,7 @@ export type CartItem = {
   category: Category;
   priceArs: number;
   imageUrl?: string;
+  imageUrls?: string[];
   stockAvailable?: number;
   qty: number;
 };
@@ -35,7 +36,32 @@ function clampInt(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, Math.trunc(value)));
 }
 
-function sanitizeItems(value: unknown): CartItem[] {
+function normalizeImageCandidates(...sources: unknown[]) {
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  const push = (value: unknown) => {
+    if (typeof value !== "string") return;
+    const normalized = toStoreMediaProxyUrl(value) || "";
+    if (!normalized || seen.has(normalized)) return;
+    seen.add(normalized);
+    out.push(normalized);
+  };
+
+  for (const source of sources) {
+    if (Array.isArray(source)) {
+      for (const entry of source) {
+        push(entry);
+      }
+      continue;
+    }
+    push(source);
+  }
+
+  return out.length ? out : undefined;
+}
+
+export function sanitizeCartItemsSnapshot(value: unknown): CartItem[] {
   if (!Array.isArray(value)) return [];
 
   const out: CartItem[] = [];
@@ -51,10 +77,12 @@ function sanitizeItems(value: unknown): CartItem[] {
     const priceArs =
       typeof rec.priceArs === "number" ? rec.priceArs : Number(rec.priceArs);
     const qty = typeof rec.qty === "number" ? rec.qty : Number(rec.qty);
-    const imageUrl =
-      toStoreMediaProxyUrl(
-        typeof rec.imageUrl === "string" ? rec.imageUrl : undefined
-      ) || undefined;
+    const imageUrls = normalizeImageCandidates(
+      rec.imageUrls,
+      rec.image_url,
+      rec.imageUrl
+    );
+    const imageUrl = imageUrls?.[0];
     const stockAvailableRaw =
       typeof rec.stockAvailable === "number"
         ? rec.stockAvailable
@@ -75,6 +103,7 @@ function sanitizeItems(value: unknown): CartItem[] {
       category,
       priceArs,
       imageUrl,
+      imageUrls,
       stockAvailable,
       qty:
         stockAvailable !== undefined
@@ -103,7 +132,7 @@ function readSnapshot(): CartSnapshot {
     const rec =
       data && typeof data === "object" ? (data as Record<string, unknown>) : null;
 
-    const items = sanitizeItems(rec?.items);
+    const items = sanitizeCartItemsSnapshot(rec?.items);
     const updatedAtRaw = rec?.updatedAt;
     const updatedAt =
       typeof updatedAtRaw === "number" && Number.isFinite(updatedAtRaw)
@@ -138,7 +167,7 @@ export function readCartItemsSnapshot() {
 }
 
 export function replaceCartItems(items: CartItem[]) {
-  const safe = sanitizeItems(items);
+  const safe = sanitizeCartItemsSnapshot(items);
   writeSnapshot({
     items: safe,
     updatedAt: Date.now(),
@@ -191,6 +220,7 @@ export function useCart() {
   const addItem = useCallback((product: Product, qty = 1) => {
     const snap = readSnapshot();
     const nextQty = clampInt(qty, 1, 99);
+    const latestImageUrls = normalizeImageCandidates(product.images, product.imageUrl);
     const stockAvailableRaw = product.stockAvailable;
     const stockAvailable =
       typeof stockAvailableRaw === "number" && Number.isFinite(stockAvailableRaw)
@@ -219,6 +249,11 @@ export function useCart() {
       const desired = clampInt(existing.qty + nextQty, 1, 99);
       const clamped = clampInt(desired, 1, Math.min(99, Math.max(1, effectiveMax)));
       if (clamped === existing.qty) return;
+      const imageUrls = normalizeImageCandidates(
+        latestImageUrls,
+        existing.imageUrls,
+        existing.imageUrl
+      );
       next[idx] = {
         ...existing,
         // Always refresh display data from the latest product payload.
@@ -226,7 +261,8 @@ export function useCart() {
         brand: product.brand,
         category: product.category,
         priceArs: product.priceArs,
-        imageUrl: toStoreMediaProxyUrl(product.imageUrl) || undefined,
+        imageUrl: imageUrls?.[0],
+        imageUrls,
         stockAvailable: stockAvailable !== undefined ? stockAvailable : existing.stockAvailable,
         qty: clamped,
       };
@@ -246,7 +282,8 @@ export function useCart() {
           brand: product.brand,
           category: product.category,
           priceArs: product.priceArs,
-          imageUrl: toStoreMediaProxyUrl(product.imageUrl) || undefined,
+          imageUrl: latestImageUrls?.[0],
+          imageUrls: latestImageUrls,
           stockAvailable,
           qty: clamped,
         },

@@ -23,6 +23,7 @@ export function CustomerCartSync() {
         category: item.category,
         priceArs: item.priceArs,
         imageUrl: item.imageUrl,
+        imageUrls: item.imageUrls,
         qty: item.qty,
       }))
     );

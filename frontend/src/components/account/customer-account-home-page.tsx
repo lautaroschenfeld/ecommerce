@@ -76,6 +76,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
   const [addressRecipient, setAddressRecipient] = useState("");
   const [addressPhone, setAddressPhone] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
+  const [addressStreetNumber, setAddressStreetNumber] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [addressCity, setAddressCity] = useState("");
   const [addressProvince, setAddressProvince] = useState("");
@@ -118,6 +119,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
     );
     setAddressPhone(defaultAddress?.phone || customer.phone || "");
     setAddressLine1(defaultAddress?.line1 || "");
+    setAddressStreetNumber(defaultAddress?.streetNumber || "");
     setAddressLine2(defaultAddress?.line2 || "");
     setAddressCity(defaultAddress?.city || "");
     setAddressProvince(defaultAddress?.province || "");
@@ -201,11 +203,12 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
 
       if (
         !addressLine1.trim() ||
+        !addressStreetNumber.trim() ||
         !addressCity.trim() ||
         !addressProvince.trim() ||
         !addressPostalCode.trim()
       ) {
-        setFormMessage("Completá dirección, ciudad, provincia y código postal.");
+        setFormMessage("Completá dirección, número, ciudad, provincia y código postal.");
         return;
       }
 
@@ -214,6 +217,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
         recipient: addressRecipient.trim(),
         phone: addressPhone.trim(),
         line1: addressLine1.trim(),
+        streetNumber: addressStreetNumber.trim(),
         line2: addressLine2.trim(),
         city: addressCity.trim(),
         province: addressProvince.trim(),
@@ -340,6 +344,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
               <>
                 <p>
                   {defaultAddress.line1}
+                  {defaultAddress.streetNumber ? ` ${defaultAddress.streetNumber}` : ""}
                   {defaultAddress.line2 ? `, ${defaultAddress.line2}` : ""}
                 </p>
                 <p>
@@ -471,13 +476,23 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
                   />
                 </div>
 
-                <div className={styles.field}>
-                  <Label htmlFor="profile_edit_line1">Dirección</Label>
-                  <Input
-                    id="profile_edit_line1"
-                    value={addressLine1}
-                    onChange={(event) => setAddressLine1(event.target.value)}
-                  />
+                <div className={styles.grid2}>
+                  <div className={styles.field}>
+                    <Label htmlFor="profile_edit_line1">Dirección</Label>
+                    <Input
+                      id="profile_edit_line1"
+                      value={addressLine1}
+                      onChange={(event) => setAddressLine1(event.target.value)}
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <Label htmlFor="profile_edit_street_number">Número</Label>
+                    <Input
+                      id="profile_edit_street_number"
+                      value={addressStreetNumber}
+                      onChange={(event) => setAddressStreetNumber(event.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.field}>

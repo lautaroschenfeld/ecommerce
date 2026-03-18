@@ -107,6 +107,25 @@ function wrapText(value: string, maxChars = 86) {
   return out
 }
 
+function composeStreetLine(line1Raw: unknown, streetNumberRaw: unknown) {
+  const line1 = asciiText(line1Raw, 200)
+  const streetNumber = asciiText(streetNumberRaw, 40)
+
+  if (!line1) return streetNumber
+  if (!streetNumber) return line1
+
+  const normalizedLine1 = line1.toLowerCase()
+  const normalizedStreetNumber = streetNumber.toLowerCase()
+  if (
+    normalizedLine1 === normalizedStreetNumber ||
+    normalizedLine1.endsWith(` ${normalizedStreetNumber}`)
+  ) {
+    return line1
+  }
+
+  return `${line1} ${streetNumber}`.trim()
+}
+
 function readInvoiceItems(order: Record<string, any>) {
   const rawItems = Array.isArray(order.items) ? order.items : []
   const out: InvoiceItem[] = []
@@ -162,9 +181,9 @@ function linesFromOrder(order: Record<string, any>): InvoiceLine[] {
   const customerDocument =
     asciiText(customer.document_number ?? customer.documentNumber, 32) || "-"
 
-  const shippingLine1 = asciiText(
+  const shippingLine1 = composeStreetLine(
     shippingAddress.line1 ?? shippingAddress.address1,
-    200
+    shippingAddress.street_number ?? shippingAddress.streetNumber ?? shippingAddress.address_number
   )
   const shippingLine2 = asciiText(
     shippingAddress.line2 ?? shippingAddress.address2,
