@@ -10,7 +10,7 @@ const DEFAULT_SITE_NAME = "FR Motos";
 const DEFAULT_SITE_DESCRIPTION =
   "Repuestos, accesorios e indumentaria para motos con stock actualizado, marcas lideres y compra online segura.";
 const LEGACY_SITE_DESCRIPTION_SUFFIX = /\s+en\s+fr\s+motos\.?$/i;
-const SOCIAL_IMAGE_RENDERER_VERSION = "2026-03-18-2";
+const SOCIAL_IMAGE_RENDERER_VERSION = "2026-03-18-3";
 
 function isGenericSiteName(input: string) {
   return /^ecommerce$/i.test(input.trim());
