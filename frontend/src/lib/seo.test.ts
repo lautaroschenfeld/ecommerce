@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildSocialMetadata, SOCIAL_IMAGE_HEIGHT, SOCIAL_IMAGE_WIDTH } from "./seo";
+import {
+  buildSocialMetadata,
+  SITE_DESCRIPTION,
+  SOCIAL_IMAGE_HEIGHT,
+  SOCIAL_IMAGE_WIDTH,
+} from "./seo";
 
 describe("buildSocialMetadata", () => {
   it("omits open graph siteName while keeping social metadata fields", () => {
@@ -36,5 +41,9 @@ describe("buildSocialMetadata", () => {
       description: "Repuestos para motos",
       images: ["https://cdn.example.com/social.png"],
     });
+  });
+
+  it("does not keep the legacy 'en FR Motos' suffix in site description", () => {
+    expect(SITE_DESCRIPTION.toLowerCase()).not.toContain("compra online segura en fr motos");
   });
 });

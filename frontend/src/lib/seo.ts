@@ -7,19 +7,33 @@ const DEPLOYMENT_FALLBACK_SITE_URL =
   "";
 
 const DEFAULT_SITE_NAME = "FR Motos";
+const DEFAULT_SITE_DESCRIPTION =
+  "Repuestos, accesorios e indumentaria para motos con stock actualizado, marcas lideres y compra online segura.";
+const LEGACY_SITE_DESCRIPTION_SUFFIX = /\s+en\s+fr\s+motos\.?$/i;
+const SOCIAL_IMAGE_RENDERER_VERSION = "2026-03-18-2";
 
 function isGenericSiteName(input: string) {
   return /^ecommerce$/i.test(input.trim());
 }
 
+function normalizeSiteDescription(input: string) {
+  const normalized = input.replace(/\s+/g, " ").trim();
+  if (!normalized) return DEFAULT_SITE_DESCRIPTION;
+
+  const withoutLegacySuffix = normalized.replace(LEGACY_SITE_DESCRIPTION_SUFFIX, "").trim();
+  if (!withoutLegacySuffix) return DEFAULT_SITE_DESCRIPTION;
+  if (/[.!?]$/.test(withoutLegacySuffix)) return withoutLegacySuffix;
+  return `${withoutLegacySuffix}.`;
+}
+
 const configuredSiteName = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "";
+const configuredSiteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION?.trim() || "";
 export const SITE_NAME =
   configuredSiteName && !isGenericSiteName(configuredSiteName)
     ? configuredSiteName
     : DEFAULT_SITE_NAME;
 export const SITE_DESCRIPTION =
-  process.env.NEXT_PUBLIC_SITE_DESCRIPTION?.trim() ||
-  "Repuestos, accesorios e indumentaria para motos con stock actualizado, marcas lideres y compra online segura en FR Motos.";
+  normalizeSiteDescription(configuredSiteDescription || DEFAULT_SITE_DESCRIPTION);
 export const SOCIAL_IMAGE_PATH = "/social-image";
 export const SOCIAL_IMAGE_WIDTH = 600;
 export const SOCIAL_IMAGE_HEIGHT = 600;
@@ -126,7 +140,15 @@ export function buildStorefrontSeoVersion(storefront?: SeoStorefrontSnapshot) {
   const themeMode = (storefront?.themeMode ?? "light").trim().toLowerCase();
   const logoUrl = (storefront?.logoUrl ?? "").trim();
   const faviconUrl = (storefront?.faviconUrl ?? "").trim();
-  const payload = [siteName, locale, themeMode, logoUrl, faviconUrl, getSiteUrl()].join("|");
+  const payload = [
+    siteName,
+    locale,
+    themeMode,
+    logoUrl,
+    faviconUrl,
+    getSiteUrl(),
+    SOCIAL_IMAGE_RENDERER_VERSION,
+  ].join("|");
   return hashStable(payload);
 }
 
