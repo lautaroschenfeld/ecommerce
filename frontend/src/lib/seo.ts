@@ -167,7 +167,6 @@ export function buildSocialMetadata(
       type: input.type || "website",
       locale,
       url: canonical,
-      siteName,
       title,
       description,
       images: [

@@ -66,21 +66,13 @@ function resolvePalette(themeMode: string) {
   if (themeMode === "dark") {
     return {
       background: "#121212",
-      panel: "#1c1c1c",
-      border: "rgba(255,255,255,0.20)",
-      shadow: "rgba(0,0,0,0.45)",
       text: "#ededed",
-      glow: "rgba(255,255,255,0.10)",
     };
   }
 
   return {
     background: "#f5f5f5",
-    panel: "#ffffff",
-    border: "rgba(23,23,23,0.16)",
-    shadow: "rgba(0,0,0,0.14)",
     text: "#171717",
-    glow: "rgba(0,0,0,0.08)",
   };
 }
 
@@ -90,12 +82,9 @@ export async function GET(request: NextRequest) {
   const themeMode = storefront.themeMode === "dark" ? "dark" : "light";
   const palette = resolvePalette(themeMode);
   const requestOrigin = request.nextUrl.origin;
-  const panelSize = Math.round(Math.min(SOCIAL_IMAGE_WIDTH, SOCIAL_IMAGE_HEIGHT) * 0.68);
-  const panelRadius = Math.max(22, Math.round(panelSize * 0.09));
-  const logoSize = Math.round(panelSize * 0.72);
-  const labelSize = Math.max(24, Math.round(panelSize * 0.12));
-  const labelBottom = Math.max(24, Math.round(SOCIAL_IMAGE_HEIGHT * 0.06));
-  const glowSize = Math.max(180, Math.round(panelSize * 0.68));
+  const baseSize = Math.min(SOCIAL_IMAGE_WIDTH, SOCIAL_IMAGE_HEIGHT);
+  const logoSize = Math.round(baseSize * 0.58);
+  const fallbackTextSize = Math.max(64, Math.round(baseSize * 0.18));
 
   const logoProxyUrl = toStoreMediaProxyUrl(storefront.logoUrl.trim());
   const logoUrl = toAbsoluteImageUrl(logoProxyUrl, requestOrigin);
@@ -116,79 +105,35 @@ export async function GET(request: NextRequest) {
           alignItems: "center",
           justifyContent: "center",
           background: palette.background,
-          position: "relative",
+          padding: 48,
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(900px circle at 15% -10%, rgba(127,127,127,0.14), transparent 58%), radial-gradient(760px circle at 88% 112%, rgba(127,127,127,0.12), transparent 62%)",
-          }}
-        />
-        <div
-          style={{
-            width: panelSize,
-            height: panelSize,
-            borderRadius: panelRadius,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: palette.panel,
-            border: `1px solid ${palette.border}`,
-            boxShadow: `0 24px 60px ${palette.shadow}`,
-          }}
-        >
-          {logoDataUrl ? (
-            // ImageResponse requires raw <img>; next/image is not supported here.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoDataUrl}
-              alt={siteName}
-              style={{
-                width: logoSize,
-                height: logoSize,
-                objectFit: "contain",
-              }}
-            />
-          ) : (
-            <span
-              style={{
-                display: "flex",
-                fontSize: 72,
-                fontWeight: 700,
-                letterSpacing: "-0.03em",
-                color: palette.text,
-              }}
-            >
-              {siteName}
-            </span>
-          )}
-        </div>
-        <span
-          style={{
-            position: "absolute",
-            bottom: labelBottom,
-            fontSize: labelSize,
-            color: palette.text,
-            letterSpacing: "0.02em",
-            textTransform: "uppercase",
-          }}
-        >
-          {siteName}
-        </span>
-        <div
-          style={{
-            position: "absolute",
-            top: -Math.round(glowSize * 0.35),
-            right: -Math.round(glowSize * 0.24),
-            width: glowSize,
-            height: glowSize,
-            borderRadius: "999px",
-            background: palette.glow,
-          }}
-        />
+        {logoDataUrl ? (
+          // ImageResponse requires raw <img>; next/image is not supported here.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logoDataUrl}
+            alt={siteName}
+            style={{
+              width: logoSize,
+              height: logoSize,
+              objectFit: "contain",
+            }}
+          />
+        ) : (
+          <span
+            style={{
+              display: "flex",
+              fontSize: fallbackTextSize,
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: palette.text,
+              textAlign: "center",
+            }}
+          >
+            {siteName}
+          </span>
+        )}
       </div>
     ),
     {
