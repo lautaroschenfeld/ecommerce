@@ -40,7 +40,7 @@ const sections = [
   {
     heading: "Canal principal",
     paragraphs: [
-      "Email: soporte@frmotos.com",
+      "Correo electrónico: soporte@frmotos.com",
       "Atendemos consultas de productos, compras, envios, cambios y devoluciones.",
     ],
   },

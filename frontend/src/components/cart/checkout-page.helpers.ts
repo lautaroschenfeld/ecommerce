@@ -12,7 +12,7 @@ export const BUY_NOW_INTENT_KEY = "store:checkout:buy-now:v1";
 const CHECKOUT_DRAFT_OWNER_KEY = "_ownerKey";
 
 export type DeliveryMethod = "standard" | "express" | "pickup";
-export type PaymentMethod = "card" | "mercadopago" | "transfer";
+export type PaymentMethod = "mercadopago" | "transfer";
 export type InvoiceType = "consumidor_final" | "factura_a";
 export type CheckoutStepKey = "datos" | "entrega" | "envio" | "pago";
 
@@ -59,17 +59,17 @@ export const DEFAULT_DRAFT: CheckoutDraft = {
   addressNumber: "",
   address2: "",
   city: "",
-  province: "CABA",
+  province: "Entre Ríos",
   postalCode: "",
   notes: "",
 
   deliveryMethod: "standard",
 
-  paymentMethod: "card",
+  paymentMethod: "mercadopago",
   billingSameAsShipping: true,
   billingAddress1: "",
   billingCity: "",
-  billingProvince: "CABA",
+  billingProvince: "Entre Ríos",
   billingPostalCode: "",
 
   invoiceType: "consumidor_final",
@@ -116,21 +116,6 @@ export const STEPS: Array<{ key: CheckoutStepKey; label: string; hint: string }>
 
 export function digitsOnly(value: string) {
   return value.replace(/\D/g, "");
-}
-
-export function formatCardNumber(value: string) {
-  const digits = digitsOnly(value).slice(0, 19);
-  return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
-}
-
-export function formatExpiry(value: string) {
-  const digits = digitsOnly(value).slice(0, 4);
-  if (digits.length <= 2) return digits;
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-}
-
-export function formatCvc(value: string) {
-  return digitsOnly(value).slice(0, 4);
 }
 
 export function validateEmail(value: string) {
@@ -281,9 +266,7 @@ export function safeReadDraft(): {
             : undefined,
 
         paymentMethod:
-          paymentMethod === "card" ||
-          paymentMethod === "mercadopago" ||
-          paymentMethod === "transfer"
+          paymentMethod === "mercadopago" || paymentMethod === "transfer"
             ? paymentMethod
             : undefined,
 

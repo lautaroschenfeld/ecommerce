@@ -10,7 +10,6 @@ import {
   Check,
   ChevronDown,
   Copy,
-  CreditCard,
   Landmark,
   Lock,
   MapPin,
@@ -82,9 +81,6 @@ import {
   clampQty,
   computeShippingArs,
   digitsOnly,
-  formatCardNumber,
-  formatCvc,
-  formatExpiry,
   getPasswordStrengthError,
   normalizeEmailInput,
   safeReadDraft,
@@ -107,6 +103,7 @@ export function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const beginCheckoutTrackedRef = useRef(false);
+  const suppressEmptyCartRedirectRef = useRef(false);
   const buyNowIntent = searchParams.get("intent") === "buy-now";
   const [intentItems, setIntentItems] = useState<CartItem[] | null>(null);
   const {
@@ -303,11 +300,6 @@ export function CheckoutPage() {
 
   const [summaryOpen, setSummaryOpen] = useState(false);
 
-  const [cardName, setCardName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExp, setCardExp] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-
   const [placeOrderOpen, setPlaceOrderOpen] = useState(false);
   const [createAccountAfterBuy, setCreateAccountAfterBuy] = useState(true);
   const [accountPassword, setAccountPassword] = useState("");
@@ -407,6 +399,7 @@ export function CheckoutPage() {
     if (!hydrated) return;
     if (buyNowIntent && intentItems === null) return;
     if (items.length > 0) return;
+    if (suppressEmptyCartRedirectRef.current) return;
     if (placeOrderOpen || mercadoPagoReturnSummary) return;
     router.replace("/productos");
   }, [
@@ -545,7 +538,7 @@ export function CheckoutPage() {
 
     if (!draft.firstName.trim()) out.firstName = "Ingresá tu nombre.";
     if (!draft.lastName.trim()) out.lastName = "Ingresá tu apellido.";
-    if (!validateEmail(draft.email)) out.email = "Ingresá un email válido.";
+    if (!validateEmail(draft.email)) out.email = "Ingresá un correo electrónico válido.";
 
     const phoneDigits = digitsOnly(draft.phone);
     if (phoneDigits.length < 8) out.phone = "Ingresá un teléfono válido.";
@@ -585,24 +578,10 @@ export function CheckoutPage() {
       if (!draft.razonSocial.trim()) out.razonSocial = "Ingresá la razón social.";
     }
 
-    if (draft.paymentMethod === "card") {
-      if (!cardName.trim())
-        out.cardName = "Ingresá el nombre como figura en la tarjeta.";
-      const ccDigits = digitsOnly(cardNumber);
-      if (ccDigits.length < 15)
-        out.cardNumber = "Ingresá un número de tarjeta válido.";
-      const expDigits = digitsOnly(cardExp);
-      const month = Number(expDigits.slice(0, 2));
-      if (expDigits.length !== 4 || month < 1 || month > 12)
-        out.cardExp = "Ingresá MM/AA.";
-      const cvcDigits = digitsOnly(cardCvc);
-      if (cvcDigits.length < 3) out.cardCvc = "Ingresá el CVC.";
-    }
-
     if (!draft.acceptTerms) out.acceptTerms = "Tenés que aceptar los términos.";
 
     return out;
-  }, [draft, cardName, cardNumber, cardExp, cardCvc]);
+  }, [draft]);
 
   const stepValid = useMemo(() => {
     const datosOk =
@@ -625,10 +604,6 @@ export function CheckoutPage() {
       !errors.billingPostalCode &&
       !errors.cuit &&
       !errors.razonSocial &&
-      !errors.cardName &&
-      !errors.cardNumber &&
-      !errors.cardExp &&
-      !errors.cardCvc &&
       !errors.acceptTerms;
 
     return [datosOk, entregaOk, envioOk, pagoOk];
@@ -654,10 +629,6 @@ export function CheckoutPage() {
         "billingPostalCode",
         "cuit",
         "razonSocial",
-        "cardName",
-        "cardNumber",
-        "cardExp",
-        "cardCvc",
         "acceptTerms",
       ],
     };
@@ -1139,6 +1110,9 @@ export function CheckoutPage() {
         deliveryMethod: draft.deliveryMethod,
         paymentMethod: draft.paymentMethod,
       });
+      if (created.redirectUrl) {
+        suppressEmptyCartRedirectRef.current = true;
+      }
       clearSuccessfulCheckoutItems();
       if (created.redirectUrl) {
         window.location.assign(created.redirectUrl);
@@ -1146,6 +1120,7 @@ export function CheckoutPage() {
       }
       setPlaceOrderOpen(true);
     } catch (error) {
+      suppressEmptyCartRedirectRef.current = false;
       let message = "No pudimos completar la acción. Intenta nuevamente.";
       let shouldMarkUnavailable = true;
       if (error instanceof ApiHttpError) {
@@ -1264,11 +1239,9 @@ export function CheckoutPage() {
               ? "Gratis"
               : <MoneyAmount value={placeOrderSummary.shippingArs} />}{" "}
           {" / "}<strong>Pago:</strong>{" "}
-          {placeOrderSummary.paymentMethod === "card"
-            ? "Tarjeta"
-            : placeOrderSummary.paymentMethod === "mercadopago"
-              ? "Mercado Pago"
-              : "Transferencia"}
+          {placeOrderSummary.paymentMethod === "mercadopago"
+            ? "Mercado Pago"
+            : "Transferencia"}
         </p>
 
         {placedOrder ? (
@@ -1364,7 +1337,7 @@ export function CheckoutPage() {
                 setCreateAccountAfterBuy(checked)
               }
             />
-            <span>Crear cuenta con este email al finalizar</span>
+            <span>Crear cuenta con este correo electrónico al finalizar</span>
           </label>
 
           {createAccountAfterBuy ? (
@@ -1401,7 +1374,7 @@ export function CheckoutPage() {
                   setNotifyByEmail(checked)
                 }
               />
-              <span>Recibir estado del pedido por email</span>
+              <span>Recibir estado del pedido por correo electrónico</span>
             </label>
 
             <label className={styles.postPurchaseCheck}>
@@ -1439,7 +1412,7 @@ export function CheckoutPage() {
           <div className={styles.postPurchaseHead}>
             <h3>Notificaciones</h3>
             <p>
-              Activa avisos de estado por email o WhatsApp para este pedido.
+              Activa avisos de estado por correo electrónico o WhatsApp para este pedido.
             </p>
           </div>
 
@@ -1451,7 +1424,7 @@ export function CheckoutPage() {
                   setNotifyByEmail(checked)
                 }
               />
-              <span>Recibir estado del pedido por email</span>
+              <span>Recibir estado del pedido por correo electrónico</span>
             </label>
             <label className={styles.postPurchaseCheck}>
               <Checkbox
@@ -1501,12 +1474,6 @@ export function CheckoutPage() {
         <div className={styles.topRow}>
           <div className={styles.heading}>
             <h1 className={styles.title}>Finalizar compra</h1>
-                      <p className={styles.subtitle}>
-            Completa tus datos, elige envio y metodo de pago. Si seleccionas
-            Mercado Pago, te redirigimos al pago seguro y vuelves con el
-            estado del pago. Tambien puedes comprar como invitado y crear cuenta
-            al finalizar.
-          </p>
           </div>
         </div>
 
@@ -1655,12 +1622,6 @@ export function CheckoutPage() {
       <div className={styles.topRow}>
         <div className={styles.heading}>
           <h1 className={styles.title}>Finalizar compra</h1>
-                    <p className={styles.subtitle}>
-            Completa tus datos, elige envio y metodo de pago. Si seleccionas
-            Mercado Pago, te redirigimos al pago seguro y vuelves con el
-            estado del pago. Tambien puedes comprar como invitado y crear cuenta
-            al finalizar.
-          </p>
         </div>
 
         <div className={styles.topActions}>
@@ -1880,7 +1841,7 @@ export function CheckoutPage() {
 
                       <div className={styles.field}>
                         <div className={styles.fieldLabelRow}>
-                          <Label htmlFor="checkout_email">Email</Label>
+                          <Label htmlFor="checkout_email">Correo electrónico</Label>
                           <span className={styles.help}>Obligatorio</span>
                         </div>
                         <Input
@@ -1893,7 +1854,7 @@ export function CheckoutPage() {
                             }))
                           }
                           onBlur={() => touch("email")}
-                          placeholder="tu@email.com"
+                          placeholder="correo@ejemplo.com"
                           inputMode="email"
                           autoComplete="email"
                         />
@@ -1914,7 +1875,7 @@ export function CheckoutPage() {
                             setDraft((d) => ({ ...d, phone: e.target.value }))
                           }
                           onBlur={() => touch("phone")}
-                          placeholder="11 1234 5678"
+                          placeholder="343 123 4567"
                           inputMode="tel"
                           autoComplete="tel"
                         />
@@ -1957,7 +1918,7 @@ export function CheckoutPage() {
                             setDraft((d) => ({ ...d, postalCode: e.target.value }))
                           }
                           onBlur={() => touch("postalCode")}
-                          placeholder="C1428 / 1428"
+                          placeholder="3100"
                           autoComplete="postal-code"
                         />
                         {isTouched("postalCode") && errors.postalCode ? (
@@ -1978,7 +1939,7 @@ export function CheckoutPage() {
                               setDraft((d) => ({ ...d, address1: e.target.value }))
                             }
                             onBlur={() => touch("address1")}
-                            placeholder="Av. Siempre Viva"
+                            placeholder="Alameda de la Federación"
                             autoComplete="street-address"
                           />
                           {isTouched("address1") && errors.address1 ? (
@@ -1998,7 +1959,7 @@ export function CheckoutPage() {
                               setDraft((d) => ({ ...d, addressNumber: e.target.value }))
                             }
                             onBlur={() => touch("addressNumber")}
-                            placeholder="742"
+                            placeholder="3000"
                             autoComplete="address-line2"
                           />
                           {isTouched("addressNumber") && errors.addressNumber ? (
@@ -2034,7 +1995,7 @@ export function CheckoutPage() {
                             setDraft((d) => ({ ...d, city: e.target.value }))
                           }
                           onBlur={() => touch("city")}
-                          placeholder="Palermo"
+                          placeholder="Paraná"
                           autoComplete="address-level2"
                         />
                         {isTouched("city") && errors.city ? (
@@ -2197,30 +2158,6 @@ export function CheckoutPage() {
                           type="button"
                           className={[
                             styles.radioCard,
-                            draft.paymentMethod === "card" ? styles.radioCardActive : "",
-                            draft.paymentMethod === "card" ? styles.deliveryCardActive : "",
-                          ].join(" ")}
-                          onClick={() =>
-                            setDraft((d) => ({ ...d, paymentMethod: "card" }))
-                          }
-                        >
-                          <span className={styles.radioLeft}>
-                            <span className={styles.radioIcon} aria-hidden>
-                              <CreditCard size={18} />
-                            </span>
-                            <span className={styles.radioInfo}>
-                              <span className={styles.radioTitle}>Tarjeta</span>
-                              <span className={styles.radioSub}>
-                                Visa / Master / Amex · Hasta 12 cuotas
-                              </span>
-                            </span>
-                          </span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={[
-                            styles.radioCard,
                             draft.paymentMethod === "mercadopago"
                               ? styles.radioCardActive
                               : "",
@@ -2238,9 +2175,6 @@ export function CheckoutPage() {
                             </span>
                             <span className={styles.radioInfo}>
                               <span className={styles.radioTitle}>Mercado Pago</span>
-                              <span className={styles.radioSub}>
-                                Redirección segura · Acreditación al instante
-                              </span>
                             </span>
                           </span>
                         </button>
@@ -2288,109 +2222,7 @@ export function CheckoutPage() {
                       >
                       <div className={styles.paymentDetailsWrap}>
                         <AnimatePresence mode="wait" initial={false}>
-                          {draft.paymentMethod === "card" ? (
-                            <motion.div
-                              key="payment_method_card"
-                              className={styles.paymentDetailsPanel}
-                              initial={
-                                reduceMotion
-                                  ? undefined
-                                  : { x: 10, filter: "blur(2px)" }
-                              }
-                              animate={
-                                reduceMotion
-                                  ? undefined
-                                  : { x: 0, filter: "blur(0px)" }
-                              }
-                              exit={
-                                reduceMotion
-                                  ? undefined
-                                  : { x: -10, filter: "blur(2px)" }
-                              }
-                              transition={{ duration: 0.18 }}
-                            >
-                              <div className={styles.grid2}>
-                                <div className={`${styles.field} ${styles.fieldFullSpan}`}>
-                                  <div className={styles.fieldLabelRow}>
-                                    <Label htmlFor="checkout_cardName">Nombre en la tarjeta</Label>
-                                    <span className={styles.help}>Obligatorio</span>
-                                  </div>
-                                  <Input
-                                    id="checkout_cardName"
-                                    value={cardName}
-                                    onChange={(e) => setCardName(e.target.value)}
-                                    onBlur={() => touch("cardName")}
-                                    placeholder="JUAN PEREZ"
-                                    autoComplete="cc-name"
-                                  />
-                                  {isTouched("cardName") && errors.cardName ? (
-                                    <div className={styles.error}>{errors.cardName}</div>
-                                  ) : null}
-                                </div>
-
-                                <div className={`${styles.field} ${styles.fieldFullSpan}`}>
-                                  <div className={styles.fieldLabelRow}>
-                                    <Label htmlFor="checkout_cardNumber">Numero de tarjeta</Label>
-                                    <span className={styles.help}>Obligatorio</span>
-                                  </div>
-                                  <Input
-                                    id="checkout_cardNumber"
-                                    value={cardNumber}
-                                    onChange={(e) =>
-                                      setCardNumber(formatCardNumber(e.target.value))
-                                    }
-                                    onBlur={() => touch("cardNumber")}
-                                    placeholder="4242 4242 4242 4242"
-                                    inputMode="numeric"
-                                    autoComplete="cc-number"
-                                  />
-                                  {isTouched("cardNumber") && errors.cardNumber ? (
-                                    <div className={styles.error}>{errors.cardNumber}</div>
-                                  ) : null}
-                                </div>
-
-                                <div className={styles.field}>
-                                  <div className={styles.fieldLabelRow}>
-                                    <Label htmlFor="checkout_cardExp">Vencimiento</Label>
-                                    <span className={styles.help}>MM/AA</span>
-                                  </div>
-                                  <Input
-                                    id="checkout_cardExp"
-                                    value={cardExp}
-                                    onChange={(e) =>
-                                      setCardExp(formatExpiry(e.target.value))
-                                    }
-                                    onBlur={() => touch("cardExp")}
-                                    placeholder="12/29"
-                                    inputMode="numeric"
-                                    autoComplete="cc-exp"
-                                  />
-                                  {isTouched("cardExp") && errors.cardExp ? (
-                                    <div className={styles.error}>{errors.cardExp}</div>
-                                  ) : null}
-                                </div>
-
-                                <div className={styles.field}>
-                                  <div className={styles.fieldLabelRow}>
-                                    <Label htmlFor="checkout_cardCvc">CVC</Label>
-                                    <span className={styles.help}>Obligatorio</span>
-                                  </div>
-                                  <Input
-                                    id="checkout_cardCvc"
-                                    value={cardCvc}
-                                    onChange={(e) => setCardCvc(formatCvc(e.target.value))}
-                                    onBlur={() => touch("cardCvc")}
-                                    placeholder="123"
-                                    inputMode="numeric"
-                                    autoComplete="cc-csc"
-                                  />
-                                  {isTouched("cardCvc") && errors.cardCvc ? (
-                                    <div className={styles.error}>{errors.cardCvc}</div>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </motion.div>
-                          ) : draft.paymentMethod === "transfer" ? (
+                          {draft.paymentMethod === "transfer" ? (
                             <motion.div
                               key="payment_method_transfer"
                               className={styles.paymentDetailsPanel}
@@ -2422,35 +2254,7 @@ export function CheckoutPage() {
                                 </p>
                               </div>
                             </motion.div>
-                          ) : (
-                            <motion.div
-                              key="payment_method_mp"
-                              className={styles.paymentDetailsPanel}
-                              initial={
-                                reduceMotion
-                                  ? undefined
-                                  : { x: 10, filter: "blur(2px)" }
-                              }
-                              animate={
-                                reduceMotion
-                                  ? undefined
-                                  : { x: 0, filter: "blur(0px)" }
-                              }
-                              exit={
-                                reduceMotion
-                                  ? undefined
-                                  : { x: -10, filter: "blur(2px)" }
-                              }
-                              transition={{ duration: 0.18 }}
-                            >
-                              <div className={styles.promoBox}>
-                                <p className={styles.promoHint}>
-                                  Mercado Pago se integra redirigiendo al pago seguro y
-                                  confirmando el pago por webhook.
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
+                          ) : null}
                         </AnimatePresence>
                       </div>
                       <Separator />
@@ -2619,7 +2423,7 @@ export function CheckoutPage() {
                                   }))
                                 }
                                 onBlur={() => touch("billingAddress1")}
-                                placeholder="Av. Libertador 123"
+                                placeholder="Alameda de la Federación 3000"
                               />
                               {isTouched("billingAddress1") && errors.billingAddress1 ? (
                                 <div className={styles.error}>{errors.billingAddress1}</div>
@@ -2641,7 +2445,7 @@ export function CheckoutPage() {
                                   }))
                                 }
                                 onBlur={() => touch("billingCity")}
-                                placeholder="Belgrano"
+                                placeholder="Paraná"
                               />
                               {isTouched("billingCity") && errors.billingCity ? (
                                 <div className={styles.error}>{errors.billingCity}</div>
@@ -2690,7 +2494,7 @@ export function CheckoutPage() {
                                   }))
                                 }
                                 onBlur={() => touch("billingPostalCode")}
-                                placeholder="1428"
+                                placeholder="3100"
                               />
                               {isTouched("billingPostalCode") && errors.billingPostalCode ? (
                                 <div className={styles.error}>{errors.billingPostalCode}</div>
@@ -2812,11 +2616,9 @@ export function CheckoutPage() {
                                     ? "Gratis"
                                     : <MoneyAmount value={shippingArs} />}{" "}
                                 · <strong>Pago:</strong>{" "}
-                                {draft.paymentMethod === "card"
-                                  ? "Tarjeta"
-                                  : draft.paymentMethod === "mercadopago"
-                                    ? "Mercado Pago"
-                                    : "Transferencia"}
+                                {draft.paymentMethod === "mercadopago"
+                                  ? "Mercado Pago"
+                                  : "Transferencia"}
                               </p>
 
                               {placedOrder ? (
@@ -2912,7 +2714,7 @@ export function CheckoutPage() {
                                       setCreateAccountAfterBuy(checked)
                                     }
                                   />
-                                  <span>Crear cuenta con este email al finalizar</span>
+                                  <span>Crear cuenta con este correo electrónico al finalizar</span>
                                 </label>
 
                                 {createAccountAfterBuy ? (
@@ -2949,7 +2751,7 @@ export function CheckoutPage() {
                                         setNotifyByEmail(checked)
                                       }
                                     />
-                                    <span>Recibir estado del pedido por email</span>
+                                    <span>Recibir estado del pedido por correo electrónico</span>
                                   </label>
 
                                   <label className={styles.postPurchaseCheck}>
@@ -2987,7 +2789,7 @@ export function CheckoutPage() {
                                 <div className={styles.postPurchaseHead}>
                                   <h3>Notificaciones</h3>
                                   <p>
-                                    Activa avisos de estado por email o WhatsApp para este pedido.
+                                    Activa avisos de estado por correo electrónico o WhatsApp para este pedido.
                                   </p>
                                 </div>
 
@@ -2999,7 +2801,7 @@ export function CheckoutPage() {
                                         setNotifyByEmail(checked)
                                       }
                                     />
-                                    <span>Recibir estado del pedido por email</span>
+                                    <span>Recibir estado del pedido por correo electrónico</span>
                                   </label>
                                   <label className={styles.postPurchaseCheck}>
                                     <Checkbox

@@ -53,8 +53,8 @@ const sections = [
   {
     heading: "2.1 Cómo ejercerlo (canales habilitados)",
     paragraphs: [
-      "Puede ejercerse desde el Botón de Arrepentimiento del sitio o por email a soporte@frmotos.com con asunto 'Arrepentimiento de compra'.",
-      "Se recomienda informar número de pedido, nombre, DNI, email y teléfono. Si no hay número de pedido, se recibirá igualmente la solicitud y se pedirán datos mínimos para identificar la operación.",
+      "Puede ejercerse desde el Botón de Arrepentimiento del sitio o por correo electrónico a soporte@frmotos.com con asunto 'Arrepentimiento de compra'.",
+      "Se recomienda informar número de pedido, nombre, DNI, correo electrónico y teléfono. Si no hay número de pedido, se recibirá igualmente la solicitud y se pedirán datos mínimos para identificar la operación.",
       "Dentro de 24 horas de recibido el pedido por el mismo medio, FR Motos informará código de identificación y pasos para efectivizar la revocación.",
     ],
   },
@@ -93,7 +93,7 @@ const sections = [
   {
     heading: "3.1 Cómo iniciar un reclamo por falla",
     paragraphs: [
-      "Enviar email a soporte@frmotos.com con número de pedido, descripción de falla, fotos/video cuando sea posible, fecha de detección y datos de instalación si existieran.",
+      "Enviar correo electrónico a soporte@frmotos.com con número de pedido, descripción de falla, fotos/video cuando sea posible, fecha de detección y datos de instalación si existieran.",
     ],
   },
   {
@@ -132,7 +132,7 @@ const sections = [
     heading: "6.1 Compatibilidad e información previa",
     paragraphs: [
       "La persona compradora debe verificar compatibilidad con modelo/año/versión antes de comprar y revisar la descripción del producto.",
-      "Si hubo asesoramiento del sitio determinante para la compra, se recomienda conservar evidencia (capturas o emails) para evaluar el caso.",
+      "Si hubo asesoramiento del sitio determinante para la compra, se recomienda conservar evidencia (capturas o correos electrónicos) para evaluar el caso.",
     ],
   },
   {
@@ -152,7 +152,7 @@ const sections = [
   {
     heading: "7. Canal de atención y trazabilidad",
     paragraphs: [
-      "Para asegurar registro, el canal preferente de postventa es soporte@frmotos.com. Si se usan otros canales, FR Motos puede solicitar confirmación por email para dejar constancia.",
+      "Para asegurar registro, el canal preferente de postventa es soporte@frmotos.com. Si se usan otros canales, FR Motos puede solicitar confirmación por correo electrónico para dejar constancia.",
     ],
   },
   {

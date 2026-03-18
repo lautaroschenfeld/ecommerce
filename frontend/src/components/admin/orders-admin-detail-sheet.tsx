@@ -249,16 +249,18 @@ export function OrdersAdminDetailSheet({
                   </p>
                   <div className={styles.valueRow}>
                     <span className={`${styles.valueText} ${styles.muted}`}>
-                      {detailOrder.email ? detailOrder.email : "Sin email"}
+                      {detailOrder.email ? detailOrder.email : "Sin correo electrónico"}
                     </span>
                     {detailOrder.email ? (
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-xs"
-                        onClick={() => void copyToClipboard(detailOrder.email ?? "", "Email")}
-                        title="Copiar email"
-                        aria-label="Copiar email"
+                        onClick={() =>
+                          void copyToClipboard(detailOrder.email ?? "", "Correo electrónico")
+                        }
+                        title="Copiar correo electrónico"
+                        aria-label="Copiar correo electrónico"
                       >
                         <Clipboard size={16} />
                       </Button>

@@ -561,10 +561,10 @@ function mapApiError(error: unknown, fallback: string): CustomerAuthResult {
   }
 
   const messageByCode: Record<string, string> = {
-    AUTH_INVALID_CREDENTIALS: "Email o contraseña incorrectos.",
+    AUTH_INVALID_CREDENTIALS: "Correo electrónico o contraseña incorrectos.",
     AUTH_ACCOUNT_LOCKED:
       "La cuenta está bloqueada temporalmente por intentos fallidos.",
-    AUTH_EMAIL_ALREADY_EXISTS: "Ya existe una cuenta con ese email.",
+    AUTH_EMAIL_ALREADY_EXISTS: "Ya existe una cuenta con ese correo electrónico.",
     AUTH_REFRESH_FAILED: "Tu sesión expiró. Inicia sesión nuevamente.",
     AUTH_RATE_LIMITED: "Demasiados intentos. Espera un momento e intenta de nuevo.",
     AUTH_RESET_INVALID_TOKEN: "El enlace para recuperar la contraseña no es válido.",

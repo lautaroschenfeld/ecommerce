@@ -170,7 +170,7 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
           </div>
 
           <div className={styles.field}>
-            <Label htmlFor="profile_email">Email</Label>
+            <Label htmlFor="profile_email">Correo electrónico</Label>
             <Input id="profile_email" value={customer.email} readOnly />
           </div>
 
@@ -211,7 +211,7 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
                 checked={notifyEmail}
                 onCheckedChange={(checked) => setNotifyEmail(checked)}
               />
-              <span>Notificaciones por email</span>
+              <span>Notificaciones por correo electrónico</span>
             </div>
             <div className={styles.checkRow}>
               <Checkbox

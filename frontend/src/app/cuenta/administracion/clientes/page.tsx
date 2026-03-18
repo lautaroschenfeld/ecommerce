@@ -428,7 +428,7 @@ export default function AdminClientesPage() {
                       <span>{selectedRow.fullName}</span>
                     </p>
                     <p>
-                      <strong>Email</strong>
+                      <strong>Correo electrónico</strong>
                       <span>{selectedRow.email}</span>
                     </p>
                     <p>

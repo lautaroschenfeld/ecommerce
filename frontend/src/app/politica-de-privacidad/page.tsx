@@ -46,7 +46,7 @@ const sections = [
   {
     heading: "2. Datos que podemos recolectar",
     paragraphs: [
-      "Podemos recolectar datos de identificación y contacto (nombre, email, teléfono), datos de entrega y facturación (domicilio, localidad, provincia, código postal, DNI/CUIT cuando corresponda), datos de compra y postventa, y datos técnicos de navegación.",
+      "Podemos recolectar datos de identificación y contacto (nombre, correo electrónico, teléfono), datos de entrega y facturación (domicilio, localidad, provincia, código postal, DNI/CUIT cuando corresponda), datos de compra y postventa, y datos técnicos de navegación.",
       "No almacenamos números completos de tarjeta ni código de seguridad. Podemos conservar constancias operativas de pago (estado, identificador de transacción y medio) para conciliación, prevención de fraude y soporte.",
     ],
   },

@@ -197,7 +197,7 @@ export function CustomerLoginPage({
 
   const headerSubtitle = useMemo(() => {
     if (viewMode === "forgot") {
-      return "Escribí tu email y te enviamos un enlace para restablecer tu acceso.";
+      return "Escribí tu correo electrónico y te enviamos un enlace para restablecer tu acceso.";
     }
     if (viewMode === "register") {
       return "Completá nombre y apellido para crear tu cuenta.";
@@ -301,7 +301,7 @@ export function CustomerLoginPage({
         );
       } else {
         setInfo(
-          "Si el email existe, te enviamos instrucciones para recuperar tu cuenta."
+          "Si el correo electrónico existe, te enviamos instrucciones para recuperar tu cuenta."
         );
       }
     } catch (err) {

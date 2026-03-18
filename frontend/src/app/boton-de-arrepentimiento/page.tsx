@@ -39,7 +39,7 @@ const sections = [
   {
     heading: "1. Acceso y ejercicio del derecho",
     paragraphs: [
-      "Puede ejercerse desde el link visible 'Botón de Arrepentimiento' del sitio o enviando email a soporte@frmotos.com con asunto 'Arrepentimiento de compra'.",
+      "Puede ejercerse desde el link visible 'Botón de Arrepentimiento' del sitio o enviando correo electrónico a soporte@frmotos.com con asunto 'Arrepentimiento de compra'.",
       "No es requisito tener cuenta, iniciar sesión ni realizar registración previa para ejercer este derecho.",
       "La revocación también puede notificarse por cualquier medio fehaciente escrito o electrónico.",
     ],
@@ -47,7 +47,7 @@ const sections = [
   {
     heading: "2. Datos recomendados para identificar la compra",
     paragraphs: [
-      "Para agilizar la gestión se recomienda informar número de pedido, nombre y apellido, DNI, email, teléfono y productos involucrados.",
+      "Para agilizar la gestión se recomienda informar número de pedido, nombre y apellido, DNI, correo electrónico, teléfono y productos involucrados.",
       "Si no se cuenta con número de pedido, igualmente se recibirá la solicitud y se pedirán datos mínimos para ubicar la operación.",
     ],
   },
