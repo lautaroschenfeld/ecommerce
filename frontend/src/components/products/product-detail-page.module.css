@@ -442,7 +442,7 @@
   flex: 0 0 auto;
 }
 
-.descriptionSection {
+.descriptionSection.descriptionSection {
   padding: 1.15rem;
   display: grid;
   gap: 0.65rem;
@@ -477,6 +477,7 @@
   font-size: calc(var(--pd-fs-body) * var(--font-scale, 1));
   color: var(--muted-foreground);
   line-height: 1.65;
+  white-space: pre-line;
 }
 
 .descriptionBodySkeleton {
@@ -592,7 +593,7 @@
   display: grid;
 }
 
-.questionsBody {
+.questionsBody.questionsBody {
   padding: 1rem;
   display: grid;
   gap: 0.65rem;

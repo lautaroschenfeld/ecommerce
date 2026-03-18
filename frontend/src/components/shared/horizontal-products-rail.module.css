@@ -18,6 +18,14 @@
   min-width: 0;
 }
 
+.root[data-has-overflow="false"] {
+  --rail-fade-bottom-offset: 0px;
+}
+
+.root[data-has-overflow="false"] .scrollbar {
+  display: none;
+}
+
 .root::before,
 .root::after {
   content: "";

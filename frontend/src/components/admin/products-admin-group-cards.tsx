@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 
 import { formatMoney } from "@/lib/format";
 import { resolveProductColorSummary } from "@/lib/product-color-summary";
@@ -92,13 +92,13 @@ export function ProductGroupCards({
         const isSelected = Boolean(selectedGroups[group.key]);
         const visibleVariants = group.variants.length > 0 ? group.variants : [primary];
         const colorBadgeWidthCh = Math.max(
-          11,
+          13,
           ...visibleVariants.map((variant) => {
             const currentColor = variant.color?.trim() ?? "";
             return currentColor ? `Color: ${currentColor}`.length : 0;
           })
         );
-        const colorBadgeWidth = `${colorBadgeWidthCh + 1}ch`;
+        const colorBadgeWidth = `${colorBadgeWidthCh + 2}ch`;
         const groupStock = visibleVariants.reduce(
           (acc, item) => acc + Math.max(0, Math.trunc(item.stockAvailable ?? 0)),
           0
@@ -121,11 +121,26 @@ export function ProductGroupCards({
           (pendingAutoEditVariantId
             ? group.allVariants.find((variant) => variant.id === pendingAutoEditVariantId)
             : null) ?? primary;
-        const singleVariant = visibleVariants[0] ?? primary;
-        const singleVariantColor = singleVariant.color?.trim() || "";
-        const singleVariantColorSwatch = singleVariantColor
-          ? resolveVariantColorSwatch(singleVariantColor)
-          : undefined;
+        const primaryBrand = primary.brand.trim() || "Sin marca";
+        const titleMeta = primaryBrand;
+        const isArchived = Boolean(primary.archived);
+        const isPublished = Boolean(primary.active) && !isArchived;
+        const isAvailable = isPublished && groupStock > 0;
+        const availabilityLabel = isArchived
+          ? "Archivado"
+          : isAvailable
+            ? "Disponible"
+            : primary.active
+              ? "Sin stock"
+              : "No publicado";
+        const availabilityTone = isArchived
+          ? "archived"
+          : isAvailable
+            ? "available"
+            : groupStock > 0
+              ? "inactive"
+              : "out";
+        const nextSelectedState = !isSelected;
 
         const variantRows = visibleVariants.map((variant) => {
           const variantColor = variant.color?.trim() || "";
@@ -197,13 +212,21 @@ export function ProductGroupCards({
           <AdminPanelCard
             key={group.key}
             title={
-              <>
+              <div className={styles.groupCardTitleContent}>
                 <button
                   type="button"
                   className={`${styles.miniVisual} ${styles.miniVisualButton} ${
                     isSelected ? styles.miniVisualSelected : ""
                   } ${styles.groupCardSelectButton}`}
-                  onClick={() => onToggleGroupSelection(group.key, !isSelected)}
+                  onPointerDown={(event) => {
+                    if (event.button !== 0) return;
+                    onToggleGroupSelection(group.key, nextSelectedState);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    event.preventDefault();
+                    onToggleGroupSelection(group.key, nextSelectedState);
+                  }}
                   disabled={bulkBusy || bulkRunning}
                   aria-pressed={isSelected}
                   aria-label={
@@ -255,21 +278,23 @@ export function ProductGroupCards({
                     aria-hidden
                   >
                     <span className={styles.miniVisualSelectionMark}>
-                      <X size={14} />
+                      <Check size={14} />
                     </span>
                   </div>
                 </button>
-                <span className={styles.groupCardTitleText}>{primary.name}</span>
-              </>
+                <div className={styles.groupCardTitleCopy}>
+                  <span className={styles.groupCardTitleText}>{primary.name}</span>
+                  <span className={styles.groupCardTitleMeta}>{titleMeta}</span>
+                </div>
+              </div>
             }
             titleClassName={styles.groupCardTitle}
-            subtitle={`${primary.brand} - ${priceLabel} - Stock total: ${groupStock}`}
-            className={`${styles.card} ${openActionsGroupKey === group.key ? styles.cardMenuOpen : ""}`}
+            className={`${styles.card} ${styles.groupCardShell} ${
+              openActionsGroupKey === group.key ? styles.cardMenuOpen : ""
+            }`}
             bodyClassName={styles.groupCardBody}
             headerRight={
               <div className={styles.groupCardHeaderActions}>
-                <Badge variant="secondary">{primary.category}</Badge>
-                {hasVariants && group.groupId ? <Badge variant="outline">Grupo</Badge> : null}
                 <EntityActionsMenu
                   open={openActionsGroupKey === group.key}
                   onOpenChange={(nextOpen) => {
@@ -301,41 +326,18 @@ export function ProductGroupCards({
               </div>
             }
           >
-            <div className={styles.groupSummaryRow}>
-              <p className={styles.groupSummaryText}>
-                {hasVariants
-                  ? "Selecciona el grupo para acciones masivas o despliega sus variantes para operar una por una."
-                  : `${formatMoney(singleVariant.priceArs)} - Stock: ${groupStock}${
-                      singleVariant.sku?.trim() ? ` - SKU ${singleVariant.sku.trim()}` : ""
-                    }`}
-              </p>
-
-              <div className={styles.groupSummaryBadges}>
-                <Badge variant={isSelected ? "secondary" : "outline"}>
-                  {isSelected ? "Seleccionado" : "Disponible"}
-                </Badge>
-                {hasVariants ? <Badge variant="outline">{variantsBadge}</Badge> : null}
-                {colorSummary.totalColors > 1 ? (
-                  <Badge variant="outline">{colorSummary.totalColors} colores</Badge>
-                ) : null}
-                {!hasVariants && singleVariantColor ? (
-                  <CssVarElement
-                    as={Badge}
-                    variant="outline"
-                    className={styles.variantColorBadge}
-                    vars={{
-                      "--variant-color-badge-width": `${Math.max(
-                        11,
-                        `Color: ${singleVariantColor}`.length + 1
-                      )}ch`,
-                      "--variant-color-swatch": singleVariantColorSwatch,
-                    }}
-                    title={`Color de variante: ${singleVariantColor}`}
-                  >
-                    <span aria-hidden className={styles.variantColorDot} />
-                    Color: {singleVariantColor}
-                  </CssVarElement>
-                ) : null}
+            <div className={styles.groupMainInfo}>
+              <div className={styles.groupPriceStockRow}>
+                <p className={styles.groupPriceValue}>{priceLabel}</p>
+                <div className={styles.groupStockState}>
+                  <span className={styles.groupAvailabilityText} data-state={availabilityTone}>
+                    {availabilityLabel}
+                  </span>
+                  <span aria-hidden className={styles.groupStockDot}>
+                    ·
+                  </span>
+                  <span className={styles.groupStockValue}>{groupStock} en stock</span>
+                </div>
               </div>
             </div>
 
@@ -351,6 +353,9 @@ export function ProductGroupCards({
                     isOpen ? "Ocultar" : "Mostrar"
                   } variantes de ${group.primary.name}`}
                 >
+                  <span className={styles.groupExpandLabel}>
+                    {isOpen ? "Ocultar variantes" : `Ver ${variantsBadge}`}
+                  </span>
                   <span aria-hidden className={styles.groupExpandIconWrap}>
                     <ChevronDown
                       size={22}
@@ -372,9 +377,7 @@ export function ProductGroupCards({
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className={styles.groupVariantsPanelStatic}>{variantRows}</div>
-            )}
+            ) : null}
           </AdminPanelCard>
         );
       })}

@@ -105,11 +105,14 @@ export function HorizontalProductsRail({
       thumbWidth,
       thumbOffset,
     } = metrics;
+    const hasOverflow = maxScrollLeft > 1;
+
+    root.dataset.hasOverflow = hasOverflow ? "true" : "false";
 
     root.style.setProperty("--rail-thumb-width", `${thumbWidth.toFixed(2)}px`);
     root.style.setProperty("--rail-thumb-offset", `${thumbOffset.toFixed(2)}px`);
 
-    if (maxScrollLeft <= 1) {
+    if (!hasOverflow) {
       root.style.setProperty("--rail-fade-left-opacity", "0");
       root.style.setProperty("--rail-fade-right-opacity", "0");
       root.style.setProperty("--rail-fade-left-size", `${FADE_MIN_SIZE_PX}px`);
@@ -251,6 +254,7 @@ export function HorizontalProductsRail({
     <div
       ref={rootRef}
       className={cn(styles.root, dragging ? styles.rootDragging : "", className)}
+      data-has-overflow="false"
     >
       <div ref={railRef} className={styles.rail} role="region" aria-label={ariaLabel}>
         {items.map((child, index) => (
