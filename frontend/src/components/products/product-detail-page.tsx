@@ -164,7 +164,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   const [listsModalOpen, setListsModalOpen] = useState(false);
   const [listsModalLoading, setListsModalLoading] = useState(false);
   const [listsModalSaving, setListsModalSaving] = useState(false);
-  const [listsModalError, setListsModalError] = useState<string | null>(null);
+  const [, setListsModalError] = useState<string | null>(null);
   const [listsModalFavorite, setListsModalFavorite] = useState(false);
   const [listsModalListIds, setListsModalListIds] = useState<string[]>([]);
   const [listsModalLists, setListsModalLists] = useState<StoreProductListItem[]>([]);
@@ -1419,9 +1419,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           </DialogHeader>
 
           <div className={styles.addToListDialogBody}>
-            {listsModalLoading ? (
-              <p className={styles.addToListMuted}>Cargando listas...</p>
-            ) : listsModalMode === "create" ? (
+            {listsModalLoading ? null : listsModalMode === "create" ? (
               <div className={styles.addToListCreateModePanel}>
                 <Input
                   value={createListName}
@@ -1549,17 +1547,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                   })}
                 </div>
 
-                {listsModalLists.length === 0 ? (
-                  <p className={styles.addToListMuted}>
-                    No tenes listas creadas todavía.
-                  </p>
-                ) : null}
               </>
             )}
-
-            {listsModalMode === "select" && listsModalError ? (
-              <p className={styles.addToListError}>{listsModalError}</p>
-            ) : null}
 
             {listsModalMode === "select" ? (
               <div className={styles.addToListActions}>
