@@ -492,18 +492,20 @@ export function ProductsAdmin({ mode = "list" }: ProductsAdminProps) {
                   />
                 )}
 
-                <div className={styles.paginationFooter}>
-                  <PaginationNav
-                    page={page}
-                    totalPages={totalPages}
-                    disabled={loading}
-                    onPageChange={(nextPage) => {
-                      setPage(nextPage);
-                      setSelectedGroups({});
-                    }}
-                    ariaLabel="Paginacion de productos admin"
-                  />
-                </div>
+                {totalPages > 1 ? (
+                  <div className={styles.paginationFooter}>
+                    <PaginationNav
+                      page={page}
+                      totalPages={totalPages}
+                      disabled={loading}
+                      onPageChange={(nextPage) => {
+                        setPage(nextPage);
+                        setSelectedGroups({});
+                      }}
+                      ariaLabel="Paginacion de productos admin"
+                    />
+                  </div>
+                ) : null}
               </AdminPanelCard>
             </div>
           </div>

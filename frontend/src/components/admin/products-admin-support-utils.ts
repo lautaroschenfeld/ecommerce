@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { mapFriendlyError } from "@/lib/user-facing-errors";
 import { PRIMARY_CATEGORIES } from "@/lib/catalog";
 import { toNumberOrUndefined } from "@/lib/format";
+import { toStoreMediaProxyUrl } from "@/lib/store-media-url";
 import {
   syncProductCharacteristicsForCategory,
   type ProductCharacteristicItem,
@@ -441,7 +442,7 @@ function dedupeImageUrls(input: string[]) {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const raw of input) {
-    const url = raw.trim();
+    const url = toStoreMediaProxyUrl(raw);
     if (!url || seen.has(url)) continue;
     seen.add(url);
     out.push(url);

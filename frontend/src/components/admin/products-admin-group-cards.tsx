@@ -1,6 +1,6 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
-import Image from "next/image";
 import { Check, ChevronDown } from "lucide-react";
 
 import { formatMoney } from "@/lib/format";
@@ -236,13 +236,12 @@ export function ProductGroupCards({
                   }
                 >
                   {thumbnailUrl ? (
-                    <Image
+                    <img
                       src={thumbnailUrl}
                       alt={`Miniatura de ${primary.name}`}
-                      fill
                       loading="lazy"
                       className={styles.miniVisualImage}
-                      sizes="3rem"
+                      decoding="async"
                     />
                   ) : (
                     <>

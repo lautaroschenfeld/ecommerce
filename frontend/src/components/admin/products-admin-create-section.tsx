@@ -1,7 +1,7 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import type { Dispatch, SetStateAction } from "react";
-import Image from "next/image";
 import { ChevronDown, Plus, X } from "lucide-react";
 
 import { PRIMARY_CATEGORIES } from "@/lib/catalog";
@@ -258,12 +258,11 @@ export function ProductsAdminCreateSection({
               <div className={styles.imagesGrid}>
                 {baseVariant.imageUrls.map((url, imageIdx) => (
                   <div key={`${url}-${imageIdx}`} className={styles.imageTile}>
-                    <Image
+                    <img
                       src={url}
                       alt={`Imagen ${imageIdx + 1}`}
-                      fill
                       loading="lazy"
-                      sizes="(max-width: 900px) 44vw, 15rem"
+                      decoding="async"
                     />
                     <div className={styles.imageOverlay}>
                       <span className={styles.imageTag}>
@@ -588,12 +587,11 @@ export function ProductsAdminCreateSection({
                             <div className={styles.imagesGrid}>
                               {variant.imageUrls.map((url, imageIdx) => (
                                 <div key={`${url}-${imageIdx}`} className={styles.imageTile}>
-                                  <Image
+                                  <img
                                     src={url}
                                     alt={`Imagen ${imageIdx + 1}`}
-                                    fill
                                     loading="lazy"
-                                    sizes="(max-width: 900px) 44vw, 15rem"
+                                    decoding="async"
                                   />
                                   <div className={styles.imageOverlay}>
                                     <span className={styles.imageTag}>
