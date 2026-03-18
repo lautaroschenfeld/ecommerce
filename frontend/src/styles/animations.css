@@ -85,6 +85,10 @@
     opacity: 0.82;
     box-shadow: var(--dropdown-shadow-from);
   }
+  12% {
+    opacity: 1;
+    box-shadow: var(--dropdown-shadow-to);
+  }
   25% {
     opacity: 1;
   }
