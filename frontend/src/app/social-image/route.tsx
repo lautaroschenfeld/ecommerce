@@ -137,53 +137,62 @@ export async function GET(request: NextRequest) {
     ? "public, max-age=31536000, immutable"
     : "public, max-age=0, s-maxage=120, stale-while-revalidate=300";
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: palette.background,
-          padding: 48,
-        }}
-      >
-        {logoDataUrl ? (
-          // ImageResponse requires raw <img>; next/image is not supported here.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logoDataUrl}
-            alt={siteName}
-            style={{
-              width: logoSize,
-              height: logoSize,
-              objectFit: "contain",
-            }}
-          />
-        ) : (
-          <span
-            style={{
-              display: "flex",
-              fontSize: fallbackTextSize,
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-              color: palette.text,
-              textAlign: "center",
-            }}
-          >
-            {siteName}
-          </span>
-        )}
-      </div>
-    ),
-    {
+  const renderMarkup = (imageDataUrl: string) => (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: palette.background,
+        padding: 48,
+      }}
+    >
+      {imageDataUrl ? (
+        // ImageResponse requires raw <img>; next/image is not supported here.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageDataUrl}
+          alt={siteName}
+          style={{
+            width: logoSize,
+            height: logoSize,
+            objectFit: "contain",
+          }}
+        />
+      ) : (
+        <span
+          style={{
+            display: "flex",
+            fontSize: fallbackTextSize,
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            color: palette.text,
+            textAlign: "center",
+          }}
+        >
+          {siteName}
+        </span>
+      )}
+    </div>
+  );
+
+  try {
+    return new ImageResponse(renderMarkup(logoDataUrl), {
       width: SOCIAL_IMAGE_WIDTH,
       height: SOCIAL_IMAGE_HEIGHT,
       headers: {
         "cache-control": cacheControl,
       },
-    }
-  );
+    });
+  } catch {
+    return new ImageResponse(renderMarkup(""), {
+      width: SOCIAL_IMAGE_WIDTH,
+      height: SOCIAL_IMAGE_HEIGHT,
+      headers: {
+        "cache-control": "public, max-age=0, s-maxage=60, stale-while-revalidate=120",
+      },
+    });
+  }
 }
