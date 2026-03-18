@@ -405,11 +405,14 @@ export function CheckoutPage() {
 
   useEffect(() => {
     if (!hydrated) return;
+    if (buyNowIntent && intentItems === null) return;
     if (items.length > 0) return;
     if (placeOrderOpen || mercadoPagoReturnSummary) return;
     router.replace("/productos");
   }, [
+    buyNowIntent,
     hydrated,
+    intentItems,
     items.length,
     mercadoPagoReturnSummary,
     placeOrderOpen,
@@ -1528,9 +1531,6 @@ export function CheckoutPage() {
             {itemCount} ítem{itemCount === 1 ? "" : "s"}
           </Badge>
         </div>
-        <CardDescription>
-          Editá cantidades acá mismo o desde <Link href="/carrito">/carrito</Link>.
-        </CardDescription>
       </CardHeader>
       <CardContent className={styles.cardPad}>
         <div className={styles.summaryList}>

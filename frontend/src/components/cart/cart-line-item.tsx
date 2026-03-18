@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import { useState } from "react";
 
 import type { CartItem } from "@/lib/store-cart";
 
@@ -26,11 +26,14 @@ export function CartLineItem({
   onRemove: () => void;
 }) {
   const reduceMotion = useReducedMotion();
+  const imageUrl = typeof item.imageUrl === "string" ? item.imageUrl.trim() : "";
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const total = item.qty * item.priceArs;
   const maxQty =
     typeof item.stockAvailable === "number" && Number.isFinite(item.stockAvailable)
       ? Math.min(99, Math.max(1, Math.trunc(item.stockAvailable)))
       : 99;
+  const canRenderImage = Boolean(imageUrl) && failedImageUrl !== imageUrl;
 
   return (
     <motion.div
@@ -48,14 +51,17 @@ export function CartLineItem({
     >
       <div className={styles.media}>
         <div className={styles.thumb}>
-          {item.imageUrl ? (
-            <Image
-              src={item.imageUrl}
+          {canRenderImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
               alt={item.name}
               width={160}
               height={160}
               loading="lazy"
-              sizes="(max-width: 640px) 5rem, 4.1rem"
+              decoding="async"
+              draggable={false}
+              onError={() => setFailedImageUrl(imageUrl || null)}
             />
           ) : (
             <div className={styles.thumbFallback} aria-hidden />
