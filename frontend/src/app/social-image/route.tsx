@@ -277,7 +277,9 @@ export async function GET(request: NextRequest) {
   const palette = resolvePalette(themeMode);
   const requestOrigin = request.nextUrl.origin;
   const baseSize = Math.min(SOCIAL_IMAGE_WIDTH, SOCIAL_IMAGE_HEIGHT);
-  const logoSize = Math.round(baseSize * 0.58);
+  const logoMaxWidth = Math.round(baseSize * 0.88);
+  const logoMaxHeight = Math.round(baseSize * 0.76);
+  const canvasPadding = Math.round(baseSize * 0.04);
   const fallbackTextSize = Math.max(64, Math.round(baseSize * 0.18));
 
   const logoSourceCandidates = resolveLogoSourceCandidates({
@@ -316,7 +318,7 @@ export async function GET(request: NextRequest) {
         alignItems: "center",
         justifyContent: "center",
         background: palette.background,
-        padding: 48,
+        padding: canvasPadding,
       }}
     >
       {imageDataUrl ? (
@@ -326,8 +328,10 @@ export async function GET(request: NextRequest) {
           src={imageDataUrl}
           alt={siteName}
           style={{
-            width: logoSize,
-            height: logoSize,
+            width: logoMaxWidth,
+            maxWidth: "100%",
+            height: "auto",
+            maxHeight: logoMaxHeight,
             objectFit: "contain",
           }}
         />
