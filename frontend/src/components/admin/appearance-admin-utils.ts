@@ -18,6 +18,7 @@ export type StorefrontFormState = {
   bannerZoom: number;
   themeMode: StorefrontThemeMode;
   radiusScale: string;
+  fontScale: string;
   currencyCode: string;
   fontUrl: string;
   maintenanceMode: boolean;
@@ -138,6 +139,18 @@ export function parseRadiusScale(input: string) {
   if (!normalized) return DEFAULT_STOREFRONT_SETTINGS.radiusScale;
   const parsed = Number(normalized);
   return clampRadiusScale(parsed);
+}
+
+export function clampFontScale(value: number) {
+  if (!Number.isFinite(value)) return DEFAULT_STOREFRONT_SETTINGS.fontScale;
+  return Math.max(0.2, Math.min(2, Math.round(value * 1000) / 1000));
+}
+
+export function parseFontScale(input: string) {
+  const normalized = input.trim().replace(",", ".");
+  if (!normalized) return DEFAULT_STOREFRONT_SETTINGS.fontScale;
+  const parsed = Number(normalized);
+  return clampFontScale(parsed);
 }
 
 export function mapPanelError(error: unknown, fallback: string) {

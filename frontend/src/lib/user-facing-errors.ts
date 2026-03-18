@@ -85,8 +85,14 @@ export function mapFriendlyError(
   mode: AuthErrorMode = "session"
 ) {
   if (error instanceof ApiHttpError) {
+    const fromMessage = sanitizeUserFacingMessage(error.message, "", mode);
+    if (fromMessage === FRIENDLY_ERROR_MESSAGES.serviceUnavailable) {
+      return fromMessage;
+    }
+
     const fromStatus = mapHttpStatus(error.status, mode);
     if (fromStatus) return fromStatus;
+    if (fromMessage) return fromMessage;
   }
 
   if (error instanceof Error) {

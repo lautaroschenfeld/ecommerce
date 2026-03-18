@@ -22,7 +22,7 @@
 .linkAction {
   width: max-content;
   max-width: 100%;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   line-height: 1.45;
   white-space: nowrap;
   overflow: hidden;
@@ -31,7 +31,7 @@
 
 .showMoreLink {
   width: max-content;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   line-height: 1.45;
   font-weight: 600;
   border: 0;
@@ -64,7 +64,7 @@
 
 .softText {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
@@ -88,7 +88,7 @@
 
 .sheetTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.02em;
   padding-left: 0.12rem;
@@ -129,7 +129,7 @@
 .alphaLetter {
   margin: 0;
   color: var(--foreground);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -143,7 +143,7 @@
 
 .alphaItem {
   width: 100%;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   line-height: 1.45;
   white-space: nowrap;
   overflow: hidden;

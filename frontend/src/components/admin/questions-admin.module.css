@@ -171,7 +171,7 @@
 
 .questionProductLabel {
   margin: 0;
-  font-size: var(--qa-fs-sm);
+  font-size: calc(var(--qa-fs-sm) * var(--font-scale, 1));
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted-foreground);
@@ -181,7 +181,7 @@
   color: var(--foreground);
   text-decoration: none;
   font-weight: 700;
-  font-size: var(--qa-fs-title);
+  font-size: calc(var(--qa-fs-title) * var(--font-scale, 1));
   line-height: 1.35;
 }
 
@@ -226,7 +226,7 @@
   padding: 0.16rem 0.52rem;
   border-radius: var(--admin-radius-pill);
   border: 1px solid transparent;
-  font-size: var(--qa-fs-sm);
+  font-size: calc(var(--qa-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -241,7 +241,7 @@
 
 .customerMeta {
   margin: 0;
-  font-size: var(--qa-fs-md);
+  font-size: calc(var(--qa-fs-md) * var(--font-scale, 1));
 }
 
 .questionBlock,
@@ -252,13 +252,13 @@
 
 .blockLabel {
   margin: 0;
-  font-size: var(--qa-fs-note);
+  font-size: calc(var(--qa-fs-note) * var(--font-scale, 1));
   font-weight: 700;
 }
 
 .questionText {
   margin: 0;
-  font-size: var(--qa-fs-title);
+  font-size: calc(var(--qa-fs-title) * var(--font-scale, 1));
   line-height: 1.55;
 }
 
@@ -270,7 +270,7 @@
 
 .answerText {
   margin: 0;
-  font-size: var(--qa-fs-body);
+  font-size: calc(var(--qa-fs-body) * var(--font-scale, 1));
   line-height: 1.58;
   color: var(--foreground);
   border: 1px solid var(--qa-border-default);
@@ -295,7 +295,7 @@
   align-items: center;
   gap: 0.35rem 0.55rem;
   color: var(--muted-foreground);
-  font-size: var(--qa-fs-sm);
+  font-size: calc(var(--qa-fs-sm) * var(--font-scale, 1));
 }
 
 .timestampItem {
@@ -319,7 +319,7 @@
 .errorText {
   margin: 0;
   color: var(--destructive);
-  font-size: var(--qa-fs-note);
+  font-size: calc(var(--qa-fs-note) * var(--font-scale, 1));
 }
 
 @media (width >= 1025px) {

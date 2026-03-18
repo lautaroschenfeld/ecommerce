@@ -1787,6 +1787,7 @@ async function mockAdminSummarySession(page: Page) {
             favicon_url: "",
             theme_mode: "light",
             radius_scale: 1,
+            font_scale: 1,
             currency_code: "ARS",
             store_locale: "es-AR",
             metadata: {

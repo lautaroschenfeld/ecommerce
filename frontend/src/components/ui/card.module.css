@@ -22,7 +22,7 @@
 }
 
 .description {
-  font-size: 0.92rem;
+  font-size: calc(0.92rem * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 

@@ -32,13 +32,13 @@
 
 .title {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   margin: 0.22rem 0 0;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
   color: var(--muted-foreground);
   line-height: 1.4;
 }

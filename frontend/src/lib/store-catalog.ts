@@ -88,6 +88,15 @@ function mapStoreError(
 function shouldMarkBackendUnavailable(error: unknown) {
   if (error instanceof ApiHttpError) {
     if (error.status === 304) return false;
+    if (error.status === 401) {
+      const normalized = error.message.toLowerCase();
+      if (
+        normalized.includes("publishable api key required") ||
+        normalized.includes("x-publishable-api-key")
+      ) {
+        return true;
+      }
+    }
     return error.status >= 500;
   }
 

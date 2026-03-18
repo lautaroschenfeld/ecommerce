@@ -32,6 +32,8 @@ function resolvePatch(body: Record<string, unknown>) {
     themeMode: readPatchField(body, "themeMode"),
     radius_scale: readPatchField(body, "radius_scale", "radiusScale"),
     radiusScale: readPatchField(body, "radiusScale"),
+    font_scale: readPatchField(body, "font_scale", "fontScale"),
+    fontScale: readPatchField(body, "fontScale"),
     currency_code: readPatchField(body, "currency_code", "currencyCode"),
     store_locale: readPatchField(body, "store_locale", "storeLocale"),
     locale: readPatchField(body, "locale"),

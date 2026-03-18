@@ -96,7 +96,7 @@ function FavoritesPanel({ favorites }: FavoritesPanelProps) {
           </span>
           <p className={styles.stateTitle}>Aun no tenes productos favoritos</p>
           <p className={styles.stateMessage}>
-            Agregalos haciendo click en el corazon de la pagina de producto.
+            Agregalos desde el boton Agregar a una lista de la pagina de producto.
           </p>
           <Button asChild>
             <Link href="/productos">Explorar productos</Link>

@@ -114,7 +114,7 @@
   color: var(--tone-info-fg-strong);
   box-shadow: 0 10px 24px rgb(var(--ui-ink-rgb) / 0.18);
   padding: 0.22rem 0.55rem;
-  font-size: 0.74rem;
+  font-size: calc(0.74rem * var(--font-scale, 1));
   font-weight: 680;
   letter-spacing: 0.01em;
   transition: opacity 140ms var(--ease-out), transform 140ms var(--ease-out);

@@ -14,6 +14,7 @@ body {
   min-height: 100dvh;
   background: var(--background);
   color: var(--foreground);
+  font-size: calc(1rem * var(--font-scale, 1));
   font-family: var(--font-sans-custom, var(--font-sans, ui-sans-serif, system-ui, -apple-system,
       "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji",
       "Segoe UI Emoji"));
@@ -45,7 +46,15 @@ input,
 select,
 textarea {
   font: inherit;
+  font-size: calc(1rem * var(--font-scale, 1));
   color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font: inherit;
+  font-size: inherit;
+  color: var(--ui-icon-muted);
 }
 
 button {
@@ -89,7 +98,7 @@ select {
 
 select:hover {
   border-color: rgb(var(--brand-primary-rgb) / 0.45);
-  box-shadow: 0 14px 34px rgb(var(--ui-ink-rgb) / 0.12);
+  box-shadow: var(--hover-shadow-unified);
 }
 
 select:focus-visible {

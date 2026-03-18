@@ -18,7 +18,7 @@
 
 .fetchWarning {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 600;
   color: var(--summary-tone-down-fg);
 }
@@ -45,13 +45,13 @@
 
 .insightTitle {
   margin: 0;
-  font-size: var(--summary-fs-lg);
+  font-size: calc(var(--summary-fs-lg) * var(--font-scale, 1));
   letter-spacing: -0.02em;
 }
 
 .insightSubtitle {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
@@ -118,7 +118,7 @@
 
 .statusLink:hover .statusRow {
   transform: translateY(-1px);
-  box-shadow: var(--ui-shadow-soft);
+  box-shadow: var(--hover-shadow-unified);
 }
 
 .statusLink:focus-visible {
@@ -151,7 +151,7 @@
 
 .statusLabel {
   margin: 0;
-  font-size: var(--summary-fs-md);
+  font-size: calc(var(--summary-fs-md) * var(--font-scale, 1));
   font-weight: 700;
   line-height: 1.2;
   color: var(--muted-foreground);
@@ -160,7 +160,7 @@
 }
 
 .statusCount {
-  font-size: var(--summary-fs-hero);
+  font-size: calc(var(--summary-fs-hero) * var(--font-scale, 1));
   line-height: 1;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -207,14 +207,14 @@
 
 .deliveryLabel {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
   line-height: 1.2;
 }
 
 .deliveryValue {
   margin: 0;
-  font-size: var(--summary-fs-md);
+  font-size: calc(var(--summary-fs-md) * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -268,7 +268,7 @@
 
 .loadingMessage {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 600;
   color: var(--muted-foreground);
 }
@@ -282,13 +282,13 @@
 
 .metricLabel {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
 .metricValue {
   margin: 0;
-  font-size: var(--summary-metric-value-font-size, var(--summary-fs-lg));
+  font-size: calc(var(--summary-metric-value-font-size, var(--summary-fs-lg)) * var(--font-scale, 1));
   line-height: 1.08;
   letter-spacing: -0.03em;
   font-weight: 700;
@@ -330,7 +330,7 @@
 }
 
 .metricDeltaValue {
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -349,7 +349,7 @@
 }
 
 .metricDeltaLabel {
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -377,13 +377,13 @@
 
 .chartTitle {
   margin: 0;
-  font-size: var(--summary-billing-chart-title-font-size);
+  font-size: calc(var(--summary-billing-chart-title-font-size) * var(--font-scale, 1));
   letter-spacing: -0.02em;
 }
 
 .chartSubtitle {
   margin: 0.22rem 0 0;
-  font-size: var(--summary-fs-md);
+  font-size: calc(var(--summary-fs-md) * var(--font-scale, 1));
   color: var(--muted-foreground);
   line-height: 1.4;
 }
@@ -414,7 +414,7 @@
 .yTick {
   fill: var(--muted-foreground);
   font-family: inherit;
-  font-size: var(--summary-billing-chart-text-font-size);
+  font-size: calc(var(--summary-billing-chart-text-font-size) * var(--font-scale, 1));
   font-weight: var(--summary-billing-chart-text-font-weight);
   letter-spacing: 0;
 }
@@ -422,7 +422,7 @@
 .xTick {
   fill: var(--muted-foreground);
   font-family: inherit;
-  font-size: var(--summary-billing-chart-text-font-size);
+  font-size: calc(var(--summary-billing-chart-text-font-size) * var(--font-scale, 1));
   font-weight: var(--summary-billing-chart-text-font-weight);
   letter-spacing: 0;
 }
@@ -477,7 +477,7 @@
 
 .chartTooltipLabel {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
   font-weight: 600;
   line-height: 1.25;
@@ -485,7 +485,7 @@
 
 .chartTooltipValue {
   margin: 0.16rem 0 0;
-  font-size: var(--summary-fs-md);
+  font-size: calc(var(--summary-fs-md) * var(--font-scale, 1));
   color: var(--foreground);
   font-weight: 700;
 }
@@ -496,7 +496,7 @@
   bottom: 0.8rem;
   transform: translateX(-50%);
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
   font-weight: 600;
   pointer-events: none;
@@ -504,7 +504,7 @@
 
 .emptyListText {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
@@ -544,7 +544,7 @@
   border: 1px solid var(--summary-comparison-badge-border);
   background: transparent;
   color: var(--summary-comparison-badge-fg);
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1;
@@ -553,13 +553,13 @@
 
 .salesTitle {
   margin: 0;
-  font-size: var(--summary-fs-lg);
+  font-size: calc(var(--summary-fs-lg) * var(--font-scale, 1));
   letter-spacing: -0.02em;
 }
 
 .salesSubtitle {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
@@ -616,13 +616,13 @@
 
 .salesItemName {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
 }
 
 .salesItemMeta {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
   white-space: nowrap;
   overflow: hidden;
@@ -639,7 +639,7 @@
 }
 
 .salesShare {
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.01em;
   min-width: 3rem;
@@ -647,7 +647,7 @@
 }
 
 .salesTrend {
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   padding: 0.18rem 0.42rem;
   border-radius: var(--admin-radius-pill);
@@ -739,7 +739,7 @@
 
 .productBrand {
   margin: 0;
-  font-size: var(--summary-fs-xs);
+  font-size: calc(var(--summary-fs-xs) * var(--font-scale, 1));
   font-weight: 700;
   color: var(--muted-foreground);
   text-transform: uppercase;
@@ -748,13 +748,13 @@
 
 .productName {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
 }
 
 .productMeta {
   margin: 0;
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
@@ -767,7 +767,7 @@
 }
 
 .productRevenue {
-  font-size: var(--summary-fs-sm);
+  font-size: calc(var(--summary-fs-sm) * var(--font-scale, 1));
   font-weight: 700;
   width: 100%;
   text-align: right;

@@ -6,6 +6,18 @@ function wait(ms: number) {
   });
 }
 
+function parseCssTimeMs(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return NaN;
+  if (normalized.endsWith("ms")) {
+    return Number(normalized.slice(0, -2));
+  }
+  if (normalized.endsWith("s")) {
+    return Number(normalized.slice(0, -1)) * 1000;
+  }
+  return Number(normalized);
+}
+
 async function fulfillJsonRoute(
   route: Route,
   body: unknown,
@@ -972,6 +984,7 @@ async function mockAdminAppearancePage(page: Page) {
             favicon_url: "",
             theme_mode: "light",
             radius_scale: 1,
+            font_scale: 1,
             currency_code: "ARS",
             store_locale: "es-AR",
             metadata: {
@@ -1112,7 +1125,24 @@ test("selects inside admin dialogs support keyboard interaction and keep the par
   await expect(statusSelect).toBeFocused();
 
   await page.keyboard.press("ArrowDown");
-  await expect(page.getByRole("listbox")).toBeVisible();
+  const listbox = page.getByRole("listbox").first();
+  await expect(listbox).toBeVisible();
+  await expect(listbox).toHaveAttribute("data-dropdown-phase", /opening|open/);
+  await expect(listbox).toHaveAttribute("data-dropdown-direction", /down|up/);
+  const openDuration = await listbox.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--dropdown-motion-open-duration").trim()
+  );
+  const closeDuration = await listbox.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--dropdown-motion-close-duration").trim()
+  );
+  expect(parseCssTimeMs(openDuration)).toBeCloseTo(1760, 0);
+  expect(parseCssTimeMs(closeDuration)).toBeCloseTo(720, 0);
+  const optionDelays = await listbox
+    .getByRole("option")
+    .evaluateAll((options) =>
+      options.slice(0, 2).map((option) => getComputedStyle(option).animationDelay)
+    );
+  expect(optionDelays).toEqual(["0s", "0s"]);
 
   await page.keyboard.press("Escape");
   await expect(dialog).toBeVisible();
@@ -1136,6 +1166,36 @@ test("selects inside admin dialogs support keyboard interaction and keep the par
       })
     )
     .toBe(true);
+});
+
+test("select dropdown removes stagger delays under reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await mockAdminCouponsPage(page);
+
+  await page.goto("/cuenta/administracion/promociones", {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.getByRole("button", { name: "Editar" }).first().click();
+
+  const dialog = page.getByRole("dialog", { name: "Editar cupon" });
+  const statusSelect = dialog.locator("#coupon_active_coupon-001");
+
+  await expect(dialog).toBeVisible();
+  await statusSelect.focus();
+  await page.keyboard.press("ArrowDown");
+
+  const listbox = page.getByRole("listbox").first();
+  await expect(listbox).toBeVisible();
+  const optionAnimationDelay = await listbox
+    .getByRole("option")
+    .first()
+    .evaluate((option) => getComputedStyle(option).animationDelay);
+  expect(optionAnimationDelay).toBe("0s");
+  const panelAnimationDuration = await listbox.evaluate(
+    (node) => getComputedStyle(node).animationDuration
+  );
+  expect(parseCssTimeMs(panelAnimationDuration)).toBeLessThan(1);
 });
 
 test("coupon edit stays open and non-dismissible while saving", async ({ page }) => {
@@ -1702,6 +1762,44 @@ test("products ignore stale list responses that arrive after a newer search", as
     page.getByRole("button", { name: "Seleccionar Casco Integral V2 Carbon" })
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Seleccionar Producto lento" })).toHaveCount(0);
+});
+
+test("product actions menu adapts motion direction to available viewport space", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await mockAdminProductsPage(page);
+
+  await page.goto("/cuenta/administracion/productos", {
+    waitUntil: "domcontentloaded",
+  });
+
+  const actionsTrigger = page.getByRole("button", { name: "Abrir acciones" }).first();
+  await expect(actionsTrigger).toBeVisible();
+  await actionsTrigger.click();
+
+  const actionsMenu = page.getByRole("menu").filter({ hasText: "Editar" }).first();
+  await expect(actionsMenu).toBeVisible();
+  await expect(actionsMenu).toHaveAttribute("data-dropdown-direction", "down");
+  await expect(actionsMenu).toHaveAttribute("data-dropdown-phase", /opening|open/);
+  const openDuration = await actionsMenu.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--dropdown-motion-open-duration").trim()
+  );
+  expect(parseCssTimeMs(openDuration)).toBeCloseTo(1760, 0);
+  const itemDelay = await actionsMenu
+    .getByRole("menuitem")
+    .first()
+    .evaluate((item) => getComputedStyle(item).animationDelay);
+  expect(itemDelay).toBe("0s");
+
+  await page.keyboard.press("Escape");
+  await expect(actionsMenu).toHaveCount(0);
+
+  await page.setViewportSize({ width: 1366, height: 240 });
+  await actionsTrigger.scrollIntoViewIfNeeded();
+  await actionsTrigger.click();
+  await expect(actionsMenu).toBeVisible();
+  await expect(actionsMenu).toHaveAttribute("data-dropdown-direction", "up");
 });
 
 test("product edit syncs the whole group in one atomic request", async ({ page }) => {

@@ -51,14 +51,14 @@
 
 .title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--font-scale, 1));
   font-weight: 750;
   letter-spacing: -0.02em;
 }
 
 .description {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   color: var(--muted-foreground);
   line-height: 1.5;
 }

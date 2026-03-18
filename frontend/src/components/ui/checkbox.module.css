@@ -1,13 +1,18 @@
 .checkbox {
   --checkbox-border-color: var(--control-border-hover);
+  --checkbox-size: 1rem;
+  --checkbox-radius: calc(0.35rem * var(--radius-scale));
+  --checkbox-mark-width: 0.34rem;
+  --checkbox-mark-height: 0.62rem;
   appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border-radius: calc(0.35rem * var(--radius-scale));
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border-radius: var(--checkbox-radius);
   border: 1px solid var(--checkbox-border-color);
   background: var(--checkbox-surface-bg);
   display: inline-grid;
   place-items: center;
+  position: relative;
   box-shadow: var(--control-shadow);
   transition: background-color 180ms var(--ease-out),
     border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out),
@@ -21,15 +26,19 @@
 
 .checkbox::after {
   content: "";
-  width: 0.34rem;
-  height: 0.62rem;
+  width: var(--checkbox-mark-width);
+  height: var(--checkbox-mark-height);
   border-right: 2px solid var(--checkbox-mark-color);
   border-bottom: 2px solid var(--checkbox-mark-color);
-  transform: rotate(45deg) translateY(-1px) scale(0);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -56%) rotate(45deg) scale(0);
+  transform-origin: center;
 }
 
 .checkbox:checked::after {
-  transform: rotate(45deg) translateY(-1px) scale(1);
+  transform: translate(-50%, -56%) rotate(45deg) scale(1);
 }
 
 .checkbox:focus-visible {
@@ -41,4 +50,25 @@
   cursor: not-allowed;
   background: var(--control-background-disabled);
   border-color: var(--control-border-weak);
+}
+
+.size_sm {
+  --checkbox-size: 0.94rem;
+  --checkbox-radius: calc(0.32rem * var(--radius-scale));
+  --checkbox-mark-width: 0.3rem;
+  --checkbox-mark-height: 0.54rem;
+}
+
+.size_md {
+  --checkbox-size: 1rem;
+  --checkbox-radius: calc(0.35rem * var(--radius-scale));
+  --checkbox-mark-width: 0.34rem;
+  --checkbox-mark-height: 0.62rem;
+}
+
+.size_lg {
+  --checkbox-size: 1.34rem;
+  --checkbox-radius: calc(0.46rem * var(--radius-scale));
+  --checkbox-mark-width: 0.44rem;
+  --checkbox-mark-height: 0.82rem;
 }

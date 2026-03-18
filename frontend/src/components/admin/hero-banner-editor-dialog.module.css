@@ -148,7 +148,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
   font-weight: 700;
   white-space: nowrap;
 }
@@ -156,7 +156,7 @@
 .labelSpec {
   display: inline-block;
   margin-top: 0.12rem;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
   font-weight: 600;
   white-space: nowrap;
   line-height: 1.1;
@@ -167,7 +167,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   font-weight: 700;
   color: var(--ui-color-rgba-255-255-255-0p92);
   background: var(--ui-backdrop);
@@ -192,13 +192,13 @@
 }
 
 .sliderLabel {
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
   font-weight: 700;
   color: var(--foreground);
 }
 
 .controlValue {
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--font-scale, 1));
   font-weight: 700;
   color: var(--muted-foreground);
 }

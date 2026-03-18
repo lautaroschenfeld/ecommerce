@@ -6,7 +6,7 @@
   height: 1.4rem;
   padding: 0 0.55rem;
   border-radius: var(--radius-pill);
-  font-size: 0.72rem;
+  font-size: calc(0.72rem * var(--font-scale, 1));
   font-weight: 650;
   letter-spacing: 0.01em;
   white-space: nowrap;

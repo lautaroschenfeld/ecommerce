@@ -128,7 +128,13 @@ function toastReducer(state: ToastState, action: ToastAction): ToastState {
   return { visible: updatedVisible.next, queue: updatedQueue.next };
 }
 
-export function AdminToastsProvider({ children }: { children: React.ReactNode }) {
+export function AdminToastsProvider({
+  children,
+  enableAdminRealtime = true,
+}: {
+  children: React.ReactNode;
+  enableAdminRealtime?: boolean;
+}) {
   const reduceMotion = useReducedMotion();
   const [state, dispatch] = useReducer(toastReducer, { visible: [], queue: [] });
   const visible = state.visible;
@@ -279,6 +285,8 @@ export function AdminToastsProvider({ children }: { children: React.ReactNode })
   }, [clearTimer, dismiss, state.queue, visible]);
 
   useEffect(() => {
+    if (!enableAdminRealtime) return;
+
     const url = new URL("/admin/notifications/stream", STORE_BACKEND_URL).toString();
 
     let es: EventSource | null = null;
@@ -365,7 +373,7 @@ export function AdminToastsProvider({ children }: { children: React.ReactNode })
         // ignore
       }
     };
-  }, [pushForceVisible, updateToast]);
+  }, [enableAdminRealtime, pushForceVisible, updateToast]);
 
   useEffect(() => {
     const timers = timersRef.current;

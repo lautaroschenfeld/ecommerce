@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { CustomerCartSync } from "@/components/cart/customer-cart-sync";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { AdminToastsProvider } from "@/components/shared/admin-toasts";
 import { StorePageTelemetry } from "@/components/telemetry/store-page-telemetry";
 import { type StorefrontSettings } from "@/lib/storefront-settings";
 
@@ -38,7 +39,7 @@ export function RouteAwareSiteShell({
     return <main className={`container ${styles.mainAdmin}`}>{children}</main>;
   }
 
-  return (
+  const shell = (
     <>
       <SiteHeader storefront={storefront} />
       {adminRoute ? null : <CustomerCartSync />}
@@ -55,4 +56,8 @@ export function RouteAwareSiteShell({
       {adminRoute ? null : <SiteFooter storefront={storefront} />}
     </>
   );
+
+  if (adminRoute) return shell;
+
+  return <AdminToastsProvider enableAdminRealtime={false}>{shell}</AdminToastsProvider>;
 }

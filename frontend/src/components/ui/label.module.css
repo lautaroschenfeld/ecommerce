@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--font-scale, 1));
   font-weight: 650;
   letter-spacing: -0.01em;
 }

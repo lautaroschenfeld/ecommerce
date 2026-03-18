@@ -13,6 +13,8 @@
 }
 
 .textarea::placeholder {
+  font: inherit;
+  font-size: inherit;
   color: var(--ui-icon-muted);
 }
 

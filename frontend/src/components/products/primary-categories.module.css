@@ -12,7 +12,7 @@
 
 .title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: calc(1.125rem * var(--font-scale, 1));
   font-weight: 860;
   letter-spacing: -0.03em;
 }
@@ -43,7 +43,7 @@
 
 .item:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--hover-shadow-unified);
 }
 
 .item:focus-visible {
@@ -95,7 +95,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   font-weight: 650;
 }
 

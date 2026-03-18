@@ -68,7 +68,7 @@
 }
 
 .panelTitle {
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
 }
 
 .clearButton {
@@ -134,7 +134,7 @@
 .paginationMeta {
   margin: 0;
   color: var(--muted-foreground);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
 }
 
 .paginationFooter {
@@ -149,7 +149,7 @@
 
 .orderCard:hover {
   transform: translate3d(0, -1px, 0);
-  box-shadow: var(--ui-shadow-card);
+  box-shadow: var(--hover-shadow-unified);
 }
 
 .orderCard:focus-visible {
@@ -176,7 +176,7 @@
 
 .orderNumber {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -187,7 +187,7 @@
   gap: 0.5rem;
   align-items: center;
   color: var(--muted-foreground);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
 }
 
 .metaItem {
@@ -261,7 +261,7 @@
 
 .sheetBlockTitle {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -339,7 +339,7 @@
 }
 
 .stepDesc {
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   color: var(--muted-foreground);
   line-height: 1.35;
 }

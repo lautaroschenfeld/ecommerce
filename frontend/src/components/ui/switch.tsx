@@ -1,9 +1,9 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import styles from "./checkbox.module.css";
+import styles from "./switch.module.css";
 
-export type CheckboxProps = Omit<
+export type SwitchProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   "type" | "onChange" | "className" | "size"
 > & {
@@ -13,22 +13,23 @@ export type CheckboxProps = Omit<
   onCheckedChange?: (checked: boolean) => void;
 };
 
-export function Checkbox({
+export function Switch({
   className,
   size = "md",
   checked,
   onCheckedChange,
   ...props
-}: CheckboxProps) {
+}: SwitchProps) {
   return (
     <input
       type="checkbox"
-      className={cn(styles.checkbox, styles[`size_${size}`], className)}
-      data-ui-checkbox="true"
+      role="switch"
+      aria-checked={checked}
+      className={cn(styles.switch, styles[`size_${size}`], className)}
+      data-ui-switch="true"
       checked={checked}
-      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      onChange={(event) => onCheckedChange?.(event.target.checked)}
       {...props}
     />
   );
 }
-

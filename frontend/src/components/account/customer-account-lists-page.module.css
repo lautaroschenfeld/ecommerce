@@ -20,7 +20,7 @@
   border: 0;
   background: transparent;
   color: var(--muted-foreground);
-  font-size: var(--lists-fs-strong);
+  font-size: calc(var(--lists-fs-strong) * var(--font-scale, 1));
   font-weight: 650;
   line-height: 1.25;
   padding: 0 0 0.62rem;
@@ -60,7 +60,7 @@
 
 .stateTitle {
   margin: 0;
-  font-size: var(--lists-fs-title);
+  font-size: calc(var(--lists-fs-title) * var(--font-scale, 1));
   line-height: 1.18;
   letter-spacing: -0.02em;
   font-weight: 760;
@@ -68,7 +68,7 @@
 
 .stateMessage {
   margin: 0;
-  font-size: var(--lists-fs-body);
+  font-size: calc(var(--lists-fs-body) * var(--font-scale, 1));
   font-weight: 450;
   color: var(--muted-foreground);
   line-height: 1.5;
@@ -85,14 +85,14 @@
 
 .sectionMeta {
   margin: 0;
-  font-size: var(--lists-fs-body);
+  font-size: calc(var(--lists-fs-body) * var(--font-scale, 1));
   color: var(--foreground);
   font-weight: 620;
 }
 
 .sectionMuted {
   margin: 0;
-  font-size: var(--lists-fs-body);
+  font-size: calc(var(--lists-fs-body) * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 
@@ -148,7 +148,7 @@
 
 .listCard:hover {
   border-color: var(--ui-border-strong);
-  box-shadow: 0 12px 24px var(--ui-color-rgba-15-23-42-0p08);
+  box-shadow: var(--hover-shadow-unified);
   transform: translateY(-1px);
 }
 
@@ -184,18 +184,18 @@
 }
 
 .listCardTitle {
-  font-size: var(--lists-fs-strong);
+  font-size: calc(var(--lists-fs-strong) * var(--font-scale, 1));
   letter-spacing: -0.01em;
 }
 
 .listCardType {
   color: var(--muted-foreground);
-  font-size: var(--lists-fs-compact);
+  font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
 }
 
 .listCardCount {
   color: var(--muted-foreground);
-  font-size: var(--lists-fs-compact);
+  font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
 }
 
 .backLink {
@@ -208,7 +208,7 @@
   width: fit-content;
   padding: 0;
   cursor: pointer;
-  font-size: var(--lists-fs-body);
+  font-size: calc(var(--lists-fs-body) * var(--font-scale, 1));
   font-weight: 620;
 }
 
@@ -222,7 +222,7 @@
 
 .detailTitle {
   margin: 0;
-  font-size: var(--lists-fs-detail);
+  font-size: calc(var(--lists-fs-detail) * var(--font-scale, 1));
   line-height: 1.05;
   letter-spacing: -0.03em;
 }
@@ -244,7 +244,7 @@
 
 .formError {
   margin: 0;
-  font-size: var(--lists-fs-compact);
+  font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
   color: rgb(var(--ui-status-warning-strong-rgb) / 1);
 }
 
@@ -264,7 +264,7 @@
   }
 
   .topTab {
-    font-size: var(--lists-fs-compact);
+    font-size: calc(var(--lists-fs-compact) * var(--font-scale, 1));
   }
 
   .listCardsGrid {

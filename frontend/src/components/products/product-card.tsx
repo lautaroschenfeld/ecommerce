@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType, CSSProperties, MouseEvent as ReactMouseEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -84,6 +84,12 @@ function Visual({
 
     return Array.from(new Set(urls));
   }, [product.images, product.imageUrl]);
+  const [failedUrls, setFailedUrls] = useState<string[]>([]);
+  const failedSet = useMemo(() => new Set(failedUrls), [failedUrls]);
+  const visibleImageList = useMemo(
+    () => imageList.filter((url) => !failedSet.has(url)),
+    [failedSet, imageList]
+  );
 
   const colorSummary = useMemo(() => {
     if (!variantColors?.length) return null;
@@ -91,24 +97,32 @@ function Visual({
     return summary.totalColors > 1 ? summary : null;
   }, [variantColors]);
 
-  const hasImage = imageList.length > 0;
-  const canCycle = imageList.length > 1;
+  const hasImage = visibleImageList.length > 0;
+  const canCycle = visibleImageList.length > 1;
   const Icon = categoryIcon[product.category] ?? Wrench;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [hovering, setHovering] = useState(false);
+
+  const markUrlAsFailed = useCallback((url: string | undefined) => {
+    const normalized = typeof url === "string" ? url.trim() : "";
+    if (!normalized) return;
+    setFailedUrls((current) =>
+      current.includes(normalized) ? current : [...current, normalized]
+    );
+  }, []);
 
   useEffect(() => {
     if (!hovering || !canCycle) return;
 
     const timer = window.setInterval(() => {
-      setActiveImageIndex((prev) => (prev + 1) % imageList.length);
+      setActiveImageIndex((prev) => (prev + 1) % visibleImageList.length);
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [hovering, canCycle, imageList.length]);
+  }, [hovering, canCycle, visibleImageList.length]);
 
   const activeImageUrl = hasImage
-    ? imageList[activeImageIndex % imageList.length]
+    ? visibleImageList[activeImageIndex % visibleImageList.length]
     : undefined;
 
   return (
@@ -136,6 +150,7 @@ function Visual({
                 ? { duration: 0.36, ease: [0.22, 1, 0.36, 1] }
                 : { duration: 0 }
             }
+            onError={() => markUrlAsFailed(activeImageUrl)}
           />
         </AnimatePresence>
       ) : null}

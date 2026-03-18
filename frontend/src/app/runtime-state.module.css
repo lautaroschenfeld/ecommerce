@@ -18,7 +18,7 @@
 
 .kicker {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: calc(0.78rem * var(--font-scale, 1));
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--muted-foreground);
@@ -26,7 +26,7 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  font-size: calc(clamp(1.35rem, 3vw, 1.9rem) * var(--font-scale, 1));
   letter-spacing: -0.02em;
   line-height: 1.1;
 }

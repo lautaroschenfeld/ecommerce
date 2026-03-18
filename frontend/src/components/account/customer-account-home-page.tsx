@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Edit3 } from "lucide-react";
 
 import { useCustomerOrders, useCustomerSession } from "@/lib/customer-auth";
+import { notify } from "@/lib/notifications";
 import { mapFriendlyError } from "@/lib/user-facing-errors";
 
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +60,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
   const didSyncAddresses = useRef(false);
   const [activeSection, setActiveSection] = useState<ProfileSection | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [formMessage, setFormMessage] = useState<string | null>(null);
 
   const [personalFirstName, setPersonalFirstName] = useState(customer.firstName);
   const [personalLastName, setPersonalLastName] = useState(customer.lastName);
@@ -93,7 +94,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
   );
 
   const resetEditorState = (section: ProfileSection) => {
-    setMessage(null);
+    setFormMessage(null);
 
     if (section === "personal") {
       setPersonalFirstName(customer.firstName);
@@ -131,19 +132,19 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
   const closeEditor = () => {
     if (saving) return;
     setActiveSection(null);
-    setMessage(null);
+    setFormMessage(null);
   };
 
   const submitEditor = async () => {
     if (!activeSection) return;
-    setMessage(null);
+    setFormMessage(null);
 
     try {
       setSaving(true);
 
       if (activeSection === "personal") {
         if (!personalFirstName.trim() || !personalLastName.trim()) {
-          setMessage("Nombre y apellido son obligatorios.");
+          setFormMessage("Nombre y apellido son obligatorios.");
           return;
         }
 
@@ -155,7 +156,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
           whatsapp: personalWhatsapp,
         });
 
-        setMessage("Información personal actualizada.");
+        notify("Información personal actualizada.", undefined, "success");
         setActiveSection(null);
         return;
       }
@@ -163,7 +164,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
       if (activeSection === "security") {
         const nextEmail = securityEmail.trim().toLowerCase();
         if (!nextEmail || !nextEmail.includes("@")) {
-          setMessage("Ingresa un correo válido.");
+          setFormMessage("Ingresa un correo válido.");
           return;
         }
 
@@ -182,18 +183,18 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
             !securityNewPassword.trim() ||
             !securityConfirmPassword.trim()
           ) {
-            setMessage("Completá contraseña actual, nueva y confirmación.");
+            setFormMessage("Completá contraseña actual, nueva y confirmación.");
             return;
           }
           if (securityNewPassword !== securityConfirmPassword) {
-            setMessage("La nueva contraseña y la confirmación no coinciden.");
+            setFormMessage("La nueva contraseña y la confirmación no coinciden.");
             return;
           }
 
           await session.changePassword(securityCurrentPassword, securityNewPassword);
         }
 
-        setMessage("Correo y contraseña actualizados.");
+        notify("Correo y contraseña actualizados.", undefined, "success");
         setActiveSection(null);
         return;
       }
@@ -204,7 +205,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
         !addressProvince.trim() ||
         !addressPostalCode.trim()
       ) {
-        setMessage("Completá dirección, ciudad, provincia y código postal.");
+        setFormMessage("Completá dirección, ciudad, provincia y código postal.");
         return;
       }
 
@@ -227,10 +228,14 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
       }
 
       await session.syncAddresses();
-      setMessage("Dirección por defecto actualizada.");
+      notify("Dirección por defecto actualizada.", undefined, "success");
       setActiveSection(null);
     } catch (error) {
-      setMessage(mapFriendlyError(error, "No se pudo actualizar el perfil."));
+      notify(
+        "No se pudo actualizar el perfil.",
+        mapFriendlyError(error, "No se pudo actualizar el perfil."),
+        "error"
+      );
     } finally {
       setSaving(false);
     }
@@ -524,7 +529,7 @@ function HomeContent({ session, customer, orders, loading }: HomeContentProps) {
               </div>
             ) : null}
 
-            {message ? <p className={styles.sheetMessage}>{message}</p> : null}
+            {formMessage ? <p className={styles.sheetMessage}>{formMessage}</p> : null}
           </div>
 
           <SheetFooter className={styles.sheetFooter}>

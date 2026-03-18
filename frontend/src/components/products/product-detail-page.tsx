@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Heart,
   ListPlus,
-  Loader2,
   Plus,
   ShieldCheck,
   ShoppingCart,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 
 import type { Product } from "@/lib/product";
+import { notify } from "@/lib/notifications";
 import { buildProductPath } from "@/lib/product-path";
 import {
   formatCharacteristicValue,
@@ -49,7 +49,6 @@ import {
   useStoreProducts,
   useStoreRelatedProducts,
 } from "@/lib/store-catalog";
-import { useStoreFavorites } from "@/lib/store-favorites";
 import {
   createStoreAccountList,
   fetchStoreAccountLists,
@@ -112,6 +111,15 @@ type ProductSelectionState = {
   size: string | null;
 };
 
+type ListsModalMode = "select" | "create";
+
+type ListsSelectionSnapshot = {
+  favorite: boolean;
+  listIds: string[];
+};
+
+type ListsSelectionChange = "added" | "removed" | "none";
+
 function normalizeSearchText(input: string) {
   return input
     .normalize("NFD")
@@ -163,15 +171,15 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   const [listsModalPreviewById, setListsModalPreviewById] = useState<
     Record<string, string>
   >({});
-  const [createListOpen, setCreateListOpen] = useState(false);
+  const [listsModalMode, setListsModalMode] = useState<ListsModalMode>("select");
+  const [listsModalInitialSelection, setListsModalInitialSelection] =
+    useState<ListsSelectionSnapshot | null>(null);
   const [createListName, setCreateListName] = useState("");
   const [createListSaving, setCreateListSaving] = useState(false);
+  const [createListError, setCreateListError] = useState<string | null>(null);
   const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
   const trackedProductViewsRef = useRef(new Set<string>());
   const recoveredQuestionRef = useRef(false);
-  const favorites = useStoreFavorites({
-    skip: !customerHydrated || !isLoggedIn,
-  });
 
   const { product, loading, error, notFound, refetch } = useStoreProduct(productId);
 
@@ -359,11 +367,6 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   };
 
   const currentProduct = activeProduct ?? product;
-  const isCurrentFavorite = currentProduct
-    ? favorites.isFavorite(currentProduct.id)
-    : false;
-  const favoriteBusy =
-    Boolean(currentProduct?.id) && favorites.savingProductId === currentProduct?.id;
   const deliveryWindow = useMemo(() => estimateStoreDeliveryWindow(), []);
   const {
     products: related,
@@ -433,9 +436,11 @@ export function ProductDetailPage({ productId }: { productId: string }) {
     setListsModalListIds([]);
     setListsModalLists([]);
     setListsModalPreviewById({});
-    setCreateListOpen(false);
+    setListsModalMode("select");
+    setListsModalInitialSelection(null);
     setCreateListName("");
     setCreateListSaving(false);
+    setCreateListError(null);
     setQuestionsModalOpen(false);
     recoveredQuestionRef.current = false;
   }, [product?.id]);
@@ -677,36 +682,6 @@ export function ProductDetailPage({ productId }: { productId: string }) {
     return "/productos";
   };
 
-  const handleFavoriteToggle = async () => {
-    if (!currentProduct?.id) return;
-    if (!customerHydrated) return;
-
-    if (sessionUnavailable) {
-      setAccountActionError(accountUnavailableMessage);
-      return;
-    }
-
-    if (!isLoggedIn) {
-      const redirectPath = resolveAccountRedirectPath();
-      router.push(`/ingresar?redirect=${encodeURIComponent(redirectPath)}`);
-      return;
-    }
-
-    setAccountActionError(null);
-    favorites.clearError();
-    try {
-      await favorites.toggleFavorite(currentProduct.id);
-    } catch (toggleError) {
-      setAccountActionError(
-        mapFriendlyError(
-          toggleError,
-          "No pudimos actualizar tus favoritos.",
-          "login"
-        )
-      );
-    }
-  };
-
   const loadListsSelection = async () => {
     if (!currentProduct?.id) return;
 
@@ -721,6 +696,9 @@ export function ProductDetailPage({ productId }: { productId: string }) {
         (item) => item.id.trim() && item.name.trim()
       );
       const allowedIds = new Set(normalizedLists.map((item) => item.id));
+      const normalizedSelectedIds = uniqStrings(
+        selection.listIds.filter((listId) => allowedIds.has(listId))
+      );
       const nextPreviewById: Record<string, string> = {};
       for (const list of allLists.lists) {
         const listId = list.id.trim();
@@ -732,9 +710,11 @@ export function ProductDetailPage({ productId }: { productId: string }) {
       setListsModalFavorite(selection.favorite);
       setListsModalLists(normalizedLists);
       setListsModalPreviewById(nextPreviewById);
-      setListsModalListIds(
-        uniqStrings(selection.listIds.filter((listId) => allowedIds.has(listId)))
-      );
+      setListsModalListIds(normalizedSelectedIds);
+      setListsModalInitialSelection({
+        favorite: selection.favorite,
+        listIds: normalizedSelectedIds,
+      });
     } catch (loadError) {
       setListsModalError(
         mapFriendlyError(loadError, "No pudimos cargar tus listas.", "login")
@@ -743,8 +723,41 @@ export function ProductDetailPage({ productId }: { productId: string }) {
       setListsModalLists([]);
       setListsModalPreviewById({});
       setListsModalListIds([]);
+      setListsModalInitialSelection(null);
     } finally {
       setListsModalLoading(false);
+    }
+  };
+
+  const resolveListsSelectionChange = (
+    initial: ListsSelectionSnapshot | null,
+    next: ListsSelectionSnapshot
+  ): ListsSelectionChange => {
+    if (!initial) return "none";
+
+    const initialIds = uniqStrings(initial.listIds.map((id) => id.trim()).filter(Boolean));
+    const nextIds = uniqStrings(next.listIds.map((id) => id.trim()).filter(Boolean));
+    const initialSet = new Set(initialIds);
+
+    const hasAdded =
+      (!initial.favorite && next.favorite) ||
+      nextIds.some((listId) => !initialSet.has(listId));
+    const hasRemoved =
+      (initial.favorite && !next.favorite) ||
+      initialIds.some((listId) => !nextIds.includes(listId));
+
+    if (hasAdded) return "added";
+    if (hasRemoved) return "removed";
+    return "none";
+  };
+
+  const showListsSelectionToast = (change: ListsSelectionChange) => {
+    if (change === "added") {
+      notify("Agregaste el producto a la lista", undefined, "success");
+      return;
+    }
+    if (change === "removed") {
+      notify("Quitaste el producto de la lista", undefined, "info");
     }
   };
 
@@ -765,9 +778,18 @@ export function ProductDetailPage({ productId }: { productId: string }) {
     setAccountActionError(null);
     setListsModalOpen(true);
     setListsModalError(null);
-    setCreateListOpen(false);
+    setListsModalMode("select");
+    setListsModalInitialSelection(null);
     setCreateListName("");
+    setCreateListError(null);
     await loadListsSelection();
+  };
+
+  const handleOpenCreateListDialog = () => {
+    setCreateListName("");
+    setCreateListError(null);
+    setListsModalError(null);
+    setListsModalMode("create");
   };
 
   const toggleListsModalList = (listIdRaw: string, checked?: boolean) => {
@@ -784,22 +806,25 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   };
 
   const handleCreateListFromModal = async () => {
+    if (!currentProduct?.id || !customerHydrated) return;
+
     const name = createListName.trim();
     if (!name) {
-      setListsModalError("Escribe un nombre para la lista.");
+      setCreateListError("Escribe un nombre para la lista.");
       return;
     }
-    if (!customerHydrated) return;
     if (sessionUnavailable) {
-      setListsModalError(accountUnavailableMessage);
+      setCreateListError(accountUnavailableMessage);
       return;
     }
     if (!isLoggedIn) return;
 
     setCreateListSaving(true);
+    setCreateListError(null);
     setListsModalError(null);
     try {
       const created = await createStoreAccountList(name);
+      const createdPreviewUrl = toStoreMediaProxyUrl(created.previewImageUrl);
       const nextItem = { id: created.id, name: created.name };
       setListsModalLists((current) => {
         const next = [nextItem, ...current.filter((item) => item.id !== nextItem.id)];
@@ -807,21 +832,61 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           .map((id) => next.find((item) => item.id === id) || null)
           .filter((item): item is StoreProductListItem => Boolean(item));
       });
-      setListsModalListIds((current) =>
-        current.includes(created.id) ? current : [...current, created.id]
-      );
       setListsModalPreviewById((current) => {
-        if (current[created.id]) return current;
+        if (current[created.id] || !createdPreviewUrl) return current;
         return {
           ...current,
-          [created.id]: "",
+          [created.id]: createdPreviewUrl,
         };
       });
+
+      const nextListIds = uniqStrings([...listsModalListIds, created.id]);
+      const saved = await saveStoreProductListSelection(currentProduct.id, {
+        favorite: listsModalFavorite,
+        listIds: nextListIds,
+      });
+
+      const allowedIds = new Set(saved.lists.map((item) => item.id));
+      const normalizedSavedListIds = uniqStrings(
+        saved.listIds.filter((listId) => allowedIds.has(listId))
+      );
+      const nextSelection: ListsSelectionSnapshot = {
+        favorite: saved.favorite,
+        listIds: normalizedSavedListIds,
+      };
+      const selectionChange = resolveListsSelectionChange(
+        listsModalInitialSelection,
+        nextSelection
+      );
+      const nextToastChange =
+        selectionChange === "none" ? ("added" as const) : selectionChange;
+
+      setListsModalFavorite(saved.favorite);
+      setListsModalListIds(normalizedSavedListIds);
+      setListsModalLists(saved.lists);
+      setListsModalInitialSelection(nextSelection);
+      setListsModalPreviewById((current) => {
+        const next: Record<string, string> = {};
+        for (const [id, url] of Object.entries(current)) {
+          if (!allowedIds.has(id)) continue;
+          if (!url.trim()) continue;
+          next[id] = url;
+        }
+        return next;
+      });
+
       setCreateListName("");
-      setCreateListOpen(false);
+      setListsModalMode("select");
+      setCreateListError(null);
+      setListsModalOpen(false);
+      showListsSelectionToast(nextToastChange);
     } catch (createError) {
-      setListsModalError(
-        mapFriendlyError(createError, "No pudimos crear la lista.", "login")
+      setCreateListError(
+        mapFriendlyError(
+          createError,
+          "No pudimos crear la lista y guardar el producto.",
+          "login"
+        )
       );
     } finally {
       setCreateListSaving(false);
@@ -843,11 +908,24 @@ export function ProductDetailPage({ productId }: { productId: string }) {
         favorite: listsModalFavorite,
         listIds: listsModalListIds,
       });
+      const allowedIds = new Set(saved.lists.map((item) => item.id));
+      const normalizedSavedListIds = uniqStrings(
+        saved.listIds.filter((listId) => allowedIds.has(listId))
+      );
+      const nextSelection: ListsSelectionSnapshot = {
+        favorite: saved.favorite,
+        listIds: normalizedSavedListIds,
+      };
+      const selectionChange = resolveListsSelectionChange(
+        listsModalInitialSelection,
+        nextSelection
+      );
+
       setListsModalFavorite(saved.favorite);
-      setListsModalListIds(saved.listIds);
+      setListsModalListIds(normalizedSavedListIds);
       setListsModalLists(saved.lists);
+      setListsModalInitialSelection(nextSelection);
       setListsModalPreviewById((current) => {
-        const allowedIds = new Set(saved.lists.map((item) => item.id));
         const next: Record<string, string> = {};
         for (const [id, url] of Object.entries(current)) {
           if (!allowedIds.has(id)) continue;
@@ -856,8 +934,9 @@ export function ProductDetailPage({ productId }: { productId: string }) {
         }
         return next;
       });
+      setListsModalMode("select");
       setListsModalOpen(false);
-      await favorites.refetch();
+      showListsSelectionToast(selectionChange);
     } catch (saveError) {
       setListsModalError(
         mapFriendlyError(
@@ -876,8 +955,10 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
     setListsModalOpen(open);
     if (!open) {
-      setCreateListOpen(false);
+      setListsModalMode("select");
+      setListsModalInitialSelection(null);
       setCreateListName("");
+      setCreateListError(null);
       setListsModalError(null);
     }
   };
@@ -894,6 +975,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
       return;
     }
 
+    setListsModalMode("select");
     setListsModalOpen(false);
     router.push("/cuenta/listas");
   };
@@ -946,7 +1028,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
     hasQuestionsForModal || previewProductQuestions.length > 0;
   const showQuestionsError =
     Boolean(previewProductQuestionsError) && previewProductQuestions.length === 0;
-  const favoriteFeedback = accountActionError || favorites.error;
+  const accountActionFeedback = accountActionError;
 
   const handleQuestionSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1041,29 +1123,6 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                             : "Usado"}
                       </Badge>
                     ) : null}
-                    <button
-                      type="button"
-                      className={`${styles.favoriteButton} ${isCurrentFavorite ? styles.favoriteButtonActive : ""}`}
-                      onClick={() => void handleFavoriteToggle()}
-                      aria-label={
-                        isCurrentFavorite
-                          ? "Quitar de favoritos"
-                          : "Agregar a favoritos"
-                      }
-                      aria-pressed={isCurrentFavorite}
-                      disabled={
-                        favoriteBusy || !currentProduct?.id || !customerHydrated
-                      }
-                    >
-                      {favoriteBusy ? (
-                        <Loader2 size={18} className={styles.favoriteSpin} />
-                      ) : (
-                        <Heart
-                          size={18}
-                          fill={isCurrentFavorite ? "currentColor" : "none"}
-                        />
-                      )}
-                    </button>
                   </div>
                   <h1 className={styles.title}>{currentProduct?.name}</h1>
                   {showBrandLine ? (
@@ -1079,8 +1138,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                       "Sin precio disponible"
                     )}
                   </p>
-                  {favoriteFeedback ? (
-                    <p className={styles.favoriteFeedback}>{favoriteFeedback}</p>
+                  {accountActionFeedback ? (
+                    <p className={styles.favoriteFeedback}>{accountActionFeedback}</p>
                   ) : null}
                 </div>
 
@@ -1352,19 +1411,48 @@ export function ProductDetailPage({ productId }: { productId: string }) {
       <Dialog open={listsModalOpen} onOpenChange={handleListsDialogOpenChange}>
         <DialogContent className={styles.addToListDialog}>
           <DialogHeader className={styles.addToListHeader}>
-            <DialogTitle>Agregar a una lista</DialogTitle>
+            <DialogTitle>
+              {listsModalMode === "create"
+                ? "Crear lista de productos"
+                : "Agregar a una lista"}
+            </DialogTitle>
           </DialogHeader>
 
           <div className={styles.addToListDialogBody}>
             {listsModalLoading ? (
               <p className={styles.addToListMuted}>Cargando listas...</p>
+            ) : listsModalMode === "create" ? (
+              <div className={styles.addToListCreateModePanel}>
+                <Input
+                  value={createListName}
+                  onChange={(event) => setCreateListName(event.target.value)}
+                  placeholder="Nombre de la lista"
+                  maxLength={80}
+                  disabled={createListSaving || listsModalSaving}
+                  autoFocus
+                />
+
+                {createListError ? (
+                  <p className={styles.addToListError}>{createListError}</p>
+                ) : null}
+
+                <div className={styles.addToListCreateActions}>
+                  <Button
+                    type="button"
+                    onClick={() => void handleCreateListFromModal()}
+                    disabled={createListSaving || listsModalSaving}
+                  >
+                    {createListSaving ? "Creando..." : "Crear lista"}
+                  </Button>
+                </div>
+              </div>
             ) : (
               <>
                 <div className={styles.addToListRows}>
                   <button
                     type="button"
                     className={`${styles.addToListRow} ${styles.addToListCreateItem}`}
-                    onClick={() => setCreateListOpen((current) => !current)}
+                    onClick={handleOpenCreateListDialog}
                     disabled={listsModalSaving || createListSaving}
                   >
                     <span className={styles.addToListRowMain}>
@@ -1404,6 +1492,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                       checked={listsModalFavorite}
                       onCheckedChange={(checked) => setListsModalFavorite(checked)}
                       onClick={(event) => event.stopPropagation()}
+                      size="lg"
                       className={styles.addToListCheckbox}
                       disabled={listsModalSaving || createListSaving}
                       aria-label="Seleccionar Mis favoritos"
@@ -1450,6 +1539,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                             toggleListsModalList(list.id, checked)
                           }
                           onClick={(event) => event.stopPropagation()}
+                          size="lg"
                           className={styles.addToListCheckbox}
                           disabled={listsModalSaving || createListSaving}
                           aria-label={`Seleccionar lista ${list.name}`}
@@ -1459,26 +1549,6 @@ export function ProductDetailPage({ productId }: { productId: string }) {
                   })}
                 </div>
 
-                {createListOpen ? (
-                  <div className={styles.addToListCreateForm}>
-                    <Input
-                      value={createListName}
-                      onChange={(event) => setCreateListName(event.target.value)}
-                      placeholder="Nombre de la lista"
-                      maxLength={80}
-                      disabled={createListSaving || listsModalSaving}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => void handleCreateListFromModal()}
-                      disabled={createListSaving || listsModalSaving}
-                    >
-                      {createListSaving ? "Creando..." : "Crear"}
-                    </Button>
-                  </div>
-                ) : null}
-
                 {listsModalLists.length === 0 ? (
                   <p className={styles.addToListMuted}>
                     No tenes listas creadas todavía.
@@ -1487,27 +1557,29 @@ export function ProductDetailPage({ productId }: { productId: string }) {
               </>
             )}
 
-            {listsModalError ? (
+            {listsModalMode === "select" && listsModalError ? (
               <p className={styles.addToListError}>{listsModalError}</p>
             ) : null}
 
-            <div className={styles.addToListActions}>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGoToMyLists}
-                disabled={listsModalSaving || createListSaving}
-              >
-                Ir a mis listas
-              </Button>
-              <Button
-                type="button"
-                onClick={() => void handleConfirmListsModal()}
-                disabled={listsModalLoading || listsModalSaving || createListSaving}
-              >
-                {listsModalSaving ? "Guardando..." : "Confirmar"}
-              </Button>
-            </div>
+            {listsModalMode === "select" ? (
+              <div className={styles.addToListActions}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGoToMyLists}
+                  disabled={listsModalSaving || createListSaving}
+                >
+                  Ir a mis listas
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void handleConfirmListsModal()}
+                  disabled={listsModalLoading || listsModalSaving || createListSaving}
+                >
+                  {listsModalSaving ? "Guardando..." : "Confirmar"}
+                </Button>
+              </div>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>

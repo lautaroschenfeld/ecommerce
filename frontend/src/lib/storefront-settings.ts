@@ -23,6 +23,7 @@ export type StorefrontSettings = {
   faviconUrl: string;
   themeMode: StorefrontThemeMode;
   radiusScale: number;
+  fontScale: number;
   currencyCode: string;
   storeLocale: string;
   font: StorefrontFontConfig | null;
@@ -42,6 +43,7 @@ export const DEFAULT_STOREFRONT_SETTINGS: StorefrontSettings = {
   faviconUrl: "",
   themeMode: "light",
   radiusScale: 1,
+  fontScale: 1,
   currencyCode:
     process.env.NEXT_PUBLIC_STORE_CURRENCY_CODE?.trim().toUpperCase() || "USD",
   storeLocale: process.env.NEXT_PUBLIC_STORE_LOCALE?.trim() || "es-AR",
@@ -149,6 +151,19 @@ function normalizeRadiusScale(input: unknown, fallback: number) {
   return fallback;
 }
 
+function normalizeFontScale(input: unknown, fallback: number) {
+  if (typeof input === "number" && Number.isFinite(input)) {
+    return Math.max(0.2, Math.min(2, Math.round(input * 1000) / 1000));
+  }
+  if (typeof input === "string" && input.trim()) {
+    const parsed = Number(input.replace(",", "."));
+    if (Number.isFinite(parsed)) {
+      return Math.max(0.2, Math.min(2, Math.round(parsed * 1000) / 1000));
+    }
+  }
+  return fallback;
+}
+
 function roundRadiusMetric(value: number) {
   return Math.round(value * 1000) / 1000;
 }
@@ -180,6 +195,13 @@ export function radiusScaleCssVars(rawScale: number) {
     "--admin-radius-lg": scaledRem(1.25, scale),
     "--admin-radius-xl": scaledRem(1.35, scale),
     "--admin-radius-pill": scaledPx(999, scale),
+  } as Record<string, string>;
+}
+
+export function fontScaleCssVars(rawScale: number) {
+  const scale = normalizeFontScale(rawScale, DEFAULT_STOREFRONT_SETTINGS.fontScale);
+  return {
+    "--font-scale": String(scale),
   } as Record<string, string>;
 }
 
@@ -264,6 +286,13 @@ function mapStorefrontSettings(raw: unknown): StorefrontSettings {
       rec?.radiusScale,
     DEFAULT_STOREFRONT_SETTINGS.radiusScale
   );
+  const fontScale = normalizeFontScale(
+    metadata?.["font_scale"] ??
+      metadata?.["fontScale"] ??
+      rec?.font_scale ??
+      rec?.fontScale,
+    DEFAULT_STOREFRONT_SETTINGS.fontScale
+  );
 
   return {
     storeName,
@@ -271,6 +300,7 @@ function mapStorefrontSettings(raw: unknown): StorefrontSettings {
     faviconUrl,
     themeMode,
     radiusScale,
+    fontScale,
     currencyCode: normalizeCurrencyCode(
       rec?.currency_code ?? rec?.currencyCode,
       DEFAULT_STOREFRONT_SETTINGS.currencyCode
@@ -377,6 +407,10 @@ export async function updateAdminStorefrontSettings(
           typeof input.radiusScale === "number"
             ? normalizeRadiusScale(input.radiusScale, DEFAULT_STOREFRONT_SETTINGS.radiusScale)
             : undefined,
+        font_scale:
+          typeof input.fontScale === "number"
+            ? normalizeFontScale(input.fontScale, DEFAULT_STOREFRONT_SETTINGS.fontScale)
+            : undefined,
         currency_code:
           typeof input.currencyCode === "string"
             ? input.currencyCode.trim()
@@ -427,7 +461,10 @@ export async function updateAdminStorefrontSettings(
 }
 
 export function storefrontCssVars(settings: StorefrontSettings) {
-  const vars = radiusScaleCssVars(settings.radiusScale);
+  const vars = {
+    ...fontScaleCssVars(settings.fontScale),
+    ...radiusScaleCssVars(settings.radiusScale),
+  };
 
   if (settings.font?.family) {
     // Keep the default `--font-sans` stack as fallback (Next/font sets it).

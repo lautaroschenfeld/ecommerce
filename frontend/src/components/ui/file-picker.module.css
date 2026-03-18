@@ -126,7 +126,7 @@
 .title {
   font-weight: 650;
   color: var(--foreground);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
@@ -134,11 +134,11 @@
 }
 
 .size_sm .title {
-  font-size: 0.92rem;
+  font-size: calc(0.92rem * var(--font-scale, 1));
 }
 
 .subtitle {
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--font-scale, 1));
   line-height: 1.1;
   color: var(--muted-foreground);
   white-space: nowrap;
@@ -217,7 +217,7 @@
   border-radius: var(--field-radius-xs);
   padding: 0.5rem 0.6rem;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--font-scale, 1));
   font-weight: 600;
   color: var(--foreground);
   transition: background-color 150ms var(--ease-out);

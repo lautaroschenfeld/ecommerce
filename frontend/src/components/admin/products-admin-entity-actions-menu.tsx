@@ -27,6 +27,9 @@ type EntityActionsMenuProps = {
   showDuplicate?: boolean;
 };
 
+const DROPDOWN_OPEN_DURATION_MS = 1760;
+const DROPDOWN_CLOSE_DURATION_MS = 720;
+
 export function EntityActionsMenu({
   open,
   onOpenChange,
@@ -54,9 +57,13 @@ export function EntityActionsMenu({
     top: number;
     left: number;
     maxHeight: number;
+    motionHeight: number;
     direction: "down" | "up";
   } | null>(null);
   const [menuInOverlay, setMenuInOverlay] = useState(false);
+  const [menuPhase, setMenuPhase] = useState<"closed" | "opening" | "open" | "closing">(
+    "closed"
+  );
   const resolvedActiveAction = availableActions.includes(activeAction)
     ? activeAction
     : (availableActions[0] ?? "edit");
@@ -120,7 +127,9 @@ export function EntityActionsMenu({
         Math.max(160, viewportWidth - viewportPadding * 2)
       );
       const estimatedMenuHeight = 54 + visibleActionsCount * 44;
-      const measuredMenuHeight = menuRef.current?.scrollHeight ?? 0;
+      const menuElement = menuRef.current;
+      const viewportElement = menuElement?.querySelector<HTMLElement>(".uiDropdownMotionViewport");
+      const measuredMenuHeight = viewportElement?.scrollHeight ?? menuElement?.scrollHeight ?? 0;
       const naturalMenuHeight = Math.min(
         viewportHeight - viewportPadding * 2,
         measuredMenuHeight > 0 ? measuredMenuHeight : estimatedMenuHeight
@@ -133,6 +142,12 @@ export function EntityActionsMenu({
       const maxHeight = Math.max(
         56,
         Math.floor(availableSpace > 0 ? availableSpace : fallbackSpace)
+      );
+      const motionHeight = Math.max(
+        1,
+        Math.floor(
+          Math.min(measuredMenuHeight > 0 ? measuredMenuHeight : estimatedMenuHeight, maxHeight)
+        )
       );
 
       let left = rect.right - menuWidth;
@@ -149,6 +164,7 @@ export function EntityActionsMenu({
         top,
         left,
         maxHeight,
+        motionHeight,
         direction: shouldOpenUp ? "up" : "down",
       } as const;
 
@@ -158,6 +174,7 @@ export function EntityActionsMenu({
           prev.top === nextPosition.top &&
           prev.left === nextPosition.left &&
           prev.maxHeight === nextPosition.maxHeight &&
+          prev.motionHeight === nextPosition.motionHeight &&
           prev.direction === nextPosition.direction
         ) {
           return prev;
@@ -205,6 +222,43 @@ export function EntityActionsMenu({
     };
   }, [open, onAddVariant, onDuplicate, showAddVariant, showDuplicate]);
 
+  useEffect(() => {
+    if (open) {
+      let timeoutId = 0;
+      const frameId = window.requestAnimationFrame(() => {
+        setMenuPhase("opening");
+        timeoutId = window.setTimeout(() => {
+          setMenuPhase("open");
+        }, DROPDOWN_OPEN_DURATION_MS);
+      });
+      return () => {
+        window.cancelAnimationFrame(frameId);
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+        }
+      };
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setMenuPhase((prev) => (prev === "closed" ? "closed" : "closing"));
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (menuPhase !== "closing") return;
+    const timeoutId = window.setTimeout(() => {
+      setMenuPhase("closed");
+      setMenuPosition(null);
+      setMenuInOverlay(false);
+    }, DROPDOWN_CLOSE_DURATION_MS);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [menuPhase]);
+
   const focusAction = useCallback((action: ActionsMenuAction) => {
     const menu = menuRef.current;
     if (!menu) return;
@@ -227,6 +281,7 @@ export function EntityActionsMenu({
     menu.style.setProperty("--actions-menu-top", `${menuPosition.top}px`);
     menu.style.setProperty("--actions-menu-left", `${menuPosition.left}px`);
     menu.style.setProperty("--actions-menu-max-height", `${menuPosition.maxHeight}px`);
+    menu.style.setProperty("--actions-menu-motion-height", `${menuPosition.motionHeight}px`);
   }, [menuPosition]);
 
   const handleMenuWheel = useCallback(
@@ -307,6 +362,10 @@ export function EntityActionsMenu({
     onDelete();
   }
 
+  const shouldRenderMenu = (open || menuPhase !== "closed") && Boolean(menuPosition);
+  const dropdownPhase = open ? (menuPhase === "open" ? "open" : "opening") : "closing";
+  const dropdownDirection = menuPosition?.direction ?? "down";
+
   return (
     <div ref={rootRef} className={styles.actionsMenuWrap}>
       <button
@@ -328,77 +387,77 @@ export function EntityActionsMenu({
         <MoreVertical size={16} />
       </button>
 
-      {open && menuPosition
+      {shouldRenderMenu
         ? createPortal(
             <div
               ref={menuRef}
-              className={`${styles.actionsMenu} ${styles.actionsMenuPortal} ${
+              className={`uiDropdownMotionPanel ${styles.actionsMenu} ${styles.actionsMenuPortal} ${
                 menuInOverlay ? styles.actionsMenuPortalInOverlay : ""
-              } ${
-                menuPosition.direction === "up"
-                  ? styles.actionsMenuPortalUp
-                  : styles.actionsMenuPortalDown
-              }`}
+              } ${dropdownDirection === "up" ? styles.actionsMenuPortalUp : styles.actionsMenuPortalDown}`}
               role="menu"
               onWheelCapture={handleMenuWheel}
               onKeyDown={handleMenuKeyDown}
+              data-dropdown-phase={dropdownPhase}
+              data-dropdown-direction={dropdownDirection}
             >
-              <button
-                type="button"
-                role="menuitem"
-                data-action="edit"
-                className={`${styles.actionsMenuOption} ${
-                  resolvedActiveAction === "edit" ? styles.actionsMenuOptionActive : ""
-                }`}
-                onMouseEnter={() => activate("edit")}
-                onFocus={() => activate("edit")}
-                onClick={() => run("edit")}
-              >
-                Editar
-              </button>
-              {showAddVariant && onAddVariant ? (
+              <div className={`uiDropdownMotionViewport ${styles.actionsMenuViewport}`}>
                 <button
                   type="button"
                   role="menuitem"
-                  data-action="add_variant"
-                  className={`${styles.actionsMenuOption} ${
-                    resolvedActiveAction === "add_variant" ? styles.actionsMenuOptionActive : ""
+                  data-action="edit"
+                  className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${
+                    resolvedActiveAction === "edit" ? styles.actionsMenuOptionActive : ""
                   }`}
-                  onMouseEnter={() => activate("add_variant")}
-                  onFocus={() => activate("add_variant")}
-                  onClick={() => run("add_variant")}
+                  onMouseEnter={() => activate("edit")}
+                  onFocus={() => activate("edit")}
+                  onClick={() => run("edit")}
                 >
-                  Agregar variante
+                  Editar
                 </button>
-              ) : null}
-              {showDuplicate && onDuplicate ? (
+                {showAddVariant && onAddVariant ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-action="add_variant"
+                    className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${
+                      resolvedActiveAction === "add_variant" ? styles.actionsMenuOptionActive : ""
+                    }`}
+                    onMouseEnter={() => activate("add_variant")}
+                    onFocus={() => activate("add_variant")}
+                    onClick={() => run("add_variant")}
+                  >
+                    Agregar variante
+                  </button>
+                ) : null}
+                {showDuplicate && onDuplicate ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-action="duplicate"
+                    className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${
+                      resolvedActiveAction === "duplicate" ? styles.actionsMenuOptionActive : ""
+                    }`}
+                    onMouseEnter={() => activate("duplicate")}
+                    onFocus={() => activate("duplicate")}
+                    onClick={() => run("duplicate")}
+                  >
+                    Duplicar
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   role="menuitem"
-                  data-action="duplicate"
-                  className={`${styles.actionsMenuOption} ${
-                    resolvedActiveAction === "duplicate" ? styles.actionsMenuOptionActive : ""
+                  data-action="delete"
+                  className={`uiDropdownMotionItem ${styles.actionsMenuOption} ${styles.actionsMenuOptionDanger} ${
+                    resolvedActiveAction === "delete" ? styles.actionsMenuOptionActive : ""
                   }`}
-                  onMouseEnter={() => activate("duplicate")}
-                  onFocus={() => activate("duplicate")}
-                  onClick={() => run("duplicate")}
+                  onMouseEnter={() => activate("delete")}
+                  onFocus={() => activate("delete")}
+                  onClick={() => run("delete")}
                 >
-                  Duplicar
+                  {deleteLabel}
                 </button>
-              ) : null}
-              <button
-                type="button"
-                role="menuitem"
-                data-action="delete"
-                className={`${styles.actionsMenuOption} ${styles.actionsMenuOptionDanger} ${
-                  resolvedActiveAction === "delete" ? styles.actionsMenuOptionActive : ""
-                }`}
-                onMouseEnter={() => activate("delete")}
-                onFocus={() => activate("delete")}
-                onClick={() => run("delete")}
-              >
-                {deleteLabel}
-              </button>
+              </div>
             </div>,
             document.body
           )

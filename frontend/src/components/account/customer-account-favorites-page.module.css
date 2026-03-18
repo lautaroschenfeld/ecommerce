@@ -10,13 +10,13 @@
 
 .countText {
   margin: 0;
-  font-size: 0.94rem;
+  font-size: calc(0.94rem * var(--font-scale, 1));
   color: var(--ui-text-emphasis);
 }
 
 .unavailableText {
   margin: 0;
-  font-size: 0.84rem;
+  font-size: calc(0.84rem * var(--font-scale, 1));
   color: var(--muted-foreground);
 }
 

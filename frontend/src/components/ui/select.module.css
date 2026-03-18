@@ -106,15 +106,24 @@
 }
 
 .menu {
+  --dropdown-motion-target-height: var(
+    --select-menu-motion-height,
+    var(--select-menu-max-height, min(18rem, 45vh))
+  );
   border-radius: calc((var(--radius-base) + 0.5rem) * var(--radius-scale));
   border: 1px solid var(--ui-border-strong);
   background: var(--control-background-strong);
   box-shadow: var(--shadow-md);
   padding: 0.35rem;
+  display: block;
+  max-height: min(18rem, 45vh);
+  overflow: visible;
+}
+
+.menuViewport {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  max-height: min(18rem, 45vh);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -155,7 +164,7 @@
   color: var(--ui-text-emphasis);
   text-align: left;
   padding: 0.58rem 0.72rem;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--font-scale, 1));
   font-weight: 610;
   overflow: visible;
   transition: background-color 160ms var(--ease-out, ease), color 160ms var(--ease-out, ease);

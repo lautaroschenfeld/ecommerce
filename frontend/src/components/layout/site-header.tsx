@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import {
   ChevronDown,
   History,
@@ -37,6 +38,9 @@ const navItems = [
   { href: "/contacto", label: "Contacto" },
 ] as const;
 
+const ACCOUNT_DROPDOWN_OPEN_DURATION_MS = 1760;
+const ACCOUNT_DROPDOWN_CLOSE_DURATION_MS = 720;
+
 type SiteHeaderProps = {
   storefront: StorefrontSettings;
 };
@@ -47,9 +51,16 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     useCustomerSession();
   const [runtimeStorefront, setRuntimeStorefront] = useState(storefront);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountMenuPhase, setAccountMenuPhase] = useState<
+    "closed" | "opening" | "open" | "closing"
+  >("closed");
   const [adminSidebarOpen, setAdminSidebarOpen] = useState(false);
   const [resolvedLogoUrl, setResolvedLogoUrl] = useState("");
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const accountDropdownContentRef = useRef<HTMLDivElement | null>(null);
+  const [accountDropdownMotionHeight, setAccountDropdownMotionHeight] = useState<number | null>(
+    null
+  );
 
   const normalizePath = (value: string) =>
     value.length > 1 ? value.replace(/\/+$/, "") : value;
@@ -138,6 +149,41 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
     };
   }, [accountMenuOpen]);
 
+  useEffect(() => {
+    if (accountMenuOpen) {
+      let timeoutId = 0;
+      const frameId = window.requestAnimationFrame(() => {
+        setAccountMenuPhase("opening");
+        timeoutId = window.setTimeout(() => {
+          setAccountMenuPhase("open");
+        }, ACCOUNT_DROPDOWN_OPEN_DURATION_MS);
+      });
+      return () => {
+        window.cancelAnimationFrame(frameId);
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+        }
+      };
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setAccountMenuPhase((prev) => (prev === "closed" ? "closed" : "closing"));
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [accountMenuOpen]);
+
+  useEffect(() => {
+    if (accountMenuPhase !== "closing") return;
+    const timeoutId = window.setTimeout(() => {
+      setAccountMenuPhase("closed");
+    }, ACCOUNT_DROPDOWN_CLOSE_DURATION_MS);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [accountMenuPhase]);
+
   const greeting = customer?.firstName?.trim() || "Cliente";
   const isAdminRoute = pathname?.startsWith("/cuenta/administracion");
   const storeName = runtimeStorefront.storeName.trim();
@@ -171,6 +217,50 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
       window.removeEventListener(ADMIN_SIDEBAR_STATE_EVENT, onSidebarState as EventListener);
     };
   }, [isAdminRoute]);
+
+  const showAccountDropdown = accountMenuOpen || accountMenuPhase !== "closed";
+  const accountDropdownPhase = accountMenuOpen
+    ? accountMenuPhase === "open"
+      ? "open"
+      : "opening"
+    : "closing";
+  const accountDropdownStyle: CSSProperties | undefined =
+    accountDropdownMotionHeight !== null
+      ? ({
+          ["--account-dropdown-motion-height" as never]: `${accountDropdownMotionHeight}px`,
+        } as CSSProperties)
+      : undefined;
+
+  useEffect(() => {
+    if (!showAccountDropdown) {
+      setAccountDropdownMotionHeight(null);
+      return;
+    }
+
+    let frameId = 0;
+    const measure = () => {
+      const content = accountDropdownContentRef.current;
+      if (!content) return;
+      const computed = window.getComputedStyle(content);
+      const computedMaxHeight = Number.parseFloat(computed.maxHeight);
+      const fallbackMax = Number.isFinite(computedMaxHeight)
+        ? computedMaxHeight
+        : content.scrollHeight;
+      const nextHeight = Math.max(1, Math.min(content.scrollHeight, fallbackMax));
+      setAccountDropdownMotionHeight((prev) =>
+        prev !== null && Math.abs(prev - nextHeight) < 1 ? prev : nextHeight
+      );
+    };
+
+    frameId = window.requestAnimationFrame(measure);
+    window.addEventListener("resize", measure);
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener("resize", measure);
+    };
+  }, [showAccountDropdown, customer?.email, customer?.role, greeting]);
 
   const headerInner = (
     <div className={isAdminRoute ? styles.innerAdminFrame : undefined}>
@@ -254,7 +344,10 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
             <div className={styles.accountMenu} ref={accountMenuRef}>
               <button
                 type="button"
-                className={styles.accountTrigger}
+                className={cn(
+                  styles.accountTrigger,
+                  accountMenuOpen ? styles.accountTriggerOpen : ""
+                )}
                 onClick={() => setAccountMenuOpen((prev) => !prev)}
                 aria-haspopup="menu"
                 aria-expanded={accountMenuOpen}
@@ -270,94 +363,105 @@ export function SiteHeader({ storefront }: SiteHeaderProps) {
                 />
               </button>
 
-              {accountMenuOpen ? (
-                <div className={styles.accountDropdown} role="menu">
-                  <div className={styles.accountDropdownHeader}>
-                    <strong>Hola, {greeting}</strong>
-                    <span>{customer?.email}</span>
-                  </div>
-
-                  <Link
-                    href="/cuenta/pedidos"
-                    className={styles.accountItem}
-                    role="menuitem"
-                    onClick={(event) => {
-                      handleSamePathClick("/cuenta/pedidos", event);
-                      setAccountMenuOpen(false);
-                    }}
+              {showAccountDropdown ? (
+                <div
+                  className={cn("uiDropdownMotionPanel", styles.accountDropdown)}
+                  style={accountDropdownStyle}
+                  role="menu"
+                  data-dropdown-phase={accountDropdownPhase}
+                  data-dropdown-direction="down"
+                >
+                  <div
+                    className={cn("uiDropdownMotionViewport", styles.accountDropdownContent)}
+                    ref={accountDropdownContentRef}
                   >
-                    <Package size={15} />
-                    Pedidos
-                  </Link>
+                    <div className={styles.accountDropdownHeader}>
+                      <strong>Hola, {greeting}</strong>
+                      <span>{customer?.email}</span>
+                    </div>
 
-                  <Link
-                    href="/cuenta"
-                    className={styles.accountItem}
-                    role="menuitem"
-                    onClick={(event) => {
-                      handleSamePathClick("/cuenta", event);
-                      setAccountMenuOpen(false);
-                    }}
-                  >
-                    <UserRound size={15} />
-                    Mi cuenta
-                  </Link>
-
-                  <Link
-                    href="/cuenta/listas"
-                    className={styles.accountItem}
-                    role="menuitem"
-                    onClick={(event) => {
-                      handleSamePathClick("/cuenta/listas", event);
-                      setAccountMenuOpen(false);
-                    }}
-                  >
-                    <ListPlus size={15} />
-                    Mis listas
-                  </Link>
-
-                  <Link
-                    href="/cuenta/historial"
-                    className={styles.accountItem}
-                    role="menuitem"
-                    onClick={(event) => {
-                      handleSamePathClick("/cuenta/historial", event);
-                      setAccountMenuOpen(false);
-                    }}
-                  >
-                    <History size={15} />
-                    Historial
-                  </Link>
-
-                  {customer && canAccessAdminPanel(customer.role) ? (
                     <Link
-                      href="/cuenta/administracion/resumen"
-                      className={styles.accountItem}
+                      href="/cuenta/pedidos"
+                      className={cn("uiDropdownMotionItem", styles.accountItem)}
                       role="menuitem"
                       onClick={(event) => {
-                        handleSamePathClick("/cuenta/administracion/resumen", event);
+                        handleSamePathClick("/cuenta/pedidos", event);
                         setAccountMenuOpen(false);
                       }}
                     >
-                      <LayoutDashboard size={15} />
-                      Panel de administración
+                      <Package size={15} />
+                      Pedidos
                     </Link>
-                  ) : null}
 
-                  <div className={styles.accountDivider} aria-hidden />
+                    <Link
+                      href="/cuenta"
+                      className={cn("uiDropdownMotionItem", styles.accountItem)}
+                      role="menuitem"
+                      onClick={(event) => {
+                        handleSamePathClick("/cuenta", event);
+                        setAccountMenuOpen(false);
+                      }}
+                    >
+                      <UserRound size={15} />
+                      Mi cuenta
+                    </Link>
 
-                  <button
-                    type="button"
-                    className={styles.accountItem}
-                    onClick={() => {
-                      void logout();
-                      setAccountMenuOpen(false);
-                    }}
-                    role="menuitem"
-                  >
-                    <LogOut size={15} />
-                    Cerrar sesión
-                  </button>
+                    <Link
+                      href="/cuenta/listas"
+                      className={cn("uiDropdownMotionItem", styles.accountItem)}
+                      role="menuitem"
+                      onClick={(event) => {
+                        handleSamePathClick("/cuenta/listas", event);
+                        setAccountMenuOpen(false);
+                      }}
+                    >
+                      <ListPlus size={15} />
+                      Mis listas
+                    </Link>
+
+                    <Link
+                      href="/cuenta/historial"
+                      className={cn("uiDropdownMotionItem", styles.accountItem)}
+                      role="menuitem"
+                      onClick={(event) => {
+                        handleSamePathClick("/cuenta/historial", event);
+                        setAccountMenuOpen(false);
+                      }}
+                    >
+                      <History size={15} />
+                      Historial
+                    </Link>
+
+                    {customer && canAccessAdminPanel(customer.role) ? (
+                      <Link
+                        href="/cuenta/administracion/resumen"
+                        className={cn("uiDropdownMotionItem", styles.accountItem)}
+                        role="menuitem"
+                        onClick={(event) => {
+                          handleSamePathClick("/cuenta/administracion/resumen", event);
+                          setAccountMenuOpen(false);
+                        }}
+                      >
+                        <LayoutDashboard size={15} />
+                        Panel de administración
+                      </Link>
+                    ) : null}
+
+                    <div className={styles.accountDivider} aria-hidden />
+
+                    <button
+                      type="button"
+                      className={cn("uiDropdownMotionItem", styles.accountItem)}
+                      onClick={() => {
+                        void logout();
+                        setAccountMenuOpen(false);
+                      }}
+                      role="menuitem"
+                    >
+                      <LogOut size={15} />
+                      Cerrar sesión
+                    </button>
+                  </div>
                 </div>
               ) : null}
             </div>

@@ -35,6 +35,9 @@ type SelectProps = React.ComponentProps<"select"> & {
   optionAppearance?: Record<string, SelectOptionAppearance | undefined>;
 };
 
+const DROPDOWN_OPEN_DURATION_MS = 1760;
+const DROPDOWN_CLOSE_DURATION_MS = 720;
+
 function findNextEnabledOptionIndex(
   options: OptionItem[],
   startIndex: number,
@@ -71,12 +74,14 @@ function withMenuPositionCssVars(position: {
   left: number;
   width: number;
   maxHeight: number;
+  motionHeight: number;
 }): React.CSSProperties {
   return {
     ["--select-menu-top" as never]: `${position.top}px`,
     ["--select-menu-left" as never]: `${position.left}px`,
     ["--select-menu-width" as never]: `${position.width}px`,
     ["--select-menu-max-height" as never]: `${position.maxHeight}px`,
+    ["--select-menu-motion-height" as never]: `${position.motionHeight}px`,
   };
 }
 
@@ -189,9 +194,13 @@ export function Select({
     left: number;
     width: number;
     maxHeight: number;
+    motionHeight: number;
     direction: "down" | "up";
   } | null>(null);
   const [menuInOverlay, setMenuInOverlay] = React.useState(false);
+  const [menuPhase, setMenuPhase] = React.useState<"closed" | "opening" | "open" | "closing">(
+    "closed"
+  );
 
   React.useEffect(() => {
     if (controlled) return;
@@ -257,7 +266,8 @@ export function Select({
     const viewportBottom = viewportTop + viewportHeight;
 
     const width = Math.min(Math.max(rect.width, 160), viewportWidth - viewportPadding * 2);
-    const measuredMenuHeight = menu.scrollHeight;
+    const viewport = menu.querySelector<HTMLElement>(".uiDropdownMotionViewport");
+    const measuredMenuHeight = viewport?.scrollHeight ?? menu.scrollHeight;
     const naturalMenuHeight = Math.max(
       56,
       Math.min(viewportHeight - viewportPadding * 2, measuredMenuHeight)
@@ -271,6 +281,12 @@ export function Select({
     const maxHeight = Math.max(
       56,
       Math.ceil(availableSpace > 0 ? availableSpace : fallbackSpace)
+    );
+    const motionHeight = Math.max(
+      1,
+      Math.ceil(
+        Math.min(measuredMenuHeight > 0 ? measuredMenuHeight : naturalMenuHeight, maxHeight)
+      )
     );
 
     let left = rect.left;
@@ -288,6 +304,7 @@ export function Select({
       left,
       width,
       maxHeight,
+      motionHeight,
       direction: shouldOpenUp ? "up" : "down",
     } as const;
 
@@ -298,6 +315,7 @@ export function Select({
         prev.left === nextPosition.left &&
         prev.width === nextPosition.width &&
         prev.maxHeight === nextPosition.maxHeight &&
+        prev.motionHeight === nextPosition.motionHeight &&
         prev.direction === nextPosition.direction
       ) {
         return prev;
@@ -308,11 +326,7 @@ export function Select({
   }, []);
 
   React.useLayoutEffect(() => {
-    if (!open) {
-      setMenuPosition(null);
-      setMenuInOverlay(false);
-      return;
-    }
+    if (!open) return;
 
     let frameId = 0;
     let menuResizeFrameId = 0;
@@ -378,6 +392,43 @@ export function Select({
     };
   }, [open, updateMenuPosition]);
 
+  React.useEffect(() => {
+    if (open) {
+      let timeoutId = 0;
+      const frameId = window.requestAnimationFrame(() => {
+        setMenuPhase("opening");
+        timeoutId = window.setTimeout(() => {
+          setMenuPhase("open");
+        }, DROPDOWN_OPEN_DURATION_MS);
+      });
+      return () => {
+        window.cancelAnimationFrame(frameId);
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+        }
+      };
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setMenuPhase((prev) => (prev === "closed" ? "closed" : "closing"));
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [open]);
+
+  React.useEffect(() => {
+    if (menuPhase !== "closing") return;
+    const timeoutId = window.setTimeout(() => {
+      setMenuPhase("closed");
+      setMenuPosition(null);
+      setMenuInOverlay(false);
+    }, DROPDOWN_CLOSE_DURATION_MS);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [menuPhase]);
+
   const selectedValue = normalizedControlledValue ?? internalValue;
   const selectedIndex = options.findIndex((option) => option.value === selectedValue);
   const selectedOption = (selectedIndex >= 0 ? options[selectedIndex] : undefined) ?? options[0];
@@ -403,8 +454,6 @@ export function Select({
   const closeMenu = React.useCallback((options?: { focusTrigger?: boolean }) => {
     setOpen(false);
     setHighlightedIndex(-1);
-    setMenuPosition(null);
-    setMenuInOverlay(false);
     if (options?.focusTrigger === false) return;
     triggerRef.current?.focus();
     window.requestAnimationFrame(() => {
@@ -457,6 +506,9 @@ export function Select({
   );
 
   const menuStyle = menuPosition ? withMenuPositionCssVars(menuPosition) : undefined;
+  const shouldRenderMenu = open || menuPhase !== "closed";
+  const dropdownPhase = open ? (menuPhase === "open" ? "open" : "opening") : "closing";
+  const dropdownDirection = menuPosition?.direction ?? "down";
   const selectedOptionAppearance = selectedOption
     ? optionAppearance?.[selectedOption.value]
     : undefined;
@@ -656,12 +708,13 @@ export function Select({
         </span>
       </button>
 
-      {open
+      {shouldRenderMenu
         ? createPortal(
             <div
               ref={menuRef}
               id={menuId}
               className={cn(
+                "uiDropdownMotionPanel",
                 styles.menu,
                 styles.menuPortal,
                 menuInOverlay ? styles.menuPortalInOverlay : "",
@@ -672,55 +725,60 @@ export function Select({
               role="listbox"
               aria-labelledby={triggerId}
               onWheelCapture={handleMenuWheel}
+              data-dropdown-phase={dropdownPhase}
+              data-dropdown-direction={dropdownDirection}
             >
-              {options.map((option, index) => {
-                const active = option.value === selectedValue;
-                const highlighted = optionIds[index] === activeOptionId;
-                const appearance = optionAppearance?.[option.value];
-                const OptionIcon = appearance?.icon;
-                const optionBadgeStyle = withBadgeCssVars(appearance?.badgeStyle);
-                return (
-                  <button
-                    key={`${option.value}-${option.label}`}
-                    id={optionIds[index]}
-                    type="button"
-                    role="option"
-                    aria-selected={active}
-                    className={cn(
-                      styles.option,
-                      active ? styles.optionActive : "",
-                      highlighted ? styles.optionHighlighted : "",
-                      option.disabled ? styles.optionDisabled : ""
-                    )}
-                    disabled={option.disabled}
-                    onMouseEnter={() => {
-                      if (option.disabled) return;
-                      setHighlightedIndex(index);
-                    }}
-                    onClick={() => {
-                      if (option.disabled) return;
-                      selectValue(option.value);
-                    }}
-                  >
-                    <span
+              <div className={cn("uiDropdownMotionViewport", styles.menuViewport)}>
+                {options.map((option, index) => {
+                  const active = option.value === selectedValue;
+                  const highlighted = optionIds[index] === activeOptionId;
+                  const appearance = optionAppearance?.[option.value];
+                  const OptionIcon = appearance?.icon;
+                  const optionBadgeStyle = withBadgeCssVars(appearance?.badgeStyle);
+                  return (
+                    <button
+                      key={`${option.value}-${option.label}`}
+                      id={optionIds[index]}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
                       className={cn(
-                        styles.optionBody,
-                        appearance ? styles.optionBodyBadge : "",
-                        appearance?.badgeClassName
+                        "uiDropdownMotionItem",
+                        styles.option,
+                        active ? styles.optionActive : "",
+                        highlighted ? styles.optionHighlighted : "",
+                        option.disabled ? styles.optionDisabled : ""
                       )}
-                      style={optionBadgeStyle}
+                      disabled={option.disabled}
+                      onMouseEnter={() => {
+                        if (option.disabled) return;
+                        setHighlightedIndex(index);
+                      }}
+                      onClick={() => {
+                        if (option.disabled) return;
+                        selectValue(option.value);
+                      }}
                     >
-                      {OptionIcon ? (
-                        <OptionIcon
-                          size={14}
-                          className={cn(styles.optionIcon, appearance?.iconClassName)}
-                        />
-                      ) : null}
-                      <span className={styles.optionLabel}>{option.label}</span>
-                    </span>
-                  </button>
-                );
-              })}
+                      <span
+                        className={cn(
+                          styles.optionBody,
+                          appearance ? styles.optionBodyBadge : "",
+                          appearance?.badgeClassName
+                        )}
+                        style={optionBadgeStyle}
+                      >
+                        {OptionIcon ? (
+                          <OptionIcon
+                            size={14}
+                            className={cn(styles.optionIcon, appearance?.iconClassName)}
+                          />
+                        ) : null}
+                        <span className={styles.optionLabel}>{option.label}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>,
             document.body
           )

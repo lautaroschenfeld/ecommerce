@@ -6,6 +6,8 @@ import { Crop, Trash2 } from "lucide-react";
 
 import { fetchJsonWithAuthRetry as fetchJson } from "@/lib/store-client";
 import { bannerFocusVars } from "@/lib/banner-focus-style";
+import { notify } from "@/lib/notifications";
+import { toStoreMediaProxyUrl } from "@/lib/store-media-url";
 import {
   DEFAULT_STOREFRONT_SETTINGS,
   getAdminStorefrontSettings,
@@ -15,20 +17,22 @@ import {
 
 import { AdminPanelCard } from "@/components/admin/admin-panel-card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { CssVarElement } from "@/components/ui/css-var-element";
 import { FilePicker } from "@/components/ui/file-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Select } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { HeroBannerEditorDialog } from "./hero-banner-editor-dialog";
 import {
   ALLOWED_IMAGE_UPLOAD_MIME,
+  clampFontScale,
   clampPercent,
   clampRadiusScale,
   clampZoom,
   mapPanelError,
+  parseFontScale,
   parseRadiusScale,
   syncRuntimeStorefront,
   type StorefrontFormState,
@@ -37,6 +41,10 @@ import styles from "./appearance-admin.module.css";
 
 function formatRadiusScale(value: number) {
   return String(clampRadiusScale(value));
+}
+
+function formatFontScale(value: number) {
+  return String(clampFontScale(value));
 }
 
 function normalizeMediaPatchValue(value: string) {
@@ -67,20 +75,17 @@ function applyRadiusVars(scaleRaw: number) {
 export function AppearanceAdmin() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [radiusSyncState, setRadiusSyncState] = useState<"idle" | "saving" | "saved" | "error">(
-    "idle"
-  );
   const [logoUploading, setLogoUploading] = useState(false);
   const [faviconUploading, setFaviconUploading] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerEditorOpen, setBannerEditorOpen] = useState(false);
+  const [bannerPreviewFailed, setBannerPreviewFailed] = useState(false);
   const [maintenancePasswordConfigured, setMaintenancePasswordConfigured] =
     useState(false);
   const [committedRadiusScale, setCommittedRadiusScale] = useState(
     DEFAULT_STOREFRONT_SETTINGS.radiusScale
   );
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState<StorefrontFormState>({
     storeName: DEFAULT_STOREFRONT_SETTINGS.storeName,
     logoUrl: DEFAULT_STOREFRONT_SETTINGS.logoUrl,
@@ -91,6 +96,7 @@ export function AppearanceAdmin() {
     bannerZoom: DEFAULT_STOREFRONT_SETTINGS.heroBanner.zoom,
     themeMode: DEFAULT_STOREFRONT_SETTINGS.themeMode,
     radiusScale: formatRadiusScale(DEFAULT_STOREFRONT_SETTINGS.radiusScale),
+    fontScale: formatFontScale(DEFAULT_STOREFRONT_SETTINGS.fontScale),
     currencyCode: DEFAULT_STOREFRONT_SETTINGS.currencyCode,
     fontUrl: "",
     maintenanceMode: false,
@@ -114,27 +120,26 @@ export function AppearanceAdmin() {
 
   useEffect(() => {
     if (loading || saving) return;
-    const nextScale = parseRadiusScale(form.radiusScale);
+    const normalized = form.radiusScale.trim().replace(",", ".");
+    if (!normalized) return;
+
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed)) return;
+
+    const nextScale = clampRadiusScale(parsed);
     if (Math.abs(nextScale - committedRadiusScale) < 0.0001) {
-      setRadiusSyncState((prev) =>
-        prev === "idle" || prev === "saved" ? prev : "idle"
-      );
       return;
     }
 
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
-          setRadiusSyncState("saving");
           const updated = await updateAdminStorefrontSettings({ radiusScale: nextScale });
           const normalized = clampRadiusScale(updated.radiusScale);
           setCommittedRadiusScale(normalized);
           setForm((prev) => ({ ...prev, radiusScale: formatRadiusScale(normalized) }));
           applyRadiusVars(normalized);
-          setRadiusSyncState("saved");
-        } catch {
-          setRadiusSyncState("error");
-        }
+        } catch {}
       })();
     }, 420);
 
@@ -161,6 +166,7 @@ export function AppearanceAdmin() {
           bannerZoom: clampZoom(settings.heroBanner.zoom),
           themeMode: settings.themeMode,
           radiusScale: formatRadiusScale(settings.radiusScale),
+          fontScale: formatFontScale(settings.fontScale),
           currencyCode: settings.currencyCode,
           fontUrl: settings.font?.specimenUrl || settings.font?.cssUrl || "",
           maintenanceMode: settings.maintenanceMode,
@@ -195,7 +201,6 @@ export function AppearanceAdmin() {
     try {
       setLogoUploading(true);
       setError(null);
-      setMessage(null);
 
       const body = new FormData();
       body.append("files", file);
@@ -216,9 +221,10 @@ export function AppearanceAdmin() {
       }
 
       setForm((prev) => ({ ...prev, logoUrl: uploadedUrl }));
-      setMessage("Logo cargado.");
+      notify("Logo cargado.", undefined, "success");
     } catch (err) {
-      setError(mapPanelError(err, "No se pudo subir el logo."));
+      const message = mapPanelError(err, "No se pudo subir el logo.");
+      notify("Error al subir el logo", message, "error");
     } finally {
       setLogoUploading(false);
     }
@@ -236,7 +242,6 @@ export function AppearanceAdmin() {
     try {
       setFaviconUploading(true);
       setError(null);
-      setMessage(null);
 
       const body = new FormData();
       body.append("files", file);
@@ -257,9 +262,10 @@ export function AppearanceAdmin() {
       }
 
       setForm((prev) => ({ ...prev, faviconUrl: uploadedUrl }));
-      setMessage("Favicon cargado. Guarda configuracion para aplicarlo.");
+      notify("Favicon cargado.", "Guarda configuracion para aplicarlo.", "success");
     } catch (err) {
-      setError(mapPanelError(err, "No se pudo subir el favicon."));
+      const message = mapPanelError(err, "No se pudo subir el favicon.");
+      notify("Error al subir el favicon", message, "error");
     } finally {
       setFaviconUploading(false);
     }
@@ -277,7 +283,6 @@ export function AppearanceAdmin() {
     try {
       setBannerUploading(true);
       setError(null);
-      setMessage(null);
 
       const body = new FormData();
       body.append("files", file);
@@ -305,9 +310,10 @@ export function AppearanceAdmin() {
         bannerZoom: 1,
       }));
       setBannerEditorOpen(true);
-      setMessage("Banner cargado. Ajusta el encuadre antes de guardar.");
+      notify("Banner cargado.", "Ajusta el encuadre antes de guardar.", "success");
     } catch (err) {
-      setError(mapPanelError(err, "No se pudo subir el banner."));
+      const message = mapPanelError(err, "No se pudo subir el banner.");
+      notify("Error al subir el banner", message, "error");
     } finally {
       setBannerUploading(false);
     }
@@ -323,12 +329,11 @@ export function AppearanceAdmin() {
     }));
     setBannerEditorOpen(false);
     setError(null);
-    setMessage("Banner quitado. Guarda configuracion para aplicarlo.");
+    notify("Banner quitado.", "Guarda configuracion para aplicarlo.", "info");
   }
 
   async function save() {
     setError(null);
-    setMessage(null);
 
     const storeName = form.storeName.trim();
     const hasVisibleLogo = form.logoUrl.trim().length > 0;
@@ -336,6 +341,7 @@ export function AppearanceAdmin() {
     const faviconUrl = normalizeMediaPatchValue(form.faviconUrl);
     const themeMode = form.themeMode;
     const radiusScale = parseRadiusScale(form.radiusScale);
+    const fontScale = parseFontScale(form.fontScale);
     const currencyCode = form.currencyCode.trim();
     const fontUrl = form.fontUrl.trim();
     const bannerUrl = normalizeOptionalMediaPatchValue(form.bannerUrl);
@@ -361,6 +367,7 @@ export function AppearanceAdmin() {
         faviconUrl,
         themeMode,
         radiusScale,
+        fontScale,
         currencyCode,
         fontUrl,
         bannerUrl,
@@ -380,6 +387,7 @@ export function AppearanceAdmin() {
         bannerZoom: clampZoom(updated.heroBanner.zoom),
         themeMode: updated.themeMode,
         radiusScale: formatRadiusScale(updated.radiusScale),
+        fontScale: formatFontScale(updated.fontScale),
         currencyCode: updated.currencyCode,
         fontUrl: updated.font?.specimenUrl || updated.font?.cssUrl || "",
         maintenanceMode: updated.maintenanceMode,
@@ -388,30 +396,24 @@ export function AppearanceAdmin() {
       setCommittedRadiusScale(updated.radiusScale);
       setMaintenancePasswordConfigured(updated.maintenancePasswordConfigured);
       syncRuntimeStorefront(updated);
-      setMessage("Configuracion guardada.");
+      notify("Configuracion guardada.", undefined, "success");
     } catch (err) {
-      setError(mapPanelError(err, "No se pudo guardar la configuracion."));
+      const message = mapPanelError(err, "No se pudo guardar la configuracion.");
+      notify("Error al guardar la configuracion", message, "error");
     } finally {
       setSaving(false);
     }
   }
 
   const previewBannerUrl = form.bannerUrl.trim();
+  const previewBannerSrc = toStoreMediaProxyUrl(previewBannerUrl) || previewBannerUrl;
   const previewBannerFocusX = clampPercent(form.bannerFocusX);
   const previewBannerFocusY = clampPercent(form.bannerFocusY);
   const previewBannerZoom = clampZoom(form.bannerZoom);
-  const parsedRadiusScale = parseRadiusScale(form.radiusScale);
-  const radiusDirty = Math.abs(parsedRadiusScale - committedRadiusScale) > 0.0001;
-  const radiusSyncText =
-    radiusSyncState === "saving"
-      ? "Aplicando redondeo global..."
-      : radiusSyncState === "saved"
-        ? "Redondeo global aplicado."
-        : radiusSyncState === "error"
-          ? "No se pudo aplicar el redondeo global. Reintenta guardar."
-          : radiusDirty
-            ? "Cambio pendiente de aplicar."
-            : "Sin cambios pendientes.";
+
+  useEffect(() => {
+    setBannerPreviewFailed(false);
+  }, [previewBannerSrc]);
 
   return (
     <div className={styles.page}>
@@ -557,14 +559,13 @@ export function AppearanceAdmin() {
                 disabled={loading || saving}
                 placeholder="1"
               />
-              <p className={styles.fieldHint}>{radiusSyncText}</p>
             </div>
           </div>
 
           <div className={`${styles.fieldStack} ${styles.span2}`}>
-            <Label htmlFor="admin_maintenance_enabled">Modo mantenimiento</Label>
             <div className={styles.maintenanceToggleRow}>
-              <Checkbox
+              <Label htmlFor="admin_maintenance_enabled">Modo mantenimiento</Label>
+              <Switch
                 id="admin_maintenance_enabled"
                 checked={form.maintenanceMode}
                 onCheckedChange={(checked) =>
@@ -575,32 +576,33 @@ export function AppearanceAdmin() {
                 }
                 disabled={loading || saving}
               />
-              <span className={styles.maintenanceToggleText}>
-                Mostrar pantalla de mantenimiento y pedir clave para ingresar.
-              </span>
             </div>
-            <PasswordInput
-              id="admin_maintenance_password"
-              value={form.maintenancePassword}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  maintenancePassword: event.target.value,
-                }))
-              }
-              disabled={loading || saving}
-              placeholder={
-                maintenancePasswordConfigured
-                  ? "Dejar vacio para mantener la clave actual"
-                  : "Define una clave de acceso"
-              }
-              withRevealToggle
-            />
-            <p className={styles.fieldHint}>
-              {maintenancePasswordConfigured
-                ? "Hay una clave configurada. Completa este campo solo si quieres cambiarla."
-                : "Define una clave para permitir acceso mientras el sitio este en mantenimiento."}
+            <p className={styles.maintenanceToggleText}>
+              Restringe el acceso con contraseña
             </p>
+            {form.maintenanceMode ? (
+              <>
+                <Label htmlFor="admin_maintenance_password">Contraseña</Label>
+                <PasswordInput
+                  id="admin_maintenance_password"
+                  value={form.maintenancePassword}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      maintenancePassword: event.target.value,
+                    }))
+                  }
+                  wrapperClassName={styles.maintenancePasswordInput}
+                  disabled={loading || saving}
+                  withRevealToggle
+                />
+                {maintenancePasswordConfigured ? (
+                  <p className={styles.fieldHint}>
+                    Hay una clave configurada. Completa este campo solo si quieres cambiarla.
+                  </p>
+                ) : null}
+              </>
+            ) : null}
           </div>
 
           <div className={`${styles.fieldStack} ${styles.span2}`}>
@@ -646,7 +648,7 @@ export function AppearanceAdmin() {
                 ) : null}
               </div>
               <article className={styles.bannerPreview}>
-                {previewBannerUrl ? (
+                {previewBannerUrl && !bannerPreviewFailed ? (
                   <CssVarElement
                     as="div"
                     className={styles.bannerPreviewMedia}
@@ -657,12 +659,15 @@ export function AppearanceAdmin() {
                     )}
                   >
                     <Image
-                      src={previewBannerUrl}
+                      src={previewBannerSrc}
                       alt="Preview banner"
                       fill
                       className={styles.bannerPreviewImage}
                       sizes="(max-width: 900px) 100vw, 42rem"
                       loading="lazy"
+                      onError={() => {
+                        setBannerPreviewFailed(true);
+                      }}
                     />
                     <div className={styles.bannerPreviewSafeDesktop} aria-hidden />
                     <div className={styles.bannerPreviewSafeTablet} aria-hidden />
@@ -670,7 +675,9 @@ export function AppearanceAdmin() {
                   </CssVarElement>
                 ) : (
                   <div className={styles.bannerPreviewEmpty}>
-                    No hay banner cargado. Se usa el banner por defecto.
+                    {previewBannerUrl
+                      ? "Imágen no disponible."
+                      : "No hay banner cargado. Se usa el banner por defecto."}
                   </div>
                 )}
               </article>
@@ -678,19 +685,44 @@ export function AppearanceAdmin() {
           </div>
 
           <div className={`${styles.fieldStack} ${styles.span2}`}>
-            <Label htmlFor="admin_store_font_url">Fuente</Label>
-            <Input
-              id="admin_store_font_url"
-              value={form.fontUrl}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  fontUrl: event.target.value,
-                }))
-              }
-              disabled={loading || saving}
-              placeholder="https://fonts.google.com/specimen/Geist"
-            />
+            <div className={styles.fontControlRow}>
+              <div className={styles.fontUrlField}>
+                <Label htmlFor="admin_store_font_url">Fuente</Label>
+                <Input
+                  id="admin_store_font_url"
+                  value={form.fontUrl}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      fontUrl: event.target.value,
+                    }))
+                  }
+                  disabled={loading || saving}
+                  placeholder="https://fonts.google.com/specimen/Geist"
+                />
+              </div>
+              <div className={styles.fontScaleField}>
+                <Label htmlFor="admin_font_scale">Escala global de fuente</Label>
+                <Input
+                  id="admin_font_scale"
+                  className={styles.fontScaleInput}
+                  type="number"
+                  inputMode="decimal"
+                  step="0.05"
+                  min="0.2"
+                  max="2"
+                  value={form.fontScale}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      fontScale: event.target.value,
+                    }))
+                  }
+                  disabled={loading || saving}
+                  placeholder="1"
+                />
+              </div>
+            </div>
             <p className={styles.fieldHint}>
               Busca la fuente en{" "}
               <a href="https://fonts.google.com/" target="_blank" rel="noopener noreferrer">
@@ -705,6 +737,7 @@ export function AppearanceAdmin() {
         <div className={styles.actionsRow}>
           <Button
             type="button"
+            className={styles.saveButton}
             onClick={() => void save()}
             disabled={loading || saving || logoUploading || faviconUploading || bannerUploading}
           >
@@ -715,7 +748,7 @@ export function AppearanceAdmin() {
         {bannerEditorOpen ? (
           <HeroBannerEditorDialog
             open={bannerEditorOpen}
-            imageUrl={previewBannerUrl}
+            imageUrl={previewBannerSrc}
             initialFocusX={previewBannerFocusX}
             initialFocusY={previewBannerFocusY}
             initialZoom={previewBannerZoom}
@@ -733,7 +766,6 @@ export function AppearanceAdmin() {
         ) : null}
 
         {error ? <p className={styles.error}>{error}</p> : null}
-        {message ? <p className={styles.ok}>{message}</p> : null}
       </AdminPanelCard>
     </div>
   );

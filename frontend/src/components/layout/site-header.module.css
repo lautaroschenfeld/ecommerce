@@ -119,7 +119,7 @@
 }
 
 .brandName {
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   font-weight: 650;
   letter-spacing: -0.02em;
 }
@@ -139,7 +139,7 @@
 }
 
 .adminEyebrow {
-  font-size: 0.68rem;
+  font-size: calc(0.68rem * var(--font-scale, 1));
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -147,7 +147,7 @@
 }
 
 .adminTitle {
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
   letter-spacing: -0.02em;
 }
 
@@ -157,7 +157,7 @@
   justify-content: center;
   padding: 0.55rem 0.85rem;
   border-radius: var(--field-radius);
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--font-scale, 1));
   font-weight: 600;
   text-decoration: none;
   transition: background-color 180ms var(--ease-out),
@@ -271,13 +271,17 @@
   background: var(--ui-surface-strong);
 }
 
+.accountTriggerOpen {
+  background: var(--ui-surface-strong);
+}
+
 .accountTriggerLabel {
-  font-size: 0.84rem;
+  font-size: calc(0.84rem * var(--font-scale, 1));
   font-weight: 680;
 }
 
 .accountTriggerGreeting {
-  font-size: 0.84rem;
+  font-size: calc(0.84rem * var(--font-scale, 1));
   color: rgb(var(--ui-ink-rgb) / 0.86);
 }
 
@@ -290,6 +294,16 @@
 }
 
 .accountDropdown {
+  --account-dropdown-max-height: 34rem;
+  --account-dropdown-padding-y: 0.55rem;
+  --account-dropdown-padding-x: 0.55rem;
+  --dropdown-motion-target-height: var(
+    --account-dropdown-motion-height,
+    var(--account-dropdown-max-height)
+  );
+  --dropdown-shadow-from: 0 4px 12px rgb(var(--ui-ink-rgb) / 0.1);
+  --dropdown-shadow-to: 0 22px 48px rgb(var(--ui-ink-rgb) / 0.24);
+  --dropdown-border-color: var(--ui-border-strong);
   position: absolute;
   top: calc(100% + 0.45rem);
   right: 0;
@@ -299,11 +313,31 @@
   border-radius: calc((var(--radius-base) + 0.6rem) * var(--radius-scale));
   border: 1px solid var(--ui-border-strong);
   background: var(--ui-surface-popover);
-  box-shadow: var(--shadow-md);
-  padding: 0.55rem;
+  background-clip: padding-box;
+  box-shadow: var(--dropdown-shadow-to);
+  padding: var(--account-dropdown-padding-y) var(--account-dropdown-padding-x);
+  display: block;
+  overflow: visible;
+  z-index: var(--z-overlay-top, 1100);
+  will-change: opacity, box-shadow;
+}
+
+.accountDropdownContent {
   display: grid;
   gap: 0.25rem;
-  z-index: var(--z-overlay-top, 1100);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.accountDropdown[data-dropdown-phase="opening"] {
+  animation: accountDropdownPaddingOpen var(--dropdown-motion-open-duration) var(--ease-out) both;
+}
+
+.accountDropdown[data-dropdown-phase="closing"] {
+  overflow: hidden;
+  animation: accountDropdownPaddingClose var(--dropdown-motion-close-duration) var(--ease-out)
+    both;
 }
 
 .accountDropdownHeader {
@@ -315,13 +349,13 @@
 }
 
 .accountDropdownHeader strong {
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--font-scale, 1));
   letter-spacing: -0.01em;
 }
 
 .accountDropdownHeader span {
   color: var(--muted-foreground);
-  font-size: 0.77rem;
+  font-size: calc(0.77rem * var(--font-scale, 1));
   white-space: normal;
   overflow-wrap: anywhere;
   line-height: 1.22;
@@ -336,7 +370,7 @@
   border-radius: calc((var(--radius-base) + 0.4rem) * var(--radius-scale));
   background: transparent;
   color: var(--ui-text-emphasis);
-  font-size: 0.86rem;
+  font-size: calc(0.86rem * var(--font-scale, 1));
   font-weight: 610;
   text-decoration: none;
   padding: 0.55rem 0.6rem;
@@ -355,6 +389,32 @@
   margin: 0.2rem 0;
 }
 
+@keyframes accountDropdownPaddingOpen {
+  from {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    padding-top: var(--account-dropdown-padding-y);
+    padding-bottom: var(--account-dropdown-padding-y);
+  }
+}
+
+@keyframes accountDropdownPaddingClose {
+  from {
+    padding-top: var(--account-dropdown-padding-y);
+    padding-bottom: var(--account-dropdown-padding-y);
+  }
+  65% {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .header {
     --header-logo-scale: 1.29;
@@ -366,7 +426,7 @@
 
   .navLink {
     padding: 0.48rem 0.66rem;
-    font-size: 0.84rem;
+    font-size: calc(0.84rem * var(--font-scale, 1));
   }
 
   .accountTriggerGreeting {
@@ -449,5 +509,13 @@
 @media (hover: none) and (width >= 768px) {
   .innerAdminFrame {
     --admin-header-main-offset: var(--admin-sidebar-expanded-footprint);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accountDropdown,
+  .accountDropdownContent {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
   }
 }

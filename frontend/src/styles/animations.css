@@ -16,3 +16,135 @@
   }
 }
 
+:root {
+  --dropdown-motion-open-duration: 1760ms;
+  --dropdown-motion-close-duration: 720ms;
+}
+
+.uiDropdownMotionPanel {
+  --dropdown-shadow-from: 0 2px 8px rgb(var(--ui-ink-rgb, 23 23 23) / 0.06);
+  --dropdown-shadow-to: var(--shadow-md);
+  --dropdown-motion-target-height: 40rem;
+  --dropdown-border-color: var(--ui-border-strong);
+  --dropdown-border-color-closing: rgb(var(--ui-ink-rgb, 23 23 23) / 0);
+  will-change: opacity, box-shadow, border-color;
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="opening"] {
+  pointer-events: auto;
+  border-color: var(--dropdown-border-color);
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="opening"][data-dropdown-direction="down"] {
+  animation: uiDropdownSurfaceOpen var(--dropdown-motion-open-duration) var(--ease-out, ease) both;
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="opening"][data-dropdown-direction="up"] {
+  animation: uiDropdownSurfaceOpen var(--dropdown-motion-open-duration) var(--ease-out, ease) both;
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="closing"] {
+  pointer-events: none;
+  border-color: var(--dropdown-border-color);
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="closing"][data-dropdown-direction="down"] {
+  animation: uiDropdownSurfaceClose var(--dropdown-motion-close-duration) var(--ease-out, ease)
+    both;
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="closing"][data-dropdown-direction="up"] {
+  animation: uiDropdownSurfaceClose var(--dropdown-motion-close-duration) var(--ease-out, ease)
+    both;
+}
+
+.uiDropdownMotionViewport {
+  overflow: hidden;
+  max-height: var(--dropdown-motion-target-height);
+  will-change: max-height, opacity;
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="opening"] .uiDropdownMotionViewport {
+  animation: uiDropdownViewportOpen var(--dropdown-motion-open-duration) var(--ease-out, ease) both;
+}
+
+.uiDropdownMotionPanel[data-dropdown-phase="closing"] .uiDropdownMotionViewport {
+  animation: uiDropdownViewportClose var(--dropdown-motion-close-duration) var(--ease-out, ease)
+    both;
+}
+
+.uiDropdownMotionItem {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+  animation-delay: 0ms !important;
+}
+
+@keyframes uiDropdownSurfaceOpen {
+  from {
+    opacity: 0.82;
+    box-shadow: var(--dropdown-shadow-from);
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    box-shadow: var(--dropdown-shadow-to);
+  }
+}
+
+@keyframes uiDropdownSurfaceClose {
+  from {
+    opacity: 1;
+    box-shadow: var(--dropdown-shadow-to);
+    border-color: var(--dropdown-border-color);
+  }
+  20% {
+    opacity: 0.96;
+    box-shadow: var(--dropdown-shadow-from);
+    border-color: var(--dropdown-border-color);
+  }
+  to {
+    opacity: 0;
+    box-shadow: var(--dropdown-shadow-from);
+    border-color: var(--dropdown-border-color-closing);
+  }
+}
+
+@keyframes uiDropdownViewportOpen {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    max-height: var(--dropdown-motion-target-height);
+    opacity: 1;
+  }
+}
+
+@keyframes uiDropdownViewportClose {
+  from {
+    max-height: var(--dropdown-motion-target-height);
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uiDropdownMotionPanel,
+  .uiDropdownMotionViewport,
+  .uiDropdownMotionItem,
+  .uiDropdownMotionPanel[data-dropdown-phase="opening"] .uiDropdownMotionItem {
+    animation-delay: 0ms !important;
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+

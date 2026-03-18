@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useCustomerSession } from "@/lib/customer-auth";
+import { notify } from "@/lib/notifications";
+import { mapFriendlyError } from "@/lib/user-facing-errors";
 
 import { CustomerAccountLayout } from "@/components/shared/customer-account-layout";
 import { Button } from "@/components/ui/button";
@@ -94,9 +96,13 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
         email: notifyEmail,
         whatsapp: notifyWhatsapp,
       });
-      setProfileMessage("Datos guardados.");
-    } catch {
-      setProfileMessage("No se pudo guardar tu perfil.");
+      notify("Datos guardados.", undefined, "success");
+    } catch (error) {
+      notify(
+        "No se pudo guardar tu perfil.",
+        mapFriendlyError(error, "No se pudo guardar tu perfil."),
+        "error"
+      );
     } finally {
       setSavingProfile(false);
     }
@@ -114,13 +120,17 @@ function ProfileContent({ session, customer }: ProfileContentProps) {
       setSavingAddress(true);
       const created = await session.addAddress(addressDraft);
       if (!created) {
-        setAddressMessage("No se pudo guardar la dirección.");
+        notify("No se pudo guardar la dirección.", undefined, "error");
         return;
       }
       setAddressDraft(EMPTY_ADDRESS);
-      setAddressMessage("Dirección agregada.");
-    } catch {
-      setAddressMessage("No se pudo guardar la dirección.");
+      notify("Dirección agregada.", undefined, "success");
+    } catch (error) {
+      notify(
+        "No se pudo guardar la dirección.",
+        mapFriendlyError(error, "No se pudo guardar la dirección."),
+        "error"
+      );
     } finally {
       setSavingAddress(false);
     }

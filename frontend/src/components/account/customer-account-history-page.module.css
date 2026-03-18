@@ -55,7 +55,7 @@
 .nameLink {
   text-decoration: none;
   color: var(--foreground);
-  font-size: 0.97rem;
+  font-size: calc(0.97rem * var(--font-scale, 1));
   font-weight: 660;
   letter-spacing: -0.015em;
   line-height: 1.35;
@@ -68,12 +68,12 @@
 .meta {
   margin: 0;
   color: var(--muted-foreground);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
 }
 
 .price {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   font-weight: 700;
 }
 
@@ -83,7 +83,7 @@
   align-items: center;
   gap: 0.35rem;
   color: var(--muted-foreground);
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--font-scale, 1));
 }
 
 .side {
@@ -101,7 +101,7 @@
 
 .emptyTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   font-weight: 700;
 }
 

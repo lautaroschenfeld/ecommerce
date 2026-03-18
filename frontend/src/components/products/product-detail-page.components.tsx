@@ -249,7 +249,7 @@ export function ProductMediaGallery({
               <Icon className={styles.mediaPlaceholderIcon} />
             </span>
             <p className={styles.mediaPlaceholderText}>
-              Aún no hay imagen disponible para este producto.
+              Aún no hay una imagen disponible para este producto.
             </p>
           </div>
         )}

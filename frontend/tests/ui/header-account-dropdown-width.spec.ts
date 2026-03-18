@@ -6,6 +6,18 @@ function wait(ms: number) {
   });
 }
 
+function parseCssTimeMs(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return NaN;
+  if (normalized.endsWith("ms")) {
+    return Number(normalized.slice(0, -2));
+  }
+  if (normalized.endsWith("s")) {
+    return Number(normalized.slice(0, -1)) * 1000;
+  }
+  return Number(normalized);
+}
+
 async function fulfillJsonRoute(
   route: Route,
   body: unknown,
@@ -206,3 +218,59 @@ for (const viewport of VIEWPORTS) {
     expect(Math.abs(storefrontWidth - adminWidth)).toBeLessThanOrEqual(1);
   });
 }
+
+test("account dropdown uses synchronized motion timings for panel and menu items", async ({
+  page,
+}) => {
+  await mockHeaderAccountDropdownWidthSession(page);
+
+  await page.goto("/productos", {
+    waitUntil: "domcontentloaded",
+  });
+
+  const accountTrigger = page.getByRole("button", { name: /Mi cuenta/i }).first();
+  await accountTrigger.click();
+
+  const accountDropdown = page.getByRole("menu").filter({ hasText: "Cerrar sesión" }).first();
+  await expect(accountDropdown).toBeVisible();
+  await expect(accountDropdown).toHaveAttribute("data-dropdown-direction", "down");
+  await expect(accountDropdown).toHaveAttribute("data-dropdown-phase", /opening|open/);
+
+  const openDuration = await accountDropdown.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--dropdown-motion-open-duration").trim()
+  );
+  const closeDuration = await accountDropdown.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--dropdown-motion-close-duration").trim()
+  );
+  expect(parseCssTimeMs(openDuration)).toBeCloseTo(1760, 0);
+  expect(parseCssTimeMs(closeDuration)).toBeCloseTo(720, 0);
+
+  const itemDelays = await accountDropdown
+    .getByRole("menuitem")
+    .evaluateAll((items) => items.slice(0, 2).map((item) => getComputedStyle(item).animationDelay));
+  expect(itemDelays).toEqual(["0s", "0s"]);
+});
+
+test("account dropdown removes stagger delays under reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await mockHeaderAccountDropdownWidthSession(page);
+
+  await page.goto("/productos", {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.getByRole("button", { name: /Mi cuenta/i }).first().click();
+  const accountDropdown = page.getByRole("menu").filter({ hasText: "Cerrar sesión" }).first();
+  await expect(accountDropdown).toBeVisible();
+
+  const animationDelay = await accountDropdown
+    .getByRole("menuitem")
+    .first()
+    .evaluate((item) => getComputedStyle(item).animationDelay);
+  expect(animationDelay).toBe("0s");
+
+  const panelAnimationDuration = await accountDropdown.evaluate(
+    (node) => getComputedStyle(node).animationDuration
+  );
+  expect(parseCssTimeMs(panelAnimationDuration)).toBeLessThan(1);
+});

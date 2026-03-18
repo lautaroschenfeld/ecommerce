@@ -17,7 +17,7 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.55rem, 3.1vw, 2.2rem);
+  font-size: calc(clamp(1.55rem, 3.1vw, 2.2rem) * var(--font-scale, 1));
   line-height: 1.08;
   letter-spacing: -0.02em;
 }
@@ -46,7 +46,7 @@
 
 .card h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
   letter-spacing: -0.01em;
 }
 

@@ -684,10 +684,7 @@ test("product detail keeps degraded session flows out of login redirects", async
   await expect(
     page.getByRole("heading", { name: "Casco Integral Sport" })
   ).toBeVisible();
-
-  await page.getByRole("button", { name: "Agregar a favoritos" }).click();
-  await expect(page).not.toHaveURL(/\/ingresar/);
-  await expect(page.getByText(/No pudimos validar tu sesi/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Agregar a favoritos" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Agregar a una lista" }).click();
   await expect(page).not.toHaveURL(/\/ingresar/);

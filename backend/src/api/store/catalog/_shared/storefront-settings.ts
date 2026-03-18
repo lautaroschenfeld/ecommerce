@@ -14,6 +14,7 @@ export const DEFAULT_STOREFRONT_SETTINGS = {
   favicon_url: null as string | null,
   theme_mode: "light" as const,
   radius_scale: 1,
+  font_scale: 1,
 }
 
 const DEFAULT_BANNER_FOCUS_X = 50
@@ -110,6 +111,7 @@ function buildDefaultStorefrontMetadata() {
   return {
     theme_mode: DEFAULT_STOREFRONT_SETTINGS.theme_mode,
     radius_scale: DEFAULT_STOREFRONT_SETTINGS.radius_scale,
+    font_scale: DEFAULT_STOREFRONT_SETTINGS.font_scale,
   }
 }
 
@@ -153,6 +155,17 @@ function normalizeRadiusScale(input: unknown, fallback: number) {
         : Number.NaN
   if (!Number.isFinite(parsed)) return fallback
   return Math.max(0, Math.min(2, Math.round(parsed * 1000) / 1000))
+}
+
+function normalizeFontScale(input: unknown, fallback: number) {
+  const parsed =
+    typeof input === "number"
+      ? input
+      : typeof input === "string" && input.trim()
+        ? Number(input)
+        : Number.NaN
+  if (!Number.isFinite(parsed)) return fallback
+  return Math.max(0.2, Math.min(2, Math.round(parsed * 1000) / 1000))
 }
 
 function normalizeLogoUrl(input: unknown) {
@@ -374,6 +387,10 @@ export function mapPublicStorefrontSettings(settings: Record<string, any>) {
     metadata.radius_scale ?? metadata.radiusScale ?? settings?.radius_scale ?? settings?.radiusScale,
     DEFAULT_STOREFRONT_SETTINGS.radius_scale
   )
+  const fontScale = normalizeFontScale(
+    metadata.font_scale ?? metadata.fontScale ?? settings?.font_scale ?? settings?.fontScale,
+    DEFAULT_STOREFRONT_SETTINGS.font_scale
+  )
   const currencyCode = normalizeCurrencyCode(metadata.currency_code, DEFAULT_CURRENCY_CODE)
   const storeLocale = normalizeLocale(metadata.locale ?? metadata.store_locale, DEFAULT_STORE_LOCALE)
   const font = normalizeFontConfig(metadata.font)
@@ -401,6 +418,7 @@ export function mapPublicStorefrontSettings(settings: Record<string, any>) {
     favicon_url: faviconUrl ?? null,
     theme_mode: themeMode,
     radius_scale: radiusScale,
+    font_scale: fontScale,
     currency_code: currencyCode,
     store_locale: storeLocale,
     font,
@@ -475,6 +493,8 @@ type StorefrontSettingsPatch = {
   themeMode?: unknown
   radius_scale?: unknown
   radiusScale?: unknown
+  font_scale?: unknown
+  fontScale?: unknown
   currency_code?: unknown
   store_locale?: unknown
   locale?: unknown
@@ -564,6 +584,27 @@ function resolveRadiusScale(input: unknown) {
   }
 
   return Math.max(0, Math.min(2, Math.round(parsed * 1000) / 1000))
+}
+
+function resolveFontScale(input: unknown) {
+  if (input === undefined) return undefined
+  if (input === null) return null
+
+  const parsed =
+    typeof input === "number"
+      ? input
+      : typeof input === "string" && input.trim()
+        ? Number(input)
+        : Number.NaN
+
+  if (!Number.isFinite(parsed)) {
+    throw new HttpError(
+      HttpError.Types.INVALID_DATA,
+      "font_scale must be a number between 0.2 and 2 or null."
+    )
+  }
+
+  return Math.max(0.2, Math.min(2, Math.round(parsed * 1000) / 1000))
 }
 
 function resolveCurrencyCode(input: unknown) {
@@ -778,6 +819,21 @@ export async function updateStorefrontSettings(
       }
     } else if (metadataNext.radius_scale !== radiusScale) {
       metadataNext.radius_scale = radiusScale
+      metadataChanged = true
+    }
+  }
+
+  const fontScale = resolveFontScale(
+    pickPatchAlias((patch as any).font_scale, (patch as any).fontScale)
+  )
+  if (fontScale !== undefined) {
+    if (fontScale === null) {
+      if (Object.prototype.hasOwnProperty.call(metadataNext, "font_scale")) {
+        delete metadataNext.font_scale
+        metadataChanged = true
+      }
+    } else if (metadataNext.font_scale !== fontScale) {
+      metadataNext.font_scale = fontScale
       metadataChanged = true
     }
   }

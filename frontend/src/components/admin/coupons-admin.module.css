@@ -48,7 +48,7 @@
 .muted {
   margin: 0;
   color: var(--muted-foreground);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
 }
 
 .errorBox {
@@ -58,7 +58,7 @@
   color: var(--ui-color-hex-b91c1c);
   border-radius: var(--admin-radius-xs);
   padding: 0.6rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
 }
 
 .listHeader {
@@ -71,7 +71,7 @@
 
 .listTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--font-scale, 1));
 }
 
 .empty {
@@ -135,24 +135,24 @@
 .itemDescription {
   margin: 0;
   color: var(--foreground);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--font-scale, 1));
 }
 
 .itemDescriptionMuted {
   margin: 0;
   color: var(--muted-foreground);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
 }
 
 .itemMeta {
   margin: 0;
   color: var(--muted-foreground);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
 }
 
 .code {
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-scale, 1));
   font-weight: 600;
 }
 
