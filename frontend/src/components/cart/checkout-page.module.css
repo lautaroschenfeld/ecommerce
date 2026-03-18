@@ -525,6 +525,85 @@
   color: var(--tone-danger-fg);
 }
 
+.mpReturnBox {
+  border-radius: var(--checkout-radius-field);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-subtle);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.mpReturnBox[data-tone="ok"] {
+  border-color: var(--tone-success-border-soft);
+  background: var(--tone-success-bg-soft);
+}
+
+.mpReturnBox[data-tone="ok"] .mpReturnTitle {
+  color: var(--tone-success-fg-strong);
+}
+
+.mpReturnBox[data-tone="failed"] {
+  border-color: var(--tone-danger-border-soft);
+  background: var(--tone-danger-bg-soft);
+}
+
+.mpReturnBox[data-tone="failed"] .mpReturnTitle {
+  color: var(--tone-danger-fg);
+}
+
+.mpReturnHeader {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.mpReturnTitle {
+  margin: 0;
+  font-size: calc(1rem * var(--font-scale, 1));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.mpReturnMessage {
+  margin: 0;
+  font-size: calc(0.9rem * var(--font-scale, 1));
+  color: var(--muted-foreground);
+  line-height: 1.45;
+}
+
+.mpReturnMeta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.mpReturnMetaItem {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--checkout-radius-field);
+  background: var(--control-background);
+  padding: 0.55rem 0.6rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mpReturnMetaItem span {
+  font-size: calc(0.78rem * var(--font-scale, 1));
+  color: var(--muted-foreground);
+}
+
+.mpReturnMetaItem strong {
+  font-size: calc(0.9rem * var(--font-scale, 1));
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.mpReturnActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
 .trustStrip {
   display: grid;
   gap: 0.55rem;
@@ -679,5 +758,9 @@
 
   .paymentDetailsWrap {
     min-height: 12rem;
+  }
+
+  .mpReturnMeta {
+    grid-template-columns: 1fr;
   }
 }

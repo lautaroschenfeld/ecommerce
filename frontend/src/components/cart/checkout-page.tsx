@@ -129,6 +129,21 @@ export function CheckoutPage() {
   const { unavailable } = useStoreBackendStatus();
 
   const mercadoPagoReturnSummary = useMemo(() => {
+    const normalizeQueryValue = (value: string) => {
+      const normalized = String(value || "").trim();
+      if (!normalized) return "";
+      const lowered = normalized.toLowerCase();
+      if (
+        lowered === "null" ||
+        lowered === "undefined" ||
+        lowered === "nan" ||
+        lowered === "none"
+      ) {
+        return "";
+      }
+      return normalized;
+    };
+
     const rawStatus = (
       searchParams.get("collection_status") ||
       searchParams.get("status") ||
@@ -138,15 +153,17 @@ export function CheckoutPage() {
       .trim()
       .toLowerCase();
     const rawResult = (searchParams.get("mp_result") || "").trim().toLowerCase();
-    const paymentId =
+    const paymentId = normalizeQueryValue(
       searchParams.get("payment_id") ||
       searchParams.get("collection_id") ||
-      "";
-    const preferenceId = searchParams.get("preference_id") || "";
-    const externalReference =
+      ""
+    );
+    const preferenceId = normalizeQueryValue(searchParams.get("preference_id") || "");
+    const externalReference = normalizeQueryValue(
       searchParams.get("external_reference") ||
       searchParams.get("order_id") ||
-      "";
+      ""
+    );
     const hasReturnFlag = searchParams.get("mp_return") === "1";
     const hasAnySignal = Boolean(
       hasReturnFlag || rawStatus || rawResult || paymentId || preferenceId || externalReference
@@ -167,26 +184,30 @@ export function CheckoutPage() {
     const tone = isApproved ? "ok" : isPending ? "pending" : "failed";
     const title =
       tone === "ok"
-        ? "Mercado Pago reporto el pago como aprobado"
+        ? "Pago aprobado en Mercado Pago"
         : tone === "pending"
-          ? "Mercado Pago reporto el pago como pendiente"
-          : "Mercado Pago reporto que el pago no fue aprobado";
+          ? "Pago pendiente en Mercado Pago"
+          : "Pago no aprobado en Mercado Pago";
 
     const message =
       tone === "ok"
-        ? "Tu pedido ya quedo registrado y estamos validando la acreditacion final por webhook."
+        ? "Tu pedido ya quedo registrado. En breve confirmaremos la acreditacion final."
         : tone === "pending"
-          ? "El pago todavia esta en proceso. En cuanto se acredite, el estado de la orden se actualizara automaticamente."
-          : "No se pudo acreditar el pago. Puedes reintentar desde la finalizacion de compra.";
+          ? "Recibimos tu pedido. El pago sigue en proceso y actualizaremos el estado automaticamente."
+          : "Mercado Pago no aprobo el pago. Podes reintentar desde checkout cuando quieras.";
+
+    const normalizedStatus = normalizeQueryValue(rawStatus || rawResult)
+      .replace(/[_-]+/g, " ")
+      .trim();
 
     return {
       tone,
       title,
       message,
-      paymentId: paymentId.trim(),
-      preferenceId: preferenceId.trim(),
-      externalReference: externalReference.trim(),
-      status: (rawStatus || rawResult).trim(),
+      paymentId,
+      preferenceId,
+      externalReference,
+      status: normalizedStatus,
     };
   }, [searchParams]);
 
@@ -1643,30 +1664,38 @@ export function CheckoutPage() {
       {mercadoPagoReturnSummary ? (
         <Card>
           <CardContent className={styles.cardPad}>
-            <div className={styles.promoBox}>
-              <p
-                className={
-                  mercadoPagoReturnSummary.tone === "ok"
-                    ? styles.promoMsgOk
-                    : mercadoPagoReturnSummary.tone === "pending"
-                      ? styles.promoHint
-                      : styles.promoMsgBad
-                }
-              >
-                <strong>{mercadoPagoReturnSummary.title}</strong>
-              </p>
-              <p className={styles.promoHint}>{mercadoPagoReturnSummary.message}</p>
-              {mercadoPagoReturnSummary.externalReference ? (
-                <p className={styles.promoHint}>
-                  <strong>Referencia:</strong> {mercadoPagoReturnSummary.externalReference}
-                </p>
-              ) : null}
-              {mercadoPagoReturnSummary.paymentId ? (
-                <p className={styles.promoHint}>
-                  <strong>Pago:</strong> {mercadoPagoReturnSummary.paymentId}
-                </p>
-              ) : null}
-              <div className={styles.postPurchaseChecks}>
+            <div
+              className={styles.mpReturnBox}
+              data-tone={mercadoPagoReturnSummary.tone}
+            >
+              <div className={styles.mpReturnHeader}>
+                <p className={styles.mpReturnTitle}>{mercadoPagoReturnSummary.title}</p>
+                <p className={styles.mpReturnMessage}>{mercadoPagoReturnSummary.message}</p>
+              </div>
+
+              <div className={styles.mpReturnMeta}>
+                <div className={styles.mpReturnMetaItem}>
+                  <span>Referencia</span>
+                  <strong>
+                    {mercadoPagoReturnSummary.externalReference || "Sin referencia"}
+                  </strong>
+                </div>
+                <div className={styles.mpReturnMetaItem}>
+                  <span>ID de pago</span>
+                  <strong>{mercadoPagoReturnSummary.paymentId || "Sin ID asignado"}</strong>
+                </div>
+                <div className={styles.mpReturnMetaItem}>
+                  <span>Estado reportado</span>
+                  <strong>{mercadoPagoReturnSummary.status || "Sin estado"}</strong>
+                </div>
+              </div>
+
+              <div className={styles.mpReturnActions}>
+                {mercadoPagoReturnSummary.tone !== "ok" ? (
+                  <Button asChild type="button" variant="outline">
+                    <Link href="/checkout">Reintentar pago</Link>
+                  </Button>
+                ) : null}
                 <Button asChild type="button" variant="outline">
                   <Link
                     href={
