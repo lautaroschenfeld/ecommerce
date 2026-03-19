@@ -90,10 +90,6 @@ function toAbsoluteImageUrl(raw: string, requestOrigin: string) {
   return absoluteUrl(safePath);
 }
 
-function isWebpUrl(url: string) {
-  return /\.webp(?:$|\?)/i.test(url.trim());
-}
-
 function joinBaseAndPath(baseUrl: string, mediaPath: string, search: string) {
   const base = baseUrl.replace(/\/+$/, "");
   const path = mediaPath.startsWith("/") ? mediaPath : `/${mediaPath}`;
@@ -175,8 +171,7 @@ function resolveLogoSourceCandidates(input: {
 }) {
   const rawLogo = input.logoUrl.trim();
   const rawFavicon = input.faviconUrl.trim();
-  const rawCandidates =
-    rawLogo && isWebpUrl(rawLogo) ? [rawFavicon, rawLogo] : [rawLogo, rawFavicon];
+  const rawCandidates = [rawLogo, rawFavicon];
   const candidates: string[] = [];
   const seen = new Set<string>();
 
